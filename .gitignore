@@ -1,0 +1,17 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+.lm_cache/
+.artifacts/
+.runs/
+*.pyc
+.DS_Store
+
+# Generated dbt state inside fixtures.
+**/dbt_packages/
+**/logs/
+**/target/
+
