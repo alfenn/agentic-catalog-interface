@@ -62,3 +62,27 @@ context: [
 - Completion validation: 34 deterministic tests pass, one paid live smoke test
   is correctly deselected by default, `make costs` reports an empty ledger, and
   the tree passes whitespace checks. No model call was made during this work.
+
+## 2026-11-07 — Midpoint research contract
+
+- Froze the prototype around dbt Core + DuckDB and five hygiene issue types.
+  Five is enough to exercise metadata completeness, SQL/documentation drift,
+  grain/joins, reliability claims, and lifecycle state while staying within the
+  feedback's 4-6 type boundary.
+- Made the contract YAML data validated by a JSON Schema. The implementation,
+  episode manifest, and report can now refer to stable issue IDs and executable
+  scope limits instead of duplicating prose definitions.
+- Set hard episode bounds at 20 assets, two lineage hops, five findings, and
+  10,000 probed rows. These are conservative prototype limits chosen to make
+  runtime and evidence review predictable; they should be revisited only after
+  pilot failures show they exclude required evidence.
+- Kept `patch` reviewable rather than synonymous with direct application. This
+  resolves the tension between demonstrating a closed loop and avoiding live
+  catalog mutation: the system can generate and verify a repository patch in an
+  isolated episode while a person remains the final authority.
+- Defaulted the experiment model to `openai/gpt-6-luna` to match the lightweight
+  model available in the assignment harness, but made it a recorded environment
+  setting. Expanding models is explicitly deferred until the episode design and
+  baseline fairness are stable.
+- Completion validation: the versioned contract summarizes successfully and 37
+  deterministic tests pass; the live smoke test remains deselected.

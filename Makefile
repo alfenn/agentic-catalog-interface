@@ -1,7 +1,7 @@
 UV ?= uv
 PYTEST_ARGS ?=
 
-.PHONY: help setup sync lock doctor doctor-live test test-live test-all costs
+.PHONY: help setup sync lock doctor doctor-live contract test test-live test-all costs
 
 help:
 	@printf '%s\n' \
@@ -10,6 +10,7 @@ help:
 	  'lock         refresh uv.lock from pyproject.toml' \
 	  'doctor       validate non-live configuration' \
 	  'doctor-live  validate configuration required for paid model calls' \
+	  'contract     validate and summarize the hygiene contract' \
 	  'test         run deterministic tests only' \
 	  'test-live    run paid/external tests explicitly' \
 	  'test-all     run deterministic and live tests' \
@@ -30,6 +31,9 @@ doctor:
 
 doctor-live:
 	$(UV) run python -m catalog_steward.config --require-live
+
+contract:
+	$(UV) run python -m catalog_steward.contract
 
 test:
 	$(UV) run pytest $(PYTEST_ARGS)

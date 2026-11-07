@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "version",
+    "name",
+    "scope",
+    "action_classes",
+    "global_forbidden_actions",
+    "issue_types"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "name": {"type": "string", "minLength": 1},
+    "scope": {
+      "type": "object",
+      "required": [
+        "stack",
+        "modes",
+        "max_assets",
+        "max_lineage_hops",
+        "max_findings",
+        "max_probe_rows",
+        "action_surface"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "stack": {"type": "string"},
+        "modes": {
+          "type": "array",
+          "items": {"enum": ["remediation", "change_review"]},
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "max_assets": {"type": "integer", "minimum": 1},
+        "max_lineage_hops": {"type": "integer", "minimum": 0},
+        "max_findings": {"type": "integer", "minimum": 1},
+        "max_probe_rows": {"type": "integer", "minimum": 1},
+        "action_surface": {"const": "repository_patch_or_proposal"}
+      }
+    },
+    "action_classes": {
+      "type": "object",
+      "required": ["patch", "propose", "report"],
+      "additionalProperties": false,
+      "properties": {
+        "patch": {"$ref": "#/$defs/action"},
+        "propose": {"$ref": "#/$defs/action"},
+        "report": {"$ref": "#/$defs/action"}
+      }
+    },
+    "global_forbidden_actions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "issue_types": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 6,
+      "items": {"$ref": "#/$defs/issue"}
+    }
+  },
+  "$defs": {
+    "action": {
+      "type": "object",
+      "required": ["description", "requires_review"],
+      "additionalProperties": false,
+      "properties": {
+        "description": {"type": "string", "minLength": 1},
+        "requires_review": {"type": "boolean"}
+      }
+    },
+    "nonemptyUniqueStrings": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "issue": {
+      "type": "object",
+      "required": [
+        "id",
+        "description",
+        "required_evidence",
+        "allowed_actions",
+        "forbidden_actions",
+        "verification"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]+$"},
+        "description": {"type": "string", "minLength": 1},
+        "required_evidence": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "allowed_actions": {
+          "type": "array",
+          "items": {"enum": ["patch", "propose", "report"]},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "forbidden_actions": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "verification": {"$ref": "#/$defs/nonemptyUniqueStrings"}
+      }
+    }
+  }
+}
+

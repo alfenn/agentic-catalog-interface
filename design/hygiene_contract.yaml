@@ -1,0 +1,104 @@
+version: "0.1.0"
+name: catalog-steward-midpoint
+scope:
+  stack: dbt-duckdb
+  modes: [remediation, change_review]
+  max_assets: 20
+  max_lineage_hops: 2
+  max_findings: 5
+  max_probe_rows: 10000
+  action_surface: repository_patch_or_proposal
+action_classes:
+  patch:
+    description: Deterministic and reversible technical metadata change with direct evidence.
+    requires_review: true
+  propose:
+    description: Review proposal for a decision involving semantic or organizational context.
+    requires_review: true
+  report:
+    description: Finding only; no change when evidence is insufficient, conflicting, or destructive.
+    requires_review: false
+global_forbidden_actions:
+  - delete_or_drop_asset
+  - mutate_live_catalog
+  - change_access_policy
+  - invent_business_semantics
+  - run_unbounded_data_query
+issue_types:
+  - id: missing_required_metadata
+    description: A model or important column lacks required documentation, ownership, or lifecycle state.
+    required_evidence:
+      - catalog_metadata
+      - dbt_schema
+      - dbt_manifest
+    allowed_actions: [patch, propose, report]
+    forbidden_actions:
+      - infer_owner_without_repository_evidence
+      - invent_description_from_column_name_alone
+    verification:
+      - reparse_dbt_project
+      - validate_schema_yaml
+      - confirm_required_field_present
+
+  - id: sql_metadata_drift
+    description: Documented filters or aggregations disagree with the defining SQL.
+    required_evidence:
+      - catalog_metadata
+      - dbt_model_sql
+      - parsed_sql_facts
+    allowed_actions: [patch, propose, report]
+    forbidden_actions:
+      - rewrite_business_description_without_direct_support
+      - change_model_sql_to_match_stale_metadata
+    verification:
+      - reparse_dbt_project
+      - compare_metadata_to_parsed_sql
+      - confirm_patch_is_scoped_to_target_model
+
+  - id: grain_or_join_drift
+    description: A model's documented grain or join cardinality disagrees with code or bounded probes.
+    required_evidence:
+      - dbt_model_sql
+      - parsed_sql_facts
+      - lineage
+      - bounded_uniqueness_probe
+    allowed_actions: [propose, report]
+    forbidden_actions:
+      - assert_business_key_from_name_only
+      - change_join_logic_automatically
+    verification:
+      - reparse_dbt_project
+      - rerun_bounded_uniqueness_probe
+      - confirm_downstream_impact_recorded
+
+  - id: unsupported_reliability_claim
+    description: A key, nullability, accepted-value, freshness, or date-coverage claim lacks support.
+    required_evidence:
+      - dbt_schema
+      - dbt_manifest
+      - bounded_data_profile
+    allowed_actions: [propose, report]
+    forbidden_actions:
+      - remove_failing_records
+      - weaken_existing_test_to_make_it_pass
+    verification:
+      - rerun_bounded_data_profile
+      - run_relevant_dbt_tests
+      - confirm_claim_and_test_agree
+
+  - id: lifecycle_drift
+    description: A renamed, replaced, deprecated, duplicated, or orphaned asset has inconsistent lifecycle metadata.
+    required_evidence:
+      - catalog_metadata
+      - dbt_manifest
+      - lineage
+      - repository_diff_or_history
+    allowed_actions: [propose, report]
+    forbidden_actions:
+      - delete_or_drop_asset
+      - redirect_downstream_dependencies_automatically
+    verification:
+      - reparse_dbt_project
+      - confirm_lineage_impact_recorded
+      - confirm_no_asset_was_deleted
+

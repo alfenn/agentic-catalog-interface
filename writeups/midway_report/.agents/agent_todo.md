@@ -33,16 +33,16 @@ completed work-package commit before beginning the next package.
 
 ### Phase 0: lock the research and product contract
 
-- [ ] Write the one-paragraph problem specification: the user is a maintainer
+- [x] Write the one-paragraph problem specification: the user is a maintainer
   of a dbt-backed lakehouse whose catalog degrades as code evolves.
-- [ ] Select the one stack, one agent model/configuration, and four to six
+- [x] Select the one stack, one agent model/configuration, and four to six
   supported hygiene issue types.
-- [ ] Define the two headline outcomes:
+- [x] Define the two headline outcomes:
   1. improve an unhealthy catalog with verified, evidence-backed changes;
   2. prevent a proposed change from introducing a hygiene regression.
-- [ ] Define safety boundaries, maximum episode scope, action limits, and the
+- [x] Define safety boundaries, maximum episode scope, action limits, and the
   risk policy above.
-- [ ] Record deferred items explicitly so they do not silently expand the
+- [x] Record deferred items explicitly so they do not silently expand the
   midpoint scope.
 
 **Exit criterion:** the hygiene contract is versioned and each supported issue
