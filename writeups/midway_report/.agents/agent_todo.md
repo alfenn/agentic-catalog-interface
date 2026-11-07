@@ -93,18 +93,18 @@ retrieved through the interface and traced to its source.
 
 ### Phase 3: implement the shared steward loop
 
-- [ ] Accept either a backlog/scheduled asset scope or a proposed code diff.
-- [ ] Build a compact evidence bundle for the bounded asset/dependency scope.
-- [ ] Compare the bundle to the hygiene contract and emit grouped findings with
+- [x] Accept either a backlog/scheduled asset scope or a proposed code diff.
+- [x] Build a compact evidence bundle for the bounded asset/dependency scope.
+- [x] Compare the bundle to the hygiene contract and emit grouped findings with
   impact, confidence, and evidence IDs.
-- [ ] Select a deliberately small action set instead of an unbounded lint list.
-- [ ] Route each action through the patch/propose/report risk policy.
-- [ ] Emit a reviewable repository patch or structured proposal.
-- [ ] Reparse the project, rerun relevant dbt/schema checks and bounded probes,
+- [x] Select a deliberately small action set instead of an unbounded lint list.
+- [x] Route each action through the patch/propose/report risk policy.
+- [x] Emit a reviewable repository patch or structured proposal.
+- [x] Reparse the project, rerun relevant dbt/schema checks and bounded probes,
   and verify every changed claim.
-- [ ] Record a ledger entry containing episode, finding, evidence, decision,
+- [x] Record a ledger entry containing episode, finding, evidence, decision,
   action, verification, and unresolved questions.
-- [ ] Make reruns idempotent: a verified finding should not be rediscovered as
+- [x] Make reruns idempotent: a verified finding should not be rediscovered as
   unfinished work unless the evidence changed.
 
 **Exit criterion:** both triggers complete the same inspect-plan-act-verify

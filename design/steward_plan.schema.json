@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["summary", "findings", "unresolved_questions"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": {"type": "string", "minLength": 1},
+    "findings": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {"$ref": "#/$defs/finding"}
+    },
+    "unresolved_questions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "action": {
+      "type": "object",
+      "required": ["class", "operation", "rationale"],
+      "additionalProperties": false,
+      "properties": {
+        "class": {"enum": ["patch", "propose", "report"]},
+        "operation": {
+          "enum": [
+            "update_catalog_field",
+            "propose_metadata_change",
+            "request_review",
+            "report_only"
+          ]
+        },
+        "field": {"enum": ["description", "owner", "lifecycle", "grain", "canonical"]},
+        "value": {},
+        "rationale": {"type": "string", "minLength": 1},
+        "verification": {
+          "type": "object",
+          "required": ["field", "equals"],
+          "additionalProperties": false,
+          "properties": {
+            "field": {"enum": ["description", "owner", "lifecycle", "grain", "canonical"]},
+            "equals": {}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"class": {"const": "patch"}}},
+          "then": {
+            "properties": {"operation": {"const": "update_catalog_field"}},
+            "required": ["field", "value", "verification"]
+          }
+        },
+        {
+          "if": {"properties": {"class": {"const": "propose"}}},
+          "then": {
+            "properties": {
+              "operation": {"enum": ["propose_metadata_change", "request_review"]}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"class": {"const": "report"}}},
+          "then": {"properties": {"operation": {"const": "report_only"}}}
+        }
+      ]
+    },
+    "finding": {
+      "type": "object",
+      "required": [
+        "issue_type",
+        "asset",
+        "claim",
+        "impact",
+        "confidence",
+        "evidence_ids",
+        "action"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "issue_type": {"type": "string", "minLength": 1},
+        "asset": {"type": "string", "minLength": 1},
+        "claim": {"type": "string", "minLength": 1},
+        "impact": {"enum": ["high", "medium", "low"]},
+        "confidence": {"enum": ["high", "medium", "low"]},
+        "evidence_ids": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^ev_"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "action": {"$ref": "#/$defs/action"}
+      }
+    }
+  }
+}
+

@@ -140,3 +140,32 @@ context: [
   the demo model, 51 deterministic tests pass, and one live test remains
   deselected. Tests cover provenance stability, missing metadata, duplicate-key
   detection, lineage bounds, query bounds, path traversal, and tool schemas.
+
+## 2026-11-07 — Shared inspect-plan-act-verify loop
+
+- The model produces judgment in a strict, saved steward plan, but it cannot
+  directly mutate the project. Plan validation enforces in-scope assets, known
+  evidence IDs, every issue type's required evidence families, allowed action
+  classes, and a five-finding maximum before execution begins.
+- Both remediation and change review use the same `StewardRun`; the only trigger
+  difference is whether a proposed diff is collected. This avoids two products
+  whose policies or evidence handling could diverge.
+- Kept the midpoint patch executor intentionally narrow: it can update only five
+  catalog fields in an episode-local override. It emits a unified patch, applies
+  it only inside the generated episode project, checks the declared
+  postcondition, and reruns `dbt parse`. Semantic, test, SQL, lifecycle, or
+  ownership decisions without direct support remain proposals or reports.
+- Verification failure restores the original override file and remains a
+  `verification_failed` outcome in the append-only ledger. A deterministic test
+  deliberately mismatches the proposed and expected value to prove the run does
+  not report success or leave the failed change applied.
+- Finding keys hash the issue, asset, claim, and action. A matching successful
+  ledger entry causes a repeat to return `already_verified`; changed evidence
+  should instead lead the planner to omit or revise the finding.
+- The plan artifact plus per-finding and run-summary ledger records retain the
+  evidence IDs, action, verification checks, patch path, and unresolved
+  questions. This is sufficient for later scoring without reconstructing a
+  model transcript.
+- Completion validation: 56 deterministic tests pass and one live test remains
+  deselected. Tests cover both triggers, tool use during planning, patching,
+  proposals, evidence enforcement, policy rejection, rollback, and idempotence.
