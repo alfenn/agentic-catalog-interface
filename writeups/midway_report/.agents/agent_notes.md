@@ -32,3 +32,33 @@ context: [
 - Validation at completion: `make doctor` succeeded without credentials and
   `make test` passed 6 deterministic tests. Live configuration intentionally
   remains invalid until a local `OPENROUTER_API_KEY` is supplied.
+
+## 2026-11-07 — Minimal reusable agent harness
+
+- Chose one strict JSON object per model turn (`tool` or `final`) instead of
+  copying the assignment harness's mixed prose/tag parser. This gives the
+  steward a smaller protocol surface, makes malformed output unambiguous, and
+  lets deterministic tests cover every transition cheaply.
+- Preserved the assignment's high-value reliability patterns: exact scripted
+  model replies, recorded model inputs, schema validation before tool
+  execution, tool exceptions returned to the loop, bounded malformed replies
+  and turns, disk caching, an append-only cost ledger, an environment budget,
+  explicit live tests, and evaluation slicing.
+- Write-capable tools are denied by default. The midpoint steward is intended
+  to produce reviewable patches/proposals, so a future caller must opt in
+  explicitly even if a write tool is registered.
+- Kept the model wrapper provider-specific only at its final transport layer.
+  The agent loop depends on a tiny callable protocol, allowing scripted tests
+  and future baseline models to share the same loop without network calls.
+- The first harness test run found that shared test helpers were not importable
+  because `tests/` lacked a package marker. Added `tests/__init__.py`; no
+  production import path or pytest configuration was loosened.
+- The next deterministic run exposed two loop issues: JSON-encoding an entire
+  tool event obscured the tool's already-JSON content, and the consecutive
+  error counter reset before invalid arguments were classified. Tool results
+  now use a plain status header plus verbatim content, and the counter resets
+  only after a validly executed/denied tool call. This keeps evidence readable
+  to the next turn and correctly stops repeated bad calls.
+- Completion validation: 34 deterministic tests pass, one paid live smoke test
+  is correctly deselected by default, `make costs` reports an empty ledger, and
+  the tree passes whitespace checks. No model call was made during this work.

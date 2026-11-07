@@ -1,7 +1,7 @@
 UV ?= uv
 PYTEST_ARGS ?=
 
-.PHONY: help setup sync lock doctor doctor-live test test-live test-all
+.PHONY: help setup sync lock doctor doctor-live test test-live test-all costs
 
 help:
 	@printf '%s\n' \
@@ -12,7 +12,8 @@ help:
 	  'doctor-live  validate configuration required for paid model calls' \
 	  'test         run deterministic tests only' \
 	  'test-live    run paid/external tests explicitly' \
-	  'test-all     run deterministic and live tests'
+	  'test-all     run deterministic and live tests' \
+	  'costs        summarize recorded live-model cost'
 
 setup:
 	@test -f .env || cp .env.example .env
@@ -38,4 +39,7 @@ test-live:
 
 test-all:
 	$(UV) run pytest -m "live or not live" -s $(PYTEST_ARGS)
+
+costs:
+	$(UV) run python -m catalog_steward.llm
 

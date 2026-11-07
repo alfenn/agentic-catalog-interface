@@ -22,7 +22,7 @@ completed work-package commit before beginning the next package.
     project definition and lockfile, and a Makefile.
   - Make deterministic tests the default and expose live tests separately.
   - Add a safe configuration doctor and tests.
-- [ ] **F1 — Reusable agent-test harness.**
+- [x] **F1 — Reusable agent-test harness.**
   - Adapt only the assignment harness patterns needed here: scripted model,
     disk cache/cost ledger/budget stop, structured tool protocol, deterministic
     loop tests, explicit live markers, bounded evaluation slices, and shared
