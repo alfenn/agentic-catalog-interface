@@ -76,16 +76,16 @@ scored without subjective reconstruction after the run.
 
 ### Phase 2: implement the minimum evidence interface
 
-- [ ] Expose compact, structured operations for:
+- [x] Expose compact, structured operations for:
   - catalog metadata and lifecycle state;
   - parsed dbt sources, filters, joins, aggregations, and grain candidates;
   - upstream/downstream lineage and change impact;
   - bounded uniqueness, nullability, accepted-value, freshness, and date-range
     probes;
   - current repository diff and relevant model/schema files.
-- [ ] Give every evidence item a stable identifier and provenance pointer.
-- [ ] Return technical facts rather than silently deciding business semantics.
-- [ ] Add fixture-level tests for parsing, scope bounds, query bounds,
+- [x] Give every evidence item a stable identifier and provenance pointer.
+- [x] Return technical facts rather than silently deciding business semantics.
+- [x] Add fixture-level tests for parsing, scope bounds, query bounds,
   provenance, and failure handling.
 
 **Exit criterion:** the required evidence for every supported episode can be

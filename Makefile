@@ -1,8 +1,9 @@
 UV ?= uv
 PYTEST_ARGS ?=
 EPISODE ?= rem_daily_revenue_filter_drift
+ASSET ?= daily_revenue
 
-.PHONY: help setup sync lock doctor doctor-live contract episodes episodes-check fixture test test-live test-all costs
+.PHONY: help setup sync lock doctor doctor-live contract episodes episodes-check fixture evidence test test-live test-all costs
 
 help:
 	@printf '%s\n' \
@@ -15,6 +16,7 @@ help:
 	  'episodes     list and validate evaluation episodes' \
 	  'episodes-check reset and build every episode in temporary directories' \
 	  'fixture      reset and build EPISODE=<episode_id>' \
+	  'evidence     inspect SQL facts for EPISODE=<id> ASSET=<model>' \
 	  'test         run deterministic tests only' \
 	  'test-live    run paid/external tests explicitly' \
 	  'test-all     run deterministic and live tests' \
@@ -47,6 +49,9 @@ episodes-check:
 
 fixture:
 	$(UV) run python -m catalog_steward.episodes reset $(EPISODE) --build
+
+evidence:
+	$(UV) run python -m catalog_steward.evidence $(EPISODE) $(ASSET) --kind sql
 
 test:
 	$(UV) run pytest $(PYTEST_ARGS)

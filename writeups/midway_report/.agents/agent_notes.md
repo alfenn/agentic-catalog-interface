@@ -112,3 +112,31 @@ context: [
   and one paid live test remains deselected. The full build is slower than unit
   tests, so ordinary tests build one representative clean episode while
   `make episodes-check` is the explicit exhaustive check.
+
+## 2026-11-07 — Evidence interface
+
+- Evidence IDs hash the kind, asset, provenance pointer, and normalized content.
+  Identical facts therefore keep a stable ID across repeated retrievals, while
+  a changed source or result creates a new ID. The in-memory registry deduplicates
+  repeated retrieval without erasing provenance.
+- SQL models are parsed after replacing dbt `ref`/`source` templates with
+  technical relation identifiers. The parser exposes sources, filters, joins,
+  aggregates, grouping, and grain candidates, but intentionally does not label
+  business meaning or declare a key.
+- Data profiling opens DuckDB read-only and profiles at most the contract's
+  10,000-row bound and 20 requested columns. It reports when the bound is hit
+  rather than claiming a full-table result.
+- Catalog evidence merges compact episode overrides over the base snapshot;
+  absent catalog or schema entries are returned as explicit `present: false`
+  evidence instead of errors or inferred metadata.
+- Initial parsing tests showed that SQLGlot rendered a joined relation together
+  with its alias. Split these into `relation` and `alias` fields so lineage/tool
+  consumers can compare stable relation names without losing alias context.
+- Exposed nine schema-checked read-only tools covering catalog metadata, dbt
+  schema/SQL/manifest facts, lineage, bounded profiles, diffs, and bounded
+  project files. File reads cannot escape the episode project and lineage hops
+  cannot exceed the contract.
+- Completion validation: the evidence CLI returns addressable parsed facts for
+  the demo model, 51 deterministic tests pass, and one live test remains
+  deselected. Tests cover provenance stability, missing metadata, duplicate-key
+  detection, lineage bounds, query bounds, path traversal, and tool schemas.
