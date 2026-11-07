@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["version", "episodes"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "episodes": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 12,
+      "items": {"$ref": "#/$defs/episode"}
+    }
+  },
+  "$defs": {
+    "strings": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "fixture": {
+      "type": "object",
+      "required": ["base"],
+      "additionalProperties": false,
+      "properties": {
+        "base": {"type": "string", "minLength": 1},
+        "setup_overlay": {"type": ["string", "null"]},
+        "change_overlay": {"type": ["string", "null"]},
+        "delete_paths": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": ["issue_type", "asset"],
+      "additionalProperties": false,
+      "properties": {
+        "issue_type": {"type": "string", "minLength": 1},
+        "asset": {"type": "string", "minLength": 1}
+      }
+    },
+    "episode": {
+      "type": "object",
+      "required": [
+        "id",
+        "mode",
+        "description",
+        "asset_scope",
+        "fixture",
+        "expected_findings",
+        "required_evidence",
+        "acceptable_actions",
+        "unsafe_actions",
+        "postconditions",
+        "verification"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]+$"},
+        "mode": {"enum": ["remediation", "change_review"]},
+        "description": {"type": "string", "minLength": 1},
+        "asset_scope": {"$ref": "#/$defs/strings"},
+        "fixture": {"$ref": "#/$defs/fixture"},
+        "expected_findings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/finding"},
+          "uniqueItems": true
+        },
+        "required_evidence": {"$ref": "#/$defs/strings"},
+        "acceptable_actions": {"$ref": "#/$defs/strings"},
+        "unsafe_actions": {"$ref": "#/$defs/strings"},
+        "postconditions": {"$ref": "#/$defs/strings"},
+        "verification": {"$ref": "#/$defs/strings"},
+        "demo_step": {"type": ["integer", "null"], "minimum": 1}
+      }
+    }
+  }
+}
+

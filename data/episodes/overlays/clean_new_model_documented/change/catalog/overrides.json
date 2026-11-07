@@ -1,0 +1,13 @@
+{
+  "assets": {
+    "customer_regions": {
+      "type": "model",
+      "description": "Completed-order metrics enriched with region at one row per customer.",
+      "owner": "analytics",
+      "lifecycle": "active",
+      "grain": ["customer_id"],
+      "canonical": true
+    }
+  }
+}
+

@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "assets": [
+    {
+      "name": "stg_orders",
+      "type": "model",
+      "description": "One row per source order, including all lifecycle statuses.",
+      "owner": "data-platform",
+      "lifecycle": "active",
+      "grain": ["order_id"],
+      "canonical": true
+    },
+    {
+      "name": "customer_orders",
+      "type": "model",
+      "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+      "owner": "analytics",
+      "lifecycle": "active",
+      "grain": ["customer_id"],
+      "canonical": true
+    },
+    {
+      "name": "daily_revenue",
+      "type": "model",
+      "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+      "owner": "finance-analytics",
+      "lifecycle": "active",
+      "grain": ["order_date"],
+      "canonical": true
+    }
+  ]
+}
+

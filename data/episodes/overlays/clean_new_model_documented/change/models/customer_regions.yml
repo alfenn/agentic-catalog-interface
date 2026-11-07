@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: customer_regions
+    description: Completed-order metrics enriched with region at one row per customer.
+    config:
+      meta:
+        owner: analytics
+        lifecycle: active
+        grain: customer_id
+    columns:
+      - name: customer_id
+        description: Customer identifier and model grain.
+        data_tests: [not_null, unique]
+      - name: region
+        description: Customer region from the source customer record.
+        data_tests: [not_null]
+

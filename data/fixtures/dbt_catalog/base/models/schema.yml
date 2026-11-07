@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: One row per source order, including all lifecycle statuses.
+    config:
+      meta:
+        owner: data-platform
+        lifecycle: active
+        grain: order_id
+    columns:
+      - name: order_id
+        description: Source order identifier.
+        data_tests: [not_null, unique]
+      - name: customer_id
+        description: Customer that placed the order.
+        data_tests: [not_null]
+      - name: status
+        description: Current order lifecycle status.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [completed, refunded, cancelled]
+      - name: order_date
+        description: Date the order was placed.
+        data_tests: [not_null]
+
+  - name: customer_orders
+    description: Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.
+    config:
+      meta:
+        owner: analytics
+        lifecycle: active
+        grain: customer_id
+    columns:
+      - name: customer_id
+        description: Customer identifier and model grain.
+        data_tests: [not_null, unique]
+      - name: completed_order_count
+        description: Number of completed orders for the customer.
+
+  - name: daily_revenue
+    description: Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.
+    config:
+      meta:
+        owner: finance-analytics
+        lifecycle: active
+        grain: order_date
+    columns:
+      - name: order_date
+        description: Order date and model grain.
+        data_tests: [not_null, unique]
+      - name: completed_order_count
+        description: Number of completed orders on the date.
+      - name: completed_revenue
+        description: Sum of completed order amounts on the date.
+

@@ -86,3 +86,29 @@ context: [
   baseline fairness are stable.
 - Completion validation: the versioned contract summarizes successfully and 37
   deterministic tests pass; the live smoke test remains deselected.
+
+## 2026-11-07 — Reproducible fixture and episode suite
+
+- Built one clean dbt–DuckDB project and represented episode-specific debt or
+  proposed changes as overlays. Each reset creates `before/`, `project/`, and a
+  generated unified diff. This avoids ten drifting project copies and makes the
+  same pre-change state available to all evaluation conditions.
+- Added four remediation episodes, four flawed change-review episodes, and two
+  clean controls. The connected demo uses `daily_revenue`: the remediation case
+  corrects stale all-orders prose, then a later change starts including refunds
+  without updating completed-only metadata.
+- Catalog perturbations use a small `catalog/overrides.json` sidecar rather than
+  replacing the whole catalog snapshot. The evidence layer will merge it over
+  the base snapshot, making the injected difference compact and auditable.
+- The reset command will replace only a directory carrying the matching episode
+  marker. This safety check was retained even for generated `.runs/` state so a
+  mistyped destination cannot erase an unrelated directory.
+- Fixture construction runs `dbt seed`, `dbt run`, and `dbt parse`, but not
+  `dbt test`. Some episodes intentionally violate a uniqueness claim, so tests
+  are evidence to collect during the episode rather than a prerequisite for
+  constructing it.
+- Added an all-episode temporary validation command. All ten cases seeded,
+  materialized, and emitted `target/manifest.json`; 44 deterministic tests pass
+  and one paid live test remains deselected. The full build is slower than unit
+  tests, so ordinary tests build one representative clean episode while
+  `make episodes-check` is the explicit exhaustive check.

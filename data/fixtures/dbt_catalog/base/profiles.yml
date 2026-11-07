@@ -1,0 +1,8 @@
+catalog_steward_fixture:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('CATALOG_STEWARD_WAREHOUSE_PATH') }}"
+      threads: 1
+

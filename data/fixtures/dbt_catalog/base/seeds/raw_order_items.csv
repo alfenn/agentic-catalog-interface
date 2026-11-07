@@ -1,0 +1,11 @@
+order_item_id,order_id,product_id,quantity
+1,1001,sku-a,1
+2,1001,sku-b,2
+3,1002,sku-a,1
+4,1003,sku-c,1
+5,1004,sku-d,1
+6,1005,sku-b,1
+7,1006,sku-c,3
+8,1007,sku-a,1
+9,1007,sku-d,1
+

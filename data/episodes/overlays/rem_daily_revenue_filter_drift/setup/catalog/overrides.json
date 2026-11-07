@@ -1,0 +1,8 @@
+{
+  "assets": {
+    "daily_revenue": {
+      "description": "Revenue from all orders at one row per order date."
+    }
+  }
+}
+

@@ -51,11 +51,11 @@ verification procedure.
 
 ### Phase 1: construct the environment and evaluation episodes
 
-- [ ] Build a deterministic dbt fixture with SQL models, schema YAML, manifest
+- [x] Build a deterministic dbt fixture with SQL models, schema YAML, manifest
   artifacts, lineage, representative metadata, and small seed tables.
-- [ ] Provide a reset command that restores the exact starting state for an
+- [x] Provide a reset command that restores the exact starting state for an
   episode.
-- [ ] Create a defect/change manifest with, at minimum:
+- [x] Create a defect/change manifest with, at minimum:
   - episode ID and mode;
   - starting asset scope and input diff, if any;
   - defect or clean-control label;
@@ -63,11 +63,11 @@ verification procedure.
   - acceptable remediation set;
   - explicitly unsafe or unsupported actions;
   - expected postconditions and verification checks.
-- [ ] Author 8-12 audited episodes, targeting roughly:
+- [x] Author 8-12 audited episodes, targeting roughly:
   - 3-4 existing-debt episodes;
   - 3-4 flawed change-review episodes;
   - 2-3 clean contributions that should pass without noisy findings.
-- [ ] Include the connected demo story: first repair a stale description or
+- [x] Include the connected demo story: first repair a stale description or
   technical claim, then introduce a later grain/filter change that makes it
   stale again.
 

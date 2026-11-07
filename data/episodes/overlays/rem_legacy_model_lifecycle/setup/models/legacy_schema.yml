@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: legacy_customer_orders
+    description: Older compatibility copy of customer order metrics.
+    config:
+      meta:
+        owner: analytics
+        lifecycle: active
+        grain: customer_id
+    columns:
+      - name: customer_id
+        description: Customer identifier.
+        data_tests: [not_null, unique]
+

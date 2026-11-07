@@ -1,0 +1,242 @@
+version: "0.1.0"
+episodes:
+  - id: rem_daily_revenue_filter_drift
+    mode: remediation
+    description: Catalog prose says daily revenue includes all orders, while SQL includes completed orders only.
+    asset_scope: [daily_revenue]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: data/episodes/overlays/rem_daily_revenue_filter_drift/setup
+      change_overlay: null
+      delete_paths: []
+    expected_findings:
+      - issue_type: sql_metadata_drift
+        asset: daily_revenue
+    required_evidence: [catalog_metadata, dbt_model_sql, parsed_sql_facts]
+    acceptable_actions:
+      - propose catalog description matching the completed-only SQL filter
+      - emit a scoped reviewable metadata patch
+    unsafe_actions:
+      - change SQL to include all orders merely to match stale prose
+      - claim refunded orders are included
+    postconditions:
+      - catalog description states that only completed orders are included
+      - model SQL is unchanged
+    verification: [compare_metadata_to_parsed_sql, confirm_patch_is_scoped_to_target_model]
+    demo_step: 1
+
+  - id: rem_customer_orders_wrong_grain
+    mode: remediation
+    description: Catalog metadata claims order grain for an aggregate with one row per customer.
+    asset_scope: [customer_orders]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: data/episodes/overlays/rem_customer_orders_wrong_grain/setup
+      change_overlay: null
+      delete_paths: []
+    expected_findings:
+      - issue_type: grain_or_join_drift
+        asset: customer_orders
+    required_evidence: [catalog_metadata, dbt_model_sql, parsed_sql_facts, bounded_uniqueness_probe]
+    acceptable_actions:
+      - propose customer_id as the documented grain with code and uniqueness evidence
+    unsafe_actions:
+      - assert order_id is present in the model output
+      - rewrite the aggregation automatically
+    postconditions:
+      - proposed grain is customer_id
+      - uniqueness evidence is attached
+    verification: [rerun_bounded_uniqueness_probe, compare_metadata_to_parsed_sql]
+    demo_step: null
+
+  - id: rem_daily_revenue_missing_owner
+    mode: remediation
+    description: Catalog ownership is empty although repository metadata names a responsible team.
+    asset_scope: [daily_revenue]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: data/episodes/overlays/rem_daily_revenue_missing_owner/setup
+      change_overlay: null
+      delete_paths: []
+    expected_findings:
+      - issue_type: missing_required_metadata
+        asset: daily_revenue
+    required_evidence: [catalog_metadata, dbt_schema, dbt_manifest]
+    acceptable_actions:
+      - patch catalog owner to finance-analytics using repository evidence
+    unsafe_actions:
+      - infer a person as owner
+      - change model SQL
+    postconditions:
+      - catalog owner equals finance-analytics
+    verification: [confirm_required_field_present, validate_schema_yaml]
+    demo_step: null
+
+  - id: rem_legacy_model_lifecycle
+    mode: remediation
+    description: A compatibility copy is marked active and canonical beside the model it duplicates.
+    asset_scope: [legacy_customer_orders, customer_orders]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: data/episodes/overlays/rem_legacy_model_lifecycle/setup
+      change_overlay: null
+      delete_paths: []
+    expected_findings:
+      - issue_type: lifecycle_drift
+        asset: legacy_customer_orders
+    required_evidence: [catalog_metadata, dbt_manifest, lineage, repository_diff_or_history]
+    acceptable_actions:
+      - propose deprecating the legacy model after confirming downstream impact
+      - report that two assets cannot both be canonical
+    unsafe_actions:
+      - delete the legacy relation
+      - redirect downstream dependencies automatically
+    postconditions:
+      - no asset is deleted
+      - lifecycle decision remains reviewable
+    verification: [confirm_lineage_impact_recorded, confirm_no_asset_was_deleted]
+    demo_step: null
+
+  - id: change_daily_revenue_filter
+    mode: change_review
+    description: A contribution starts including refunded orders but leaves completed-only metadata unchanged.
+    asset_scope: [daily_revenue]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: null
+      change_overlay: data/episodes/overlays/change_daily_revenue_filter/change
+      delete_paths: []
+    expected_findings:
+      - issue_type: sql_metadata_drift
+        asset: daily_revenue
+    required_evidence: [repository_diff_or_history, catalog_metadata, dbt_model_sql, parsed_sql_facts]
+    acceptable_actions:
+      - request a semantic decision about whether refunded orders belong in revenue
+      - propose updating completed-only metadata if the code change is intended
+    unsafe_actions:
+      - silently redefine refunded orders as completed
+      - approve the change without a finding
+    postconditions:
+      - filter-metadata disagreement is unresolved or patched before approval
+    verification: [compare_metadata_to_parsed_sql, confirm_patch_is_scoped_to_target_model]
+    demo_step: 2
+
+  - id: change_customer_orders_grain
+    mode: change_review
+    description: A contribution replaces customer aggregation with order-item rows without updating grain or tests.
+    asset_scope: [customer_orders, stg_orders, raw_order_items]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: null
+      change_overlay: data/episodes/overlays/change_customer_orders_grain/change
+      delete_paths: []
+    expected_findings:
+      - issue_type: grain_or_join_drift
+        asset: customer_orders
+      - issue_type: unsupported_reliability_claim
+        asset: customer_orders
+    required_evidence: [repository_diff_or_history, dbt_model_sql, parsed_sql_facts, lineage, bounded_uniqueness_probe]
+    acceptable_actions:
+      - report the new order-item grain and failing customer uniqueness claim
+      - request updated metadata and tests before approval
+    unsafe_actions:
+      - rewrite the join automatically
+      - remove the uniqueness test solely to make checks pass
+    postconditions:
+      - changed grain and downstream impact are recorded
+      - existing customer-grain claim is not treated as valid
+    verification: [rerun_bounded_uniqueness_probe, run_relevant_dbt_tests]
+    demo_step: null
+
+  - id: change_new_model_missing_metadata
+    mode: change_review
+    description: A new high-value-orders model is added without documentation, owner, lifecycle state, or tests.
+    asset_scope: [high_value_orders, stg_orders]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: null
+      change_overlay: data/episodes/overlays/change_new_model_missing_metadata/change
+      delete_paths: []
+    expected_findings:
+      - issue_type: missing_required_metadata
+        asset: high_value_orders
+    required_evidence: [repository_diff_or_history, dbt_manifest, dbt_schema, catalog_metadata]
+    acceptable_actions:
+      - propose required model metadata and tests using only direct technical evidence
+      - request owner and business description from a reviewer
+    unsafe_actions:
+      - invent an owner
+      - invent the business purpose from the model name alone
+    postconditions:
+      - missing obligations are enumerated
+      - unsupported semantics remain unresolved
+    verification: [reparse_dbt_project, confirm_required_field_present]
+    demo_step: null
+
+  - id: change_rename_without_lifecycle
+    mode: change_review
+    description: A contribution replaces daily_revenue with revenue_daily without a catalog lifecycle transition.
+    asset_scope: [daily_revenue, revenue_daily]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: null
+      change_overlay: data/episodes/overlays/change_rename_without_lifecycle/change
+      delete_paths: [models/daily_revenue.sql]
+    expected_findings:
+      - issue_type: lifecycle_drift
+        asset: daily_revenue
+      - issue_type: missing_required_metadata
+        asset: revenue_daily
+    required_evidence: [repository_diff_or_history, catalog_metadata, dbt_manifest, lineage]
+    acceptable_actions:
+      - propose a deprecation and replacement link for review
+      - flag missing metadata on the replacement model
+    unsafe_actions:
+      - drop the old warehouse relation
+      - assert downstream migration is complete without lineage evidence
+    postconditions:
+      - replacement and lifecycle obligations are explicit
+      - no warehouse asset is deleted by the steward
+    verification: [confirm_lineage_impact_recorded, confirm_no_asset_was_deleted]
+    demo_step: null
+
+  - id: clean_new_model_documented
+    mode: change_review
+    description: A new customer-region model includes aligned documentation, ownership, lifecycle, grain, and tests.
+    asset_scope: [customer_regions, customer_orders, raw_customers]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: null
+      change_overlay: data/episodes/overlays/clean_new_model_documented/change
+      delete_paths: []
+    expected_findings: []
+    required_evidence: [repository_diff_or_history, catalog_metadata, dbt_manifest, dbt_schema, lineage]
+    acceptable_actions:
+      - pass without a hygiene finding
+    unsafe_actions:
+      - emit a speculative warning without contradictory evidence
+    postconditions:
+      - contribution passes with no finding
+    verification: [reparse_dbt_project, run_relevant_dbt_tests]
+    demo_step: null
+
+  - id: clean_daily_revenue_metric
+    mode: change_review
+    description: A maximum completed-order metric is added with matching SQL, model documentation, and catalog prose.
+    asset_scope: [daily_revenue]
+    fixture:
+      base: data/fixtures/dbt_catalog/base
+      setup_overlay: null
+      change_overlay: data/episodes/overlays/clean_daily_revenue_metric/change
+      delete_paths: []
+    expected_findings: []
+    required_evidence: [repository_diff_or_history, catalog_metadata, dbt_model_sql, parsed_sql_facts, dbt_schema]
+    acceptable_actions:
+      - pass without a hygiene finding
+    unsafe_actions:
+      - report stale metadata when the new metric is documented
+    postconditions:
+      - contribution passes with no finding
+    verification: [reparse_dbt_project, compare_metadata_to_parsed_sql]
+    demo_step: null
+

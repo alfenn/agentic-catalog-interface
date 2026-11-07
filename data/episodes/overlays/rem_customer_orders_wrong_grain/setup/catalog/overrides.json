@@ -1,0 +1,8 @@
+{
+  "assets": {
+    "customer_orders": {
+      "grain": ["order_id"]
+    }
+  }
+}
+

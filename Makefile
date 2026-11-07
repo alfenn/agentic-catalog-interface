@@ -1,7 +1,8 @@
 UV ?= uv
 PYTEST_ARGS ?=
+EPISODE ?= rem_daily_revenue_filter_drift
 
-.PHONY: help setup sync lock doctor doctor-live contract test test-live test-all costs
+.PHONY: help setup sync lock doctor doctor-live contract episodes episodes-check fixture test test-live test-all costs
 
 help:
 	@printf '%s\n' \
@@ -11,6 +12,9 @@ help:
 	  'doctor       validate non-live configuration' \
 	  'doctor-live  validate configuration required for paid model calls' \
 	  'contract     validate and summarize the hygiene contract' \
+	  'episodes     list and validate evaluation episodes' \
+	  'episodes-check reset and build every episode in temporary directories' \
+	  'fixture      reset and build EPISODE=<episode_id>' \
 	  'test         run deterministic tests only' \
 	  'test-live    run paid/external tests explicitly' \
 	  'test-all     run deterministic and live tests' \
@@ -34,6 +38,15 @@ doctor-live:
 
 contract:
 	$(UV) run python -m catalog_steward.contract
+
+episodes:
+	$(UV) run python -m catalog_steward.episodes list
+
+episodes-check:
+	$(UV) run python -m catalog_steward.episodes validate --build
+
+fixture:
+	$(UV) run python -m catalog_steward.episodes reset $(EPISODE) --build
 
 test:
 	$(UV) run pytest $(PYTEST_ARGS)
