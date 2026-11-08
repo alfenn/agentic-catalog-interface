@@ -17,7 +17,7 @@ import jsonschema
 import yaml
 
 from catalog_steward.agent import AgentConfig, AgentSession
-from catalog_steward.config import REPO_ROOT
+from catalog_steward.config import REPO_ROOT, load_settings
 from catalog_steward.contract import issue_by_id, load_contract
 from catalog_steward.episodes import EpisodeWorkspace, episode_by_id, load_manifest, reset_episode
 from catalog_steward.evidence import EvidenceStore
@@ -46,6 +46,19 @@ class ConditionResult:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+class ConditionFailed(RuntimeError):
+    """An agent condition failed after doing work worth persisting (transcript, usage, evidence)."""
+
+    def __init__(self, message: str, *, partial: dict[str, Any]) -> None:
+        super().__init__(message)
+        self.partial = partial
+
+
+def _model_usage(model: Any) -> dict[str, Any]:
+    usage_method = getattr(model, "usage", None)
+    return usage_method() if callable(usage_method) else {}
 
 
 def _object_schema(properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -271,19 +284,32 @@ def run_generic(
         generic_tools(store),
         AgentConfig(max_turns=max_turns, system_prompt=system),
     )
-    agent = session.send(json.dumps(prompt, sort_keys=True))
-    if agent.status != "done":
-        raise RuntimeError(f"generic agent did not finish: {agent.status}: {agent.text}")
-    plan = json.loads(agent.text)
-    jsonschema.Draft202012Validator(schema).validate(plan)
-    available = {item.id for item in store.items}
-    scope = set(episode["asset_scope"])
-    for finding in plan["findings"]:
-        if finding["asset"] not in scope:
-            raise ValueError(f"generic finding asset is outside scope: {finding['asset']}")
-        unknown = set(finding["evidence_ids"]) - available
-        if unknown:
-            raise ValueError(f"generic finding cites unknown evidence IDs: {sorted(unknown)}")
+    agent = None
+    try:
+        agent = session.send(json.dumps(prompt, sort_keys=True))
+        if agent.status != "done":
+            raise RuntimeError(f"generic agent did not finish: {agent.status}: {agent.text}")
+        plan = json.loads(agent.text)
+        jsonschema.Draft202012Validator(schema).validate(plan)
+        available = {item.id for item in store.items}
+        scope = set(episode["asset_scope"])
+        for finding in plan["findings"]:
+            if finding["asset"] not in scope:
+                raise ValueError(f"generic finding asset is outside scope: {finding['asset']}")
+            unknown = set(finding["evidence_ids"]) - available
+            if unknown:
+                raise ValueError(f"generic finding cites unknown evidence IDs: {sorted(unknown)}")
+    except Exception as exc:
+        raise ConditionFailed(
+            f"{type(exc).__name__}: {exc}",
+            partial={
+                "final_text": agent.text if agent is not None else None,
+                "transcript": agent.transcript if agent is not None else list(session.transcript),
+                "usage": agent.usage if agent is not None else _model_usage(model),
+                "seconds": time.time() - started,
+                "evidence": [item.to_dict() for item in store.items],
+            },
+        ) from exc
     return ConditionResult(
         episode_id=workspace.episode_id,
         mode=episode["mode"],
@@ -302,10 +328,29 @@ def run_steward(
     workspace: EpisodeWorkspace,
     episode: dict[str, Any],
     model: ChatModel,
+    *,
+    max_turns: int = 12,
 ) -> ConditionResult:
     started = time.time()
     run = StewardRun(workspace)
-    result = run.run(model)
+    try:
+        result = run.run(model, max_turns=max_turns)
+    except Exception as exc:
+        agent = run.agent_result
+        raise ConditionFailed(
+            f"{type(exc).__name__}: {exc}",
+            partial={
+                "final_text": agent.text if agent is not None else None,
+                "transcript": (
+                    agent.transcript
+                    if agent is not None
+                    else list(run.session.transcript) if run.session is not None else []
+                ),
+                "usage": agent.usage if agent is not None else _model_usage(model),
+                "seconds": time.time() - started,
+                "evidence": [item.to_dict() for item in run.store.items],
+            },
+        ) from exc
     plan = json.loads(Path(result.plan_path).read_text(encoding="utf-8"))
     return ConditionResult(
         episode_id=workspace.episode_id,
@@ -428,6 +473,7 @@ def run_evaluation(
         episode = episode_by_id(manifest, episode_id)
         for condition in conditions:
             workspace: EpisodeWorkspace | None = None
+            model: ChatModel | None = None
             try:
                 workspace = reset_episode(
                     episode_id,
@@ -443,19 +489,33 @@ def run_evaluation(
                     result = (
                         run_generic(workspace, episode, model, max_turns=int(config["max_turns"]))
                         if condition == "generic"
-                        else run_steward(workspace, episode, model)
+                        else run_steward(workspace, episode, model, max_turns=int(config["max_turns"]))
                     )
                 score = score_result(result, episode, contract)
                 payload = {"result": result.to_dict(), "score": score}
             except Exception as exc:
+                # Keep whatever a failed agent run produced: paid transcripts and cost must
+                # remain auditable even when the run cannot be scored.
+                partial = dict(exc.partial) if isinstance(exc, ConditionFailed) else {}
+                if "usage" not in partial and model is not None:
+                    partial["usage"] = _model_usage(model)
+                error = str(exc) if isinstance(exc, ConditionFailed) else f"{type(exc).__name__}: {exc}"
+                usage = partial.get("usage") or {}
                 payload = {
                     "result": {
+                        **partial,
                         "episode_id": episode_id,
                         "condition": condition,
                         "status": "error",
-                        "error": f"{type(exc).__name__}: {exc}",
+                        "error": error,
                     },
-                    "score": {"episode_id": episode_id, "condition": condition, "episode_success": False},
+                    "score": {
+                        "episode_id": episode_id,
+                        "condition": condition,
+                        "episode_success": False,
+                        "cost_usd": float(usage.get("cost_usd", 0.0)),
+                        "turns": int(usage.get("calls", 0)),
+                    },
                 }
             result_path = output_dir / episode_id / f"{condition}.json"
             result_path.parent.mkdir(parents=True, exist_ok=True)
@@ -517,7 +577,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.episodes
         else list(config["episodes"])
     )
-    output = args.output or REPO_ROOT / "experiments/results" / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    output = args.output or load_settings().results_dir / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
     def model_factory(condition: str, episode_id: str) -> LM:
         return LM(

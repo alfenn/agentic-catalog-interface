@@ -94,3 +94,32 @@ def test_spending_report_is_compact() -> None:
     assert "1 calls" in report
     assert "$0.2500" in report
 
+
+
+def test_response_without_choices_raises_clear_error(tmp_path: Path) -> None:
+    from types import SimpleNamespace
+
+    settings = Settings.from_mapping({"OPENROUTER_API_KEY": "sk-test"}, root=tmp_path)
+    model = LM(settings=settings, cache_dir=tmp_path / "cache", budget_usd=1.0)
+    error_response = SimpleNamespace(choices=None, usage=None, error={"code": 502, "message": "upstream"})
+    model._client = SimpleNamespace(
+        chat=SimpleNamespace(completions=SimpleNamespace(create=lambda **kwargs: error_response))
+    )
+
+    with pytest.raises(RuntimeError, match="no choices.*upstream"):
+        model(MESSAGES)
+
+
+def test_results_dir_setting_controls_default_evaluation_output(tmp_path: Path, monkeypatch) -> None:
+    from catalog_steward import evaluation
+
+    captured = {}
+    monkeypatch.setenv("CATALOG_STEWARD_RESULTS_DIR", str(tmp_path / "custom"))
+    monkeypatch.setattr(
+        evaluation,
+        "run_evaluation",
+        lambda **kwargs: captured.update(kwargs) or [],
+    )
+
+    assert evaluation.main(["--conditions", "static", "--episodes", "clean_daily_revenue_metric"]) == 0
+    assert captured["output_dir"].parent == tmp_path / "custom"

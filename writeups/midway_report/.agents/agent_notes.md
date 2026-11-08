@@ -267,3 +267,79 @@ context: [
   after a real pilot or keep the limitation, confirm reference formatting with
   the proposal, render to the submission format, and verify the final output is
   3–4 pages. The draft is not marked complete until those checks pass.
+
+## 2026-11-07 — Handoff to a Claude-driven finish
+
+- The Codex session was interrupted after the report draft. A Claude Opus 5.5
+  driver took over to validate and finish the remaining Phase 5–7 items, with
+  Opus 5.5 medium-effort subagents doing the work. Subagents leave changes
+  uncommitted; the driver reviews each chunk, then commits and pushes it, so
+  parallel workers never share a git index.
+- Unblocked the paid conditions: the author explicitly authorized reusing the
+  course assignment harness's OpenRouter key. It was copied into this
+  project's ignored `.env` without being printed or committed, and
+  `make doctor-live` now passes. This resolves the open credential decision
+  from the pilot-status entry above.
+- Did not spend on the live pilot right away. Its generic and steward paths
+  had only been exercised by scripted unit tests, so a no-network preflight
+  audit goes first: two episodes through the real runner with a scripted
+  model, a transport review, a fairness review, and a scorer review. Spending
+  on a pipeline that fails on the first real reply would waste budget and
+  could produce results that cannot be reported.
+- In parallel: a fresh-clone README reproduction test, and typesetting the
+  report as LaTeX (pandoc is unavailable; xelatex is installed) with
+  references in the proposal's required format (alphabetical, full authors,
+  year, title, outlet). The draft's references were all undated
+  self-citations of repository files, which does not meet that format.
+
+## 2026-11-07 — Preflight audit and README reproduction
+
+- A scripted-model dry run drove one remediation and one change episode
+  through the real evaluation runner for both model conditions. Correct
+  replies scored as expected; malformed JSON, invented evidence IDs, and a
+  mismatched patch were rejected or rolled back as designed. The real `LM`
+  class was exercised with a fake OpenAI client, so request fields, cost
+  parsing, the fallback price table, and the budget stop were checked
+  without a network call.
+- Fixed before any spend: a failed agent run discarded its transcript, cost,
+  and evidence, so a paid failure could not be audited or costed. Failed runs
+  now keep that partial record. Also fixed: the results directory setting was
+  ignored, the steward hardcoded `max_turns` instead of reading the frozen
+  config, and an error-only OpenRouter reply raised an opaque exception.
+  68 deterministic tests pass.
+- Decision — must fix before the pilot: the steward prompt contained the
+  episode ID (for example `rem_daily_revenue_filter_drift`), which names the
+  expected finding. Workspace paths also embedded it, and dbt writes those
+  paths into artifacts the generic agent can read. This would have handed the
+  steward the label and biased the comparison. The fix changes prompt input,
+  so the steward prompt and frozen config versions are bumped. No paid run
+  used the old versions, so freezing still precedes the scored pilot.
+- Decision — fix now, cheaply: prompts were not byte-stable across runs
+  (manifest `created_at`, file sizes in listings), so the response cache never
+  hit. With stable prompts a crashed pilot can resume, and the demo can replay
+  recorded model runs instantly instead of paying on camera.
+- Decision — pin reasoning effort in the frozen config and record it in
+  results. Temperature 0 is probably ignored for reasoning models, so each
+  episode is one sample and the report must not imply determinism.
+- Decision — not fixed, documented as a limitation: generic-agent "patch"
+  actions are never applied or verified, while a steward patch that fails
+  verification costs the steward the episode. This is conservative against
+  the steward, so it cannot inflate the steward's advantage. Steward patch
+  verification checks that the intended value was written, not that the value
+  is semantically right.
+- Deferred to the paid smoke run: the protocol is strict (a final answer
+  whose `content` is an object, an out-of-scope asset name, or one invented
+  ID makes the whole episode an error for either condition). Whether this
+  needs a repair turn depends on how often a real model trips it.
+- A fresh clone reproduced every credential-free README step, and the static
+  rerun matched the committed per-episode results exactly. README fixes cover
+  Python provisioning by uv, unused evaluation settings, the real output
+  location, and no-key behavior. Code follow-ups found there (check the key
+  before building, clean no-key messages, skip the live test without a key,
+  ignore timestamped result folders) go with the pre-pilot fixes.
+- Report direction: the Gradescope rubric recommends Problem Statement,
+  Methodology, Results, Assets, and Timeline, which matches the author's
+  `iclr_template.tex`; the course page requires six named sections. The report
+  uses the rubric outline in the ICLR template and maps the six required
+  sections into it, so both graders find what they look for. Page limits
+  exclude references, and the video limit is 3 minutes.

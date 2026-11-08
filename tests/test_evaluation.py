@@ -193,3 +193,71 @@ def test_duplicate_findings_do_not_inflate_action_rates() -> None:
     finding["action"]["class"] = "invalid"
     assert score_result(result, episode)["unsafe_action_rate"] == 1.0
 
+
+
+def test_failed_agent_runs_keep_transcript_usage_and_evidence(tmp_path: Path) -> None:
+    config = load_config()
+    bad_plan = {
+        "summary": "Cites a fabricated evidence ID.",
+        "findings": [
+            {
+                "issue_type": "sql_metadata_drift",
+                "asset": "daily_revenue",
+                "claim": "Filter drift.",
+                "impact": "high",
+                "confidence": "high",
+                "evidence_ids": ["ev_project_file_000000000000"],
+                "action": {"class": "report", "operation": "report_only", "rationale": "Report."},
+            }
+        ],
+        "unresolved_questions": [],
+    }
+
+    class CostedScript(ScriptedLM):
+        def usage(self):
+            return {**super().usage(), "cost_usd": 0.25}
+
+    records = run_evaluation(
+        config=config,
+        output_dir=tmp_path / "results",
+        conditions=["generic", "steward"],
+        episode_ids=["rem_daily_revenue_filter_drift"],
+        model_factory=lambda condition, episode_id: CostedScript(
+            [format_tool_call("list_files", {}) if condition == "generic" else
+             format_tool_call("get_change_diff", {}), format_final(json.dumps(bad_plan))]
+        ),
+        workspace_root=tmp_path / "workspaces",
+    )
+
+    for record in records:
+        result, score = record["result"], record["score"]
+        assert result["status"] == "error"
+        assert "unknown evidence IDs" in result["error"]
+        assert not result["error"].startswith("ConditionFailed")
+        assert [event["type"] for event in result["transcript"]].count("tool_call") == 1
+        assert result["final_text"] == json.dumps(bad_plan)
+        assert result["evidence"]
+        assert score["episode_success"] is False
+        assert score["cost_usd"] == 0.25
+        assert score["turns"] == 2
+
+
+def test_steward_condition_uses_configured_max_turns(tmp_path: Path) -> None:
+    config = {**load_config(), "max_turns": 2}
+
+    records = run_evaluation(
+        config=config,
+        output_dir=tmp_path / "results",
+        conditions=["generic", "steward"],
+        episode_ids=["clean_daily_revenue_metric"],
+        model_factory=lambda condition, episode_id: ScriptedLM(
+            [format_tool_call("list_files", {}) if condition == "generic" else
+             format_tool_call("get_change_diff", {})],
+            repeat_last=True,
+        ),
+        workspace_root=tmp_path / "workspaces",
+    )
+
+    for record in records:
+        assert "max_turns: stopped after 2 model turns" in record["result"]["error"]
+        assert record["score"]["turns"] == 2

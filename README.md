@@ -4,7 +4,7 @@ This prototype investigates whether an evidence-grounded steward can repair cata
 
 ## Setup and configuration
 
-Prerequisites: Python 3.11 or newer, `uv`, and `make`. From the repository root:
+Prerequisites: `uv`, `make`, and Python 3.11 or newer (`uv sync` selects or downloads a suitable interpreter if the system Python is older). No dbt installation is needed; dbt Core and dbt-duckdb come from the lockfile. From the repository root:
 
 ```sh
 make setup
@@ -18,10 +18,10 @@ make test
 
 - `OPENROUTER_API_KEY`: required for live calls; leave empty for local deterministic work.
 - `CATALOG_STEWARD_MODEL` (default `openai/gpt-6-luna`), `CATALOG_STEWARD_REASONING_EFFORT` (`low`), and `CATALOG_STEWARD_BUDGET_USD` (`10`): model and cost controls.
-- `CATALOG_STEWARD_EVAL_SLICE` (empty) and `CATALOG_STEWARD_EVAL_CONCURRENCY` (`2`): evaluation settings. The current midpoint evaluation CLI iterates its selected episodes and conditions serially; use its `--episodes` option to select a subset.
-- `CATALOG_STEWARD_CACHE_DIR` (`.lm_cache`), `CATALOG_STEWARD_RESULTS_DIR` (`experiments/results`), `CATALOG_STEWARD_DBT_PROJECT_DIR` (`data/fixtures/dbt_catalog`), and `CATALOG_STEWARD_WAREHOUSE_PATH` (`.artifacts/catalog.duckdb`): local paths. Episode workspaces use their own project and warehouse paths. The evaluation CLI defaults its output directly to `experiments/results/<UTC timestamp>`; use `--output` to choose another location.
+- `CATALOG_STEWARD_EVAL_SLICE` (empty) and `CATALOG_STEWARD_EVAL_CONCURRENCY` (`2`): reserved evaluation settings. `make doctor` reports them, but the current midpoint evaluation CLI reads neither: it iterates its selected episodes and conditions serially; use its `--episodes` option to select a subset.
+- `CATALOG_STEWARD_CACHE_DIR` (`.lm_cache`), `CATALOG_STEWARD_RESULTS_DIR` (`experiments/results`), `CATALOG_STEWARD_DBT_PROJECT_DIR` (`data/fixtures/dbt_catalog`), and `CATALOG_STEWARD_WAREHOUSE_PATH` (`.artifacts/catalog.duckdb`): local paths. Only the cache directory affects the Make targets; episode workspaces use their own project and warehouse paths. The evaluation CLI ignores `CATALOG_STEWARD_RESULTS_DIR` and always defaults its output to `experiments/results/<UTC timestamp>`; use `--output` to choose another location.
 
-`make doctor-live` checks that live configuration includes a key; it does not prove the provider accepts it. `make test` excludes tests marked `live`; `make test-live` and `make test-all` explicitly include paid or external tests. `PYTEST_ARGS` can narrow a Make test invocation.
+`make doctor-live` checks that live configuration includes a key; it does not prove the provider accepts it. Without a key it exits non-zero with `OPENROUTER_API_KEY is required ...`. `make test` excludes tests marked `live`; `make test-live` and `make test-all` explicitly include paid or external tests. `PYTEST_ARGS` can narrow a Make test invocation.
 
 ## Contract and episodes
 
@@ -42,7 +42,7 @@ make evidence EPISODE=change_daily_revenue_filter ASSET=daily_revenue
 
 ## Steward and evaluation
 
-These commands need a valid OpenRouter credential and can incur charges:
+The first two commands need a valid OpenRouter credential, and the steward can incur charges; `make costs` only reads the local ledger and prints `No LLM calls recorded yet.` before any live call:
 
 ```sh
 make doctor-live
@@ -50,14 +50,14 @@ make steward EPISODE=rem_daily_revenue_filter_drift
 make costs
 ```
 
-The steward resets and builds the episode again, prints its result as JSON, and writes a plan and any generated patch artifacts under `.runs/<episode_id>/artifacts/`. Inspect the evidence, findings, verification and any proposal before treating the run as successful. Output can vary with model behavior.
+The steward resets and builds the episode again, prints its result as JSON, and writes a plan and any generated patch artifacts under `.runs/<episode_id>/artifacts/`. Without a key it still resets and builds the workspace, then stops with a `RuntimeError: OPENROUTER_API_KEY is required for a live model call` traceback; `make test-live` fails (rather than skips) with the same error. Inspect the evidence, findings, verification and any proposal before treating the run as successful. Output can vary with model behavior.
 
 ```sh
 make pilot-static
 make pilot
 ```
 
-`pilot-static` runs only the non-model baseline; `pilot` runs static, generic and steward conditions and requires paid live calls. Both use the frozen configuration and write timestamped directories under `experiments/results/`, with `summary.json`, per-episode condition JSON and copied artifacts. The evaluation CLI supports a smaller, separately recorded run, for example:
+`pilot-static` runs only the non-model baseline; `pilot` runs static, generic and steward conditions and requires paid live calls. Both use the frozen configuration and write timestamped directories under `experiments/results/`, with `summary.json`, per-episode condition JSON and copied artifacts; the path is printed on the last line. These directories are not ignored by Git, so delete or deliberately check in each one. Episode workspaces for an evaluation run are kept under `.runs/evaluation/<output directory name>/`. `make pilot` does not check for a key up front: without one it runs about three minutes, records every generic and steward run as an error, writes a timestamped directory anyway, and exits non-zero, so run `make doctor-live` first. The evaluation CLI supports a smaller, separately recorded run, for example:
 
 ```sh
 uv run python -m catalog_steward.evaluation --conditions static --episodes rem_daily_revenue_filter_drift,change_daily_revenue_filter --output .runs/demo-static

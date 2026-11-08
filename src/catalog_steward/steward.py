@@ -71,6 +71,8 @@ class StewardRun:
         self.episode = episode_by_id(self.manifest, workspace.episode_id)
         self.store = EvidenceStore(workspace, contract=self.contract)
         self.bundle_errors: list[str] = []
+        self.session: AgentSession | None = None
+        self.agent_result: AgentResult | None = None
 
     def collect_evidence(self) -> list[EvidenceItem]:
         """Systematically collect bounded facts without using evaluation labels."""
@@ -97,15 +99,17 @@ class StewardRun:
         except (FileNotFoundError, KeyError, ValueError) as exc:
             self.bundle_errors.append(str(exc))
 
-    def run(self, model: ChatModel) -> StewardResult:
+    def run(self, model: ChatModel, *, max_turns: int = 12) -> StewardResult:
         evidence = self.collect_evidence()
         prompt = self._prompt(evidence)
         session = AgentSession(
             model,
             evidence_tools(self.store),
-            AgentConfig(max_turns=12, system_prompt=self._system_prompt()),
+            AgentConfig(max_turns=max_turns, system_prompt=self._system_prompt()),
         )
+        self.session = session
         agent_result = session.send(prompt)
+        self.agent_result = agent_result
         if agent_result.status != "done":
             raise RuntimeError(f"steward planning did not finish: {agent_result.status}: {agent_result.text}")
         plan = self._validate_plan(agent_result.text)

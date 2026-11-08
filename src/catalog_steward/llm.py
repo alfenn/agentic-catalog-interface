@@ -249,6 +249,11 @@ class LM:
             max_tokens=self.max_tokens,
             extra_body=extra_body,
         )
+        if not getattr(response, "choices", None):
+            # OpenRouter can return HTTP 200 with an `error` object and no choices.
+            raise RuntimeError(
+                f"OpenRouter response contained no choices: {getattr(response, 'error', None)!r}"
+            )
         choice = response.choices[0]
         provider_usage = response.usage
         prompt_details = getattr(provider_usage, "prompt_tokens_details", None)
