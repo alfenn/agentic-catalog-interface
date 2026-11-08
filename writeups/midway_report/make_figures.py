@@ -4,7 +4,8 @@ Usage (from the repository root):
 
     uv run --group report python writeups/midway_report/make_figures.py \
         experiments/results/<run>/ [--out writeups/midway_report/figures] \
-        [--update-report writeups/midway_report/report.md]
+        [--update-report writeups/midway_report/report.md] \
+        [--findings-chart] [--dpi 200]
 
 Reads ``<run>/summary.json`` (the shape written by ``catalog_steward.evaluation``)
 and the episode manifest, then writes into ``--out``:
@@ -13,6 +14,8 @@ and the episode manifest, then writes into ``--out``:
   episode category (remediation / flawed change / clean control).
 * ``outcome_grid.{pdf,png}``: one cell per episode x condition, labelled
   success / partial / missed / false alarm / error / pending.
+* ``findings_vs_false_alarms.{pdf,png}`` (only with ``--findings-chart``): expected
+  issues found and false alarms per condition, as two small-multiple panels.
 * ``results_table.md`` and ``results_summary.md``: the Markdown table and summary
   sentence the report uses. With ``--update-report`` they are also written into
   the matching ``<!-- BEGIN GENERATED: ... -->`` regions of the report source.
@@ -220,7 +223,7 @@ def plot_outcome_grid(conditions: list[str], episodes: list[str], cells: list[Ce
             if cell.outcome not in ("pending", "error") and cell.expected:
                 text += f"  {cell.true_positives}/{cell.expected} found"
             elif cell.outcome != "pending" and cell.false_positives:
-                text += f"  {cell.false_positives} spurious"
+                text += f" ({cell.false_positives})"
             ax.text(k + 0.5, r + 0.5, text, ha="center", va="center", fontsize=7, color=text_color)
     # Category separators, with each group's name at the right edge.
     groups: list[tuple[str, int, int]] = []
@@ -258,9 +261,42 @@ def plot_outcome_grid(conditions: list[str], episodes: list[str], cells: list[Ce
     save(fig, out / "outcome_grid")
 
 
+PNG_DPI = 200
+
+
+def plot_findings(conditions: list[str], cells: list[Cell], out: Path, source: str) -> None:
+    """Expected issues found vs false alarms per condition (two panels, one axis each)."""
+    run_conditions = [c for c in conditions if any(x.condition == c and x.outcome != "pending" for x in cells)]
+    stats = condition_stats(run_conditions, cells)
+    expected = {c: sum(x.expected for x in cells if x.condition == c) for c in run_conditions}
+    panels = [
+        ("Expected issues found", lambda c: stats[c]["tp"], lambda c: f"{stats[c]['tp']}/{expected[c]}"),
+        ("False alarms", lambda c: stats[c]["fp"], lambda c: str(stats[c]["fp"])),
+    ]
+    top = max([max(expected.values(), default=1)] + [stats[c]["fp"] for c in run_conditions]) * 1.18
+    fig, axes = plt.subplots(1, 2, figsize=(5.5, 2.0), sharey=True)
+    fig.patch.set_facecolor(SURFACE)
+    for ax, (title, value, text) in zip(axes, panels):
+        style_axes(ax)
+        for i, condition in enumerate(run_conditions):
+            v = value(condition)
+            ax.bar(i, v, width=0.55, color=condition_color(conditions, condition), linewidth=0)
+            ax.text(i, v + top * 0.02, text(condition), ha="center", va="bottom", fontsize=8.5, color=INK)
+        ax.set_title(title, fontsize=9, color=INK, loc="left")
+        ax.set_xticks(range(len(run_conditions)), [label(c).replace(" ", "\n") for c in run_conditions],
+                      fontsize=7.5)
+        ax.set_xlim(-0.6, len(run_conditions) - 0.4)
+        ax.set_ylim(0, top)
+        ax.tick_params(axis="y", labelsize=7.5)
+    axes[0].set_ylabel("Findings (all episodes)", fontsize=8, color=INK_2)
+    fig.text(0.01, 0.01, f"Source: {source}", fontsize=6, color=MUTED)
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    save(fig, out / "findings_vs_false_alarms")
+
+
 def save(fig: Any, stem: Path) -> None:
     fig.savefig(stem.with_suffix(".pdf"), facecolor=SURFACE)
-    fig.savefig(stem.with_suffix(".png"), dpi=200, facecolor=SURFACE)
+    fig.savefig(stem.with_suffix(".png"), dpi=PNG_DPI, facecolor=SURFACE)
     plt.close(fig)
 
 
@@ -360,7 +396,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--update-report", type=Path, help="Markdown report whose generated regions to refresh")
+    parser.add_argument("--findings-chart", action="store_true",
+                        help="also write findings_vs_false_alarms.{pdf,png} (used by the demo video)")
+    parser.add_argument("--dpi", type=int, default=200, help="PNG resolution (default 200)")
     args = parser.parse_args(argv)
+    global PNG_DPI
+    PNG_DPI = args.dpi
 
     summary_path = args.results / "summary.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
@@ -374,6 +415,8 @@ def main(argv: list[str] | None = None) -> int:
     args.out.mkdir(parents=True, exist_ok=True)
     plot_success_by_category(conditions, cells, args.out, source)
     plot_outcome_grid(conditions, episodes, cells, args.out, source)
+    if args.findings_chart:
+        plot_findings(conditions, cells, args.out, source)
     stats = condition_stats(conditions, cells)
     table = results_table(conditions, stats, source)
     sentence = results_summary(conditions, stats)

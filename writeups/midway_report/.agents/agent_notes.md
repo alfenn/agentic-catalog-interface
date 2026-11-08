@@ -507,3 +507,29 @@ context: [
 - The auditor's file write was blocked because subagents return findings as
   text, so the driver saved the audit verbatim, after spot-checking three
   claims against the raw records.
+
+## 2026-11-08 — Three-minute demo package
+
+- The rubric caps the video at 3 minutes, so the package targets 2:45 of
+  narration (about 400 words at roughly 147 wpm) in seven timed segments
+  (`writeups/midway_report/demo/demo_script.md`), with one shell function per
+  segment (`demo_commands.sh`). Everything slow (dependency sync, dbt
+  fixture builds, chart generation) runs in an off-camera `prep` step. Every
+  on-camera command was rehearsed at under 6 seconds.
+- On-camera steward runs replay the recorded pilot from the response cache.
+  This was the payoff of the cache-stable prompt fix: replayed plans are
+  byte-identical to the pilot and the spend ledger does not change ($0.0244
+  before and after). The script runs replays with a near-zero budget, so a
+  cache miss fails before any paid call and falls back to the saved
+  artifacts instead of silently paying for, and showing, a different sample.
+- The story uses the two demo episodes as separate fixtures and connects
+  them honestly: the change episode's catalog text is byte-identical to the
+  steward's earlier patch, and the script checks that before saying so.
+- A third chart (expected issues found vs false alarms per condition) was
+  added to the same generator, behind an opt-in flag, so the report's
+  default figures are unchanged apart from a clipped-label fix in the
+  outcome grid.
+- The driver reworded the closing narration to match the audit: the
+  steward's extra findings include real gaps the labels missed, so the
+  follow-up is better labels and real verification, not only "fewer false
+  alarms".
