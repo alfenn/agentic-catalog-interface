@@ -19,6 +19,10 @@ dev = [
     "pytest>=8.3,<10",
     "pytest-cov>=6,<8",
 ]
+report = [
+    "matplotlib>=3.11,<4",
+    "pypandoc-binary>=1.17,<2",
+]
 
 [build-system]
 requires = ["hatchling"]

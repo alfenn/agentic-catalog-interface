@@ -377,3 +377,30 @@ context: [
   under config 1.0.0 with the old path handling. The full pilot regenerates
   the static condition under 1.1.0, and the report will cite that run as the
   single source for all three conditions. 79 deterministic tests pass.
+
+## 2026-11-08 — Report in the ICLR template with generated charts
+
+- `report.md` is the single editable source. `make report` regenerates the
+  charts and results table from a results folder (`REPORT_RESULTS`), rewrites
+  the generated table region in the Markdown, converts it with pandoc
+  (pinned through the `report` dependency group, since no system pandoc
+  exists) into the ICLR 2025 frame of the author's `iclr_template.tex`, and
+  builds the PDF in a temporary directory. The temporary build avoids clashes
+  with an editor auto-compiling `report.tex`, which made latexmk fail
+  intermittently. `report.tex` is committed as generated output.
+- The outline follows the Gradescope rubric (Problem Statement, Methodology,
+  Results, Assets, Timeline) and names the course's six required sections
+  inside it. Body is 4 pages and references plus the disclosure follow, which
+  the course's "page limits exclude references" rule allows. Any longer
+  results interpretation must replace text rather than add to it.
+- Charts are produced by `writeups/midway_report/make_figures.py`, which
+  renders conditions that have not run as pending, so the same script serves
+  the static-only draft and the full pilot without edits. A "false alarm"
+  state was added for findings on clean controls, which "missed" would
+  mislabel.
+- The three requirement files were reformatted without changing their
+  wording. The Gradescope source URL had a signed query string containing a
+  temporary AWS session token; it was stripped before anything was
+  committed.
+- The course site lists the midpoint as due Nov 6; this work is finishing
+  after that date, which the author is aware of.

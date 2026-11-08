@@ -2,8 +2,9 @@ UV ?= uv
 PYTEST_ARGS ?=
 EPISODE ?= rem_daily_revenue_filter_drift
 ASSET ?= daily_revenue
+REPORT_RESULTS ?= experiments/results/midpoint_v1_static
 
-.PHONY: help setup sync lock doctor doctor-live contract episodes episodes-check fixture evidence steward pilot-static pilot test test-live test-all costs
+.PHONY: help setup sync lock doctor doctor-live contract episodes episodes-check fixture evidence steward pilot-static pilot test test-live test-all costs report
 
 help:
 	@printf '%s\n' \
@@ -23,7 +24,8 @@ help:
 	  'test         run deterministic tests only' \
 	  'test-live    run paid/external tests explicitly' \
 	  'test-all     run deterministic and live tests' \
-	  'costs        summarize recorded live-model cost'
+	  'costs        summarize recorded live-model cost' \
+	  'report       regenerate midway-report charts, report.tex, and report.pdf from REPORT_RESULTS'
 
 setup:
 	@test -f .env || cp .env.example .env
@@ -77,3 +79,5 @@ test-all:
 costs:
 	$(UV) run python -m catalog_steward.llm
 
+report:
+	$(UV) run --group report python writeups/midway_report/build_report.py --results $(REPORT_RESULTS)
