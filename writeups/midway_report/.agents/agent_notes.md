@@ -472,3 +472,38 @@ context: [
   `grain_or_join_drift`, where only a proposal is, and its grain patch
   verified. The final study should derive or check the issue type
   independently of the model's label.
+
+## 2026-11-08 — Manual audit of the three-condition pilot
+
+- The audit (`experiments/results/midpoint_v1_2_pilot/analysis.md`) confirmed
+  the scorer's arithmetic but changed what the numbers mean. Every steward
+  finding cites real, relevant evidence. The steward's two clean-control
+  "false alarms" are true statements about the fixtures: a seed with no
+  documentation, and a model description that omits a newly documented
+  metric. The generic agent's 5/10 includes one pass where it read no files,
+  and one failure built entirely on tool results it invented, which still
+  passed the ID-based evidence check. A third run approved the refund
+  regression without reading anything, which the manifest lists as unsafe
+  but the scorer cannot see.
+- Decision: do not relabel the manifest or rescore for the midpoint.
+  Changing labels after seeing results would make the comparison
+  unfalsifiable. The audit reports a sensitivity range instead (steward 7/10
+  if the defensible extras are accepted, generic 4/10 if vacuous passes are
+  rejected, static 3/10 if report-only remediation is rejected). Seed
+  documentation, a truly clean `clean_daily_revenue_metric` overlay, an
+  issue-type precedence rule, and postcondition-based success go into the
+  next episode version.
+- Two acceptance items stay open honestly. The conditions are not fully
+  matched: only the steward sees per-issue action rules and a pre-collected
+  evidence bundle, so call counts and unsafe-action rates are not
+  like-for-like. And not every agent claim is traceable to evidence: the
+  fabricated generic run is the counterexample, and the evidence-validity
+  metric cannot detect it.
+- Steward patch verification is weaker than the contract describes. It
+  checks that the written value equals the model's chosen value and that
+  `dbt parse` succeeds; `dbt parse` does not read `catalog/`. The audit
+  checked all three patched values by hand and found them correct. Real
+  per-issue verification is a priority for the final study.
+- The auditor's file write was blocked because subagents return findings as
+  text, so the driver saved the audit verbatim, after spot-checking three
+  claims against the raw records.

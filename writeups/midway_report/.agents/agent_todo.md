@@ -153,21 +153,21 @@ human-readable result summary.
 
 ### Phase 5: run and audit the midpoint pilot
 
-- [ ] Dry-run two episodes to find broken fixtures, ambiguous ground truth, and
+- [x] Dry-run two episodes to find broken fixtures, ambiguous ground truth, and
   schema/scorer failures.
   - [x] Scripted-model dry run of one remediation and one change episode
     through the real runner for both model conditions (no network).
   - [x] Fix defects that would lose paid transcripts/cost on failed runs.
-  - [ ] Remove the steward-only episode-label leak (episode ID in the prompt
+  - [x] Remove the steward-only episode-label leak (episode ID in the prompt
     and in workspace paths), make prompts cache-stable, pin and record
     reasoning effort, and bump the frozen prompt/config versions.
-  - [ ] Paid smoke run: one remediation and one change episode, generic and
+  - [x] Paid smoke run: one remediation and one change episode, generic and
     steward, to a scratch output; measure protocol/plan error rates.
 - [x] Audit every manifest entry and expected action before the scored run.
-- [ ] Run all 8-12 episodes in the three midpoint conditions.
-- [ ] Manually inspect evidence validity and every action marked unsafe,
+- [x] Run all 8-12 episodes in the three midpoint conditions.
+- [x] Manually inspect evidence validity and every action marked unsafe,
   unsupported, or unverifiable.
-- [ ] Classify failures by cause: missing evidence, tool defect, planning error,
+- [x] Classify failures by cause: missing evidence, tool defect, planning error,
   bad risk decision, patch failure, verification failure, or ambiguous ground
   truth.
 - [ ] Generate a compact results table. With this small pilot, report counts and
@@ -250,17 +250,17 @@ the repository can reproduce the shown path.
 
 ## Final acceptance checklist
 
-- [ ] One specialized workflow supports both remediation and change review.
-- [ ] The midpoint prototype demonstrates one verified repair and one prevented
+- [x] One specialized workflow supports both remediation and change review.
+- [x] The midpoint prototype demonstrates one verified repair and one prevented
   regression (or correct escalation).
-- [ ] The hygiene contract supports only 4-6 explicit issue types.
-- [ ] The evaluation contains 8-12 audited episodes including clean controls.
-- [ ] Ground truth includes acceptable and unsafe action sets, not only defect
+- [x] The hygiene contract supports only 4-6 explicit issue types.
+- [x] The evaluation contains 8-12 audited episodes including clean controls.
+- [x] Ground truth includes acceptable and unsafe action sets, not only defect
   labels.
 - [ ] Static, generic-agent, and steward conditions are matched fairly.
 - [ ] All agent claims and changes are traceable to evidence.
-- [ ] Verification failures cannot count as successful remediations.
-- [ ] Raw pilot outputs, configuration, prompts, and generated summaries are
+- [x] Verification failures cannot count as successful remediations.
+- [x] Raw pilot outputs, configuration, prompts, and generated summaries are
   retained.
 - [ ] The report is 3-4 pages and contains all six required sections.
 - [ ] The report exists as an editable Markdown source and as a `.tex` that
@@ -273,7 +273,7 @@ the repository can reproduce the shown path.
   results, never hand-entered numbers.
 - [ ] The demo has a narration script, charts, and a timestamped command list
   that fits the 3-minute limit in `video__requirements.md`.
-- [ ] The `*__requirements.md` files are reformatted for readability, with
+- [x] The `*__requirements.md` files are reformatted for readability, with
   signed/expiring URL query strings removed.
 - [ ] The README is sufficient to run the prototype and evaluation.
 - [ ] The recorded demo shows both modes and states limitations honestly.
