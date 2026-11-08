@@ -1,0 +1,14 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -1,8 +1,9 @@
+ {
+   "assets": {
+     "customer_orders": {
+-      "grain": ["order_id"]
++      "grain": [
++        "customer_id"
++      ]
+     }
+   }
+ }
+-

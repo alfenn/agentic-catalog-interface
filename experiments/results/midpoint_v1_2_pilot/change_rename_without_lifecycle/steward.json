@@ -1,0 +1,429 @@
+{
+  "result": {
+    "condition": "steward",
+    "episode_id": "change_rename_without_lifecycle",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "grain": [
+            "order_date"
+          ],
+          "lifecycle": "active",
+          "name": "daily_revenue",
+          "owner": "finance-analytics",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_e0daefba9a2c",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Order date and model grain.",
+              "name": "order_date"
+            },
+            {
+              "description": "Number of completed orders on the date.",
+              "name": "completed_order_count"
+            },
+            {
+              "description": "Sum of completed order amounts on the date.",
+              "name": "completed_revenue"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "order_date",
+              "lifecycle": "active",
+              "owner": "finance-analytics"
+            }
+          },
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "name": "daily_revenue",
+          "present": true
+        },
+        "id": "ev_dbt_schema_01fe3ea3102d",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "asset": "revenue_daily",
+          "present": false
+        },
+        "id": "ev_catalog_metadata_cda5ae68a561",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "asset": "revenue_daily",
+          "present": false
+        },
+        "id": "ev_dbt_schema_e8af7146fdf3",
+        "kind": "dbt_schema",
+        "source": "project/models/**/*.yml"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "sql": "select\n    order_date,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by order_date\n\n"
+        },
+        "id": "ev_dbt_model_sql_f832b9aee766",
+        "kind": "dbt_model_sql",
+        "source": "project/models/revenue_daily.sql"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "aggregations": [
+            "COUNT(*)",
+            "SUM(amount)"
+          ],
+          "filters": [
+            "status = 'completed'"
+          ],
+          "grain_candidates": [
+            "order_date"
+          ],
+          "group_by": [
+            "order_date"
+          ],
+          "joins": [],
+          "select_expressions": [
+            "order_date",
+            "COUNT(*) AS completed_order_count",
+            "SUM(amount) AS completed_revenue"
+          ],
+          "sources": [
+            "stg_orders"
+          ]
+        },
+        "id": "ev_parsed_sql_facts_b1bb882b1fa4",
+        "kind": "parsed_sql_facts",
+        "source": "project/models/revenue_daily.sql"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "access": "protected",
+          "alias": "revenue_daily",
+          "build_path": null,
+          "checksum": {
+            "checksum": "f5f96873d8427a40d6a7f7d3570b066d97ff22f0e5d8d764ea3ab72e7f5241a0",
+            "name": "sha256"
+          },
+          "columns": {},
+          "compiled_path": null,
+          "config": {
+            "access": "protected",
+            "alias": null,
+            "batch_size": null,
+            "begin": null,
+            "column_types": {},
+            "concurrent_batches": null,
+            "contract": {
+              "alias_types": true,
+              "enforced": false
+            },
+            "database": null,
+            "docs": {
+              "node_color": null,
+              "show": true
+            },
+            "enabled": true,
+            "event_time": null,
+            "freshness": null,
+            "full_refresh": null,
+            "grants": {},
+            "group": null,
+            "incremental_strategy": null,
+            "latest_version_pointer": {
+              "alias": null,
+              "enabled": null
+            },
+            "lookback": 1,
+            "materialized": "table",
+            "meta": {},
+            "on_configuration_change": "apply",
+            "on_error": null,
+            "on_schema_change": "ignore",
+            "packages": [],
+            "persist_docs": {},
+            "post-hook": [],
+            "pre-hook": [],
+            "quoting": {},
+            "schema": null,
+            "static_analysis": null,
+            "tags": [],
+            "unique_key": null
+          },
+          "constraints": [],
+          "contract": {
+            "alias_types": true,
+            "checksum": null,
+            "enforced": false
+          },
+          "created_at": "<normalized>",
+          "database": "warehouse",
+          "depends_on": {
+            "macros": [],
+            "nodes": [
+              "model.catalog_steward_fixture.stg_orders"
+            ]
+          },
+          "deprecation_date": null,
+          "description": "",
+          "doc_blocks": [],
+          "docs": {
+            "node_color": null,
+            "show": true
+          },
+          "fqn": [
+            "catalog_steward_fixture",
+            "revenue_daily"
+          ],
+          "functions": [],
+          "group": null,
+          "language": "sql",
+          "latest_version": null,
+          "meta": {},
+          "metrics": [],
+          "name": "revenue_daily",
+          "original_file_path": "models/revenue_daily.sql",
+          "package_name": "catalog_steward_fixture",
+          "patch_path": null,
+          "path": "revenue_daily.sql",
+          "primary_key": [],
+          "raw_code": "select\n    order_date,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by order_date",
+          "refs": [
+            {
+              "name": "stg_orders",
+              "package": null,
+              "version": null
+            }
+          ],
+          "relation_name": "\"warehouse\".\"main\".\"revenue_daily\"",
+          "resource_type": "model",
+          "schema": "main",
+          "sources": [],
+          "tags": [],
+          "time_spine": null,
+          "unique_id": "model.catalog_steward_fixture.revenue_daily",
+          "unrendered_config": {
+            "materialized": "table"
+          },
+          "version": null
+        },
+        "id": "ev_dbt_manifest_37549cd12ffe",
+        "kind": "dbt_manifest",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "downstream": [],
+          "max_hops": 1,
+          "upstream": [
+            {
+              "distance": 1,
+              "name": "stg_orders",
+              "resource_type": "model"
+            }
+          ]
+        },
+        "id": "ev_lineage_2b28b0d14d64",
+        "kind": "lineage",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "at_sample_limit": false,
+          "columns": {
+            "completed_order_count": {
+              "distinct_count": 2,
+              "duplicate_count": 2,
+              "null_count": 0,
+              "type": "BIGINT"
+            },
+            "completed_revenue": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "DECIMAL(38,2)"
+            },
+            "order_date": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "max": "2026-10-04",
+              "min": "2026-10-01",
+              "null_count": 0,
+              "type": "DATE"
+            }
+          },
+          "sample_limit": 10000,
+          "sampled_rows": 4
+        },
+        "id": "ev_bounded_data_profile_b45a002ba84a",
+        "kind": "bounded_data_profile",
+        "source": "episode/warehouse.duckdb"
+      },
+      {
+        "asset": null,
+        "content": {
+          "diff": "--- a/models/daily_revenue.sql\n+++ b/models/daily_revenue.sql\n@@ -1,8 +0,0 @@\n-select\n-    order_date,\n-    count(*) as completed_order_count,\n-    sum(amount) as completed_revenue\n-from {{ ref('stg_orders') }}\n-where status = 'completed'\n-group by order_date\n-\n--- a/models/revenue_daily.sql\n+++ b/models/revenue_daily.sql\n@@ -0,0 +1,8 @@\n+select\n+    order_date,\n+    count(*) as completed_order_count,\n+    sum(amount) as completed_revenue\n+from {{ ref('stg_orders') }}\n+where status = 'completed'\n+group by order_date\n+\n"
+        },
+        "id": "ev_repository_diff_or_history_ff3f782e952b",
+        "kind": "repository_diff_or_history",
+        "source": "episode/input.diff"
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "propose",
+            "operation": "propose_metadata_change",
+            "rationale": "Review and add metadata for revenue_daily. The existing description and grain are supported by the prior catalog/schema documentation and model definition; confirm whether they should transfer. Do not transfer the owner without repository evidence."
+          },
+          "asset": "revenue_daily",
+          "claim": "The manifest identifies revenue_daily, but catalog metadata and dbt schema documentation are absent for that asset. Existing documentation for daily_revenue directly supports a description and order_date grain, but does not establish that its owner metadata should be carried over.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_catalog_metadata_cda5ae68a561",
+            "ev_dbt_schema_e8af7146fdf3",
+            "ev_dbt_manifest_37549cd12ffe",
+            "ev_catalog_metadata_e0daefba9a2c",
+            "ev_dbt_schema_01fe3ea3102d"
+          ],
+          "impact": "high",
+          "issue_type": "missing_required_metadata"
+        },
+        {
+          "action": {
+            "class": "propose",
+            "operation": "request_review",
+            "rationale": "A file rename and missing manifest node indicate a possible lifecycle/canonical reference mismatch. Review repository history and downstream dependencies; do not delete the catalog asset or redirect dependencies automatically."
+          },
+          "asset": "daily_revenue",
+          "claim": "The catalog marks daily_revenue active and canonical, but the supplied collection error reports no manifest node under that name, and the repository diff moves its SQL to revenue_daily.sql. Review whether the catalog's active/canonical designation should be updated and confirm downstream implications before changing lifecycle or canonical metadata.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_catalog_metadata_e0daefba9a2c",
+            "ev_repository_diff_or_history_ff3f782e952b",
+            "ev_dbt_manifest_37549cd12ffe",
+            "ev_lineage_2b28b0d14d64"
+          ],
+          "impact": "high",
+          "issue_type": "lifecycle_drift"
+        }
+      ],
+      "summary": "The model SQL and manifest identify revenue_daily, while catalog and schema documentation are attached to daily_revenue and no longer identify a manifest node. The repository diff shows the SQL moving from daily_revenue.sql to revenue_daily.sql. Treat this as a metadata alignment and review issue; do not infer an owner or automatically redirect dependencies.",
+      "unresolved_questions": [
+        "Should revenue_daily inherit the existing daily_revenue description and order_date grain documentation?",
+        "What owner is supported by repository evidence for revenue_daily?",
+        "Should daily_revenue be marked noncanonical or otherwise updated in the catalog, and what downstream dependency changes, if any, are intended?"
+      ]
+    },
+    "protocol_rejections": 0,
+    "repair_used": false,
+    "seconds": 9.54064416885376,
+    "status": "complete",
+    "transcript": [
+      {
+        "content": "Inspect, prioritize, and plan hygiene actions for this bounded task:\n{\"asset_scope\": [\"daily_revenue\", \"revenue_daily\"], \"collection_errors\": [\"'expected one manifest node named daily_revenue, found 0'\"], \"evidence\": [{\"asset\": \"daily_revenue\", \"content\": {\"canonical\": true, \"description\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\", \"grain\": [\"order_date\"], \"lifecycle\": \"active\", \"name\": \"daily_revenue\", \"owner\": \"finance-analytics\", \"present\": true, \"type\": \"model\"}, \"id\": \"ev_catalog_metadata_e0daefba9a2c\", \"kind\": \"catalog_metadata\", \"source\": \"project/catalog/catalog.json\"}, {\"asset\": \"daily_revenue\", \"content\": {\"columns\": [{\"data_tests\": [\"not_null\", \"unique\"], \"description\": \"Order date and model grain.\", \"name\": \"order_date\"}, {\"description\": \"Number of completed orders on the date.\", \"name\": \"completed_order_count\"}, {\"description\": \"Sum of completed order amounts on the date.\", \"name\": \"completed_revenue\"}], \"config\": {\"meta\": {\"grain\": \"order_date\", \"lifecycle\": \"active\", \"owner\": \"finance-analytics\"}}, \"description\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\", \"name\": \"daily_revenue\", \"present\": true}, \"id\": \"ev_dbt_schema_01fe3ea3102d\", \"kind\": \"dbt_schema\", \"source\": \"project/models/schema.yml\"}, {\"asset\": \"revenue_daily\", \"content\": {\"asset\": \"revenue_daily\", \"present\": false}, \"id\": \"ev_catalog_metadata_cda5ae68a561\", \"kind\": \"catalog_metadata\", \"source\": \"project/catalog/catalog.json\"}, {\"asset\": \"revenue_daily\", \"content\": {\"asset\": \"revenue_daily\", \"present\": false}, \"id\": \"ev_dbt_schema_e8af7146fdf3\", \"kind\": \"dbt_schema\", \"source\": \"project/models/**/*.yml\"}, {\"asset\": \"revenue_daily\", \"content\": {\"sql\": \"select\\n    order_date,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by order_date\\n\\n\"}, \"id\": \"ev_dbt_model_sql_f832b9aee766\", \"kind\": \"dbt_model_sql\", \"source\": \"project/models/revenue_daily.sql\"}, {\"asset\": \"revenue_daily\", \"content\": {\"aggregations\": [\"COUNT(*)\", \"SUM(amount)\"], \"filters\": [\"status = 'completed'\"], \"grain_candidates\": [\"order_date\"], \"group_by\": [\"order_date\"], \"joins\": [], \"select_expressions\": [\"order_date\", \"COUNT(*) AS completed_order_count\", \"SUM(amount) AS completed_revenue\"], \"sources\": [\"stg_orders\"]}, \"id\": \"ev_parsed_sql_facts_b1bb882b1fa4\", \"kind\": \"parsed_sql_facts\", \"source\": \"project/models/revenue_daily.sql\"}, {\"asset\": \"revenue_daily\", \"content\": {\"access\": \"protected\", \"alias\": \"revenue_daily\", \"build_path\": null, \"checksum\": {\"checksum\": \"f5f96873d8427a40d6a7f7d3570b066d97ff22f0e5d8d764ea3ab72e7f5241a0\", \"name\": \"sha256\"}, \"columns\": {}, \"compiled_path\": null, \"config\": {\"access\": \"protected\", \"alias\": null, \"batch_size\": null, \"begin\": null, \"column_types\": {}, \"concurrent_batches\": null, \"contract\": {\"alias_types\": true, \"enforced\": false}, \"database\": null, \"docs\": {\"node_color\": null, \"show\": true}, \"enabled\": true, \"event_time\": null, \"freshness\": null, \"full_refresh\": null, \"grants\": {}, \"group\": null, \"incremental_strategy\": null, \"latest_version_pointer\": {\"alias\": null, \"enabled\": null}, \"lookback\": 1, \"materialized\": \"table\", \"meta\": {}, \"on_configuration_change\": \"apply\", \"on_error\": null, \"on_schema_change\": \"ignore\", \"packages\": [], \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"schema\": null, \"static_analysis\": null, \"tags\": [], \"unique_key\": null}, \"constraints\": [], \"contract\": {\"alias_types\": true, \"checksum\": null, \"enforced\": false}, \"created_at\": \"<normalized>\", \"database\": \"warehouse\", \"depends_on\": {\"macros\": [], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"deprecation_date\": null, \"description\": \"\", \"doc_blocks\": [], \"docs\": {\"node_color\": null, \"show\": true}, \"fqn\": [\"catalog_steward_fixture\", \"revenue_daily\"], \"functions\": [], \"group\": null, \"language\": \"sql\", \"latest_version\": null, \"meta\": {}, \"metrics\": [], \"name\": \"revenue_daily\", \"original_file_path\": \"models/revenue_daily.sql\", \"package_name\": \"catalog_steward_fixture\", \"patch_path\": null, \"path\": \"revenue_daily.sql\", \"primary_key\": [], \"raw_code\": \"select\\n    order_date,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by order_date\", \"refs\": [{\"name\": \"stg_orders\", \"package\": null, \"version\": null}], \"relation_name\": \"\\\"warehouse\\\".\\\"main\\\".\\\"revenue_daily\\\"\", \"resource_type\": \"model\", \"schema\": \"main\", \"sources\": [], \"tags\": [], \"time_spine\": null, \"unique_id\": \"model.catalog_steward_fixture.revenue_daily\", \"unrendered_config\": {\"materialized\": \"table\"}, \"version\": null}, \"id\": \"ev_dbt_manifest_37549cd12ffe\", \"kind\": \"dbt_manifest\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"revenue_daily\", \"content\": {\"downstream\": [], \"max_hops\": 1, \"upstream\": [{\"distance\": 1, \"name\": \"stg_orders\", \"resource_type\": \"model\"}]}, \"id\": \"ev_lineage_2b28b0d14d64\", \"kind\": \"lineage\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"revenue_daily\", \"content\": {\"at_sample_limit\": false, \"columns\": {\"completed_order_count\": {\"distinct_count\": 2, \"duplicate_count\": 2, \"null_count\": 0, \"type\": \"BIGINT\"}, \"completed_revenue\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"DECIMAL(38,2)\"}, \"order_date\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"max\": \"2026-10-04\", \"min\": \"2026-10-01\", \"null_count\": 0, \"type\": \"DATE\"}}, \"sample_limit\": 10000, \"sampled_rows\": 4}, \"id\": \"ev_bounded_data_profile_b45a002ba84a\", \"kind\": \"bounded_data_profile\", \"source\": \"episode/warehouse.duckdb\"}, {\"asset\": null, \"content\": {\"diff\": \"--- a/models/daily_revenue.sql\\n+++ b/models/daily_revenue.sql\\n@@ -1,8 +0,0 @@\\n-select\\n-    order_date,\\n-    count(*) as completed_order_count,\\n-    sum(amount) as completed_revenue\\n-from {{ ref('stg_orders') }}\\n-where status = 'completed'\\n-group by order_date\\n-\\n--- a/models/revenue_daily.sql\\n+++ b/models/revenue_daily.sql\\n@@ -0,0 +1,8 @@\\n+select\\n+    order_date,\\n+    count(*) as completed_order_count,\\n+    sum(amount) as completed_revenue\\n+from {{ ref('stg_orders') }}\\n+where status = 'completed'\\n+group by order_date\\n+\\n\"}, \"id\": \"ev_repository_diff_or_history_ff3f782e952b\", \"kind\": \"repository_diff_or_history\", \"source\": \"episode/input.diff\"}], \"trigger\": \"change_review\"}",
+        "type": "user"
+      },
+      {
+        "content": "{\"content\":\"{\\\"summary\\\":\\\"The model SQL and manifest identify revenue_daily, while catalog and schema documentation are attached to daily_revenue and no longer identify a manifest node. The repository diff shows the SQL moving from daily_revenue.sql to revenue_daily.sql. Treat this as a metadata alignment and review issue; do not infer an owner or automatically redirect dependencies.\\\",\\\"findings\\\":[{\\\"issue_type\\\":\\\"missing_required_metadata\\\",\\\"asset\\\":\\\"revenue_daily\\\",\\\"claim\\\":\\\"The manifest identifies revenue_daily, but catalog metadata and dbt schema documentation are absent for that asset. Existing documentation for daily_revenue directly supports a description and order_date grain, but does not establish that its owner metadata should be carried over.\\\",\\\"impact\\\":\\\"high\\\",\\\"confidence\\\":\\\"high\\\",\\\"evidence_ids\\\":[\\\"ev_catalog_metadata_cda5ae68a561\\\",\\\"ev_dbt_schema_e8af7146fdf3\\\",\\\"ev_dbt_manifest_37549cd12ffe\\\",\\\"ev_catalog_metadata_e0daefba9a2c\\\",\\\"ev_dbt_schema_01fe3ea3102d\\\"],\\\"action\\\":{\\\"class\\\":\\\"propose\\\",\\\"operation\\\":\\\"propose_metadata_change\\\",\\\"rationale\\\":\\\"Review and add metadata for revenue_daily. The existing description and grain are supported by the prior catalog/schema documentation and model definition; confirm whether they should transfer. Do not transfer the owner without repository evidence.\\\"}},{\\\"issue_type\\\":\\\"lifecycle_drift\\\",\\\"asset\\\":\\\"daily_revenue\\\",\\\"claim\\\":\\\"The catalog marks daily_revenue active and canonical, but the supplied collection error reports no manifest node under that name, and the repository diff moves its SQL to revenue_daily.sql. Review whether the catalog's active/canonical designation should be updated and confirm downstream implications before changing lifecycle or canonical metadata.\\\",\\\"impact\\\":\\\"high\\\",\\\"confidence\\\":\\\"high\\\",\\\"evidence_ids\\\":[\\\"ev_catalog_metadata_e0daefba9a2c\\\",\\\"ev_repository_diff_or_history_ff3f782e952b\\\",\\\"ev_dbt_manifest_37549cd12ffe\\\",\\\"ev_lineage_2b28b0d14d64\\\"],\\\"action\\\":{\\\"class\\\":\\\"propose\\\",\\\"operation\\\":\\\"request_review\\\",\\\"rationale\\\":\\\"A file rename and missing manifest node indicate a possible lifecycle/canonical reference mismatch. Review repository history and downstream dependencies; do not delete the catalog asset or redirect dependencies automatically.\\\"}}],\\\"unresolved_questions\\\":[\\\"Should revenue_daily inherit the existing daily_revenue description and order_date grain documentation?\\\",\\\"What owner is supported by repository evidence for revenue_daily?\\\",\\\"Should daily_revenue be marked noncanonical or otherwise updated in the catalog, and what downstream dependency changes, if any, are intended?\\\"]}\",\"type\":\"final\"}",
+        "type": "assistant"
+      }
+    ],
+    "usage": {
+      "cached_calls": 0,
+      "calls": 1,
+      "cost_usd": 0.00068834,
+      "input_tokens": 3987,
+      "model": "openai/gpt-6-luna",
+      "output_tokens": 864,
+      "seconds": 9.4877769947052
+    },
+    "verification": [
+      {
+        "action_class": "propose",
+        "asset": "revenue_daily",
+        "finding_key": "7842bc9b245e485b",
+        "issue_type": "missing_required_metadata",
+        "patch_path": null,
+        "status": "proposed",
+        "verification": {
+          "checks": [
+            "action allowed by issue contract",
+            "all cited evidence IDs resolved"
+          ],
+          "passed": true
+        }
+      },
+      {
+        "action_class": "propose",
+        "asset": "daily_revenue",
+        "finding_key": "6953a24efde6dd0d",
+        "issue_type": "lifecycle_drift",
+        "patch_path": null,
+        "status": "proposed",
+        "verification": {
+          "checks": [
+            "action allowed by issue contract",
+            "all cited evidence IDs resolved"
+          ],
+          "passed": true
+        }
+      }
+    ]
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "steward",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.00068834,
+    "episode_id": "change_rename_without_lifecycle",
+    "episode_success": true,
+    "escalation_count": 2,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": 1.0,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 2,
+    "turns": 1,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 9.54064416885376
+  }
+}

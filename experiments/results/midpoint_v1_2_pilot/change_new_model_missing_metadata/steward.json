@@ -1,0 +1,755 @@
+{
+  "result": {
+    "condition": "steward",
+    "episode_id": "change_new_model_missing_metadata",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "asset": "high_value_orders",
+          "present": false
+        },
+        "id": "ev_catalog_metadata_82ae9089f9d2",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "asset": "high_value_orders",
+          "present": false
+        },
+        "id": "ev_dbt_schema_ada6caa3d7d9",
+        "kind": "dbt_schema",
+        "source": "project/models/**/*.yml"
+      },
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "sql": "select *\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\n  and amount >= 100\n\n"
+        },
+        "id": "ev_dbt_model_sql_c2474a3ceba3",
+        "kind": "dbt_model_sql",
+        "source": "project/models/high_value_orders.sql"
+      },
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "aggregations": [],
+          "filters": [
+            "status = 'completed' AND amount >= 100"
+          ],
+          "grain_candidates": [],
+          "group_by": [],
+          "joins": [],
+          "select_expressions": [
+            "*"
+          ],
+          "sources": [
+            "stg_orders"
+          ]
+        },
+        "id": "ev_parsed_sql_facts_a3e840436bc5",
+        "kind": "parsed_sql_facts",
+        "source": "project/models/high_value_orders.sql"
+      },
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "access": "protected",
+          "alias": "high_value_orders",
+          "build_path": null,
+          "checksum": {
+            "checksum": "01a264e122ba4aedb37bf50a518cc0beb45848257fbc7b44faa59878419fae49",
+            "name": "sha256"
+          },
+          "columns": {},
+          "compiled_path": null,
+          "config": {
+            "access": "protected",
+            "alias": null,
+            "batch_size": null,
+            "begin": null,
+            "column_types": {},
+            "concurrent_batches": null,
+            "contract": {
+              "alias_types": true,
+              "enforced": false
+            },
+            "database": null,
+            "docs": {
+              "node_color": null,
+              "show": true
+            },
+            "enabled": true,
+            "event_time": null,
+            "freshness": null,
+            "full_refresh": null,
+            "grants": {},
+            "group": null,
+            "incremental_strategy": null,
+            "latest_version_pointer": {
+              "alias": null,
+              "enabled": null
+            },
+            "lookback": 1,
+            "materialized": "table",
+            "meta": {},
+            "on_configuration_change": "apply",
+            "on_error": null,
+            "on_schema_change": "ignore",
+            "packages": [],
+            "persist_docs": {},
+            "post-hook": [],
+            "pre-hook": [],
+            "quoting": {},
+            "schema": null,
+            "static_analysis": null,
+            "tags": [],
+            "unique_key": null
+          },
+          "constraints": [],
+          "contract": {
+            "alias_types": true,
+            "checksum": null,
+            "enforced": false
+          },
+          "created_at": "<normalized>",
+          "database": "warehouse",
+          "depends_on": {
+            "macros": [],
+            "nodes": [
+              "model.catalog_steward_fixture.stg_orders"
+            ]
+          },
+          "deprecation_date": null,
+          "description": "",
+          "doc_blocks": [],
+          "docs": {
+            "node_color": null,
+            "show": true
+          },
+          "fqn": [
+            "catalog_steward_fixture",
+            "high_value_orders"
+          ],
+          "functions": [],
+          "group": null,
+          "language": "sql",
+          "latest_version": null,
+          "meta": {},
+          "metrics": [],
+          "name": "high_value_orders",
+          "original_file_path": "models/high_value_orders.sql",
+          "package_name": "catalog_steward_fixture",
+          "patch_path": null,
+          "path": "high_value_orders.sql",
+          "primary_key": [],
+          "raw_code": "select *\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\n  and amount >= 100",
+          "refs": [
+            {
+              "name": "stg_orders",
+              "package": null,
+              "version": null
+            }
+          ],
+          "relation_name": "\"warehouse\".\"main\".\"high_value_orders\"",
+          "resource_type": "model",
+          "schema": "main",
+          "sources": [],
+          "tags": [],
+          "time_spine": null,
+          "unique_id": "model.catalog_steward_fixture.high_value_orders",
+          "unrendered_config": {
+            "materialized": "table"
+          },
+          "version": null
+        },
+        "id": "ev_dbt_manifest_80ebd7dd4f02",
+        "kind": "dbt_manifest",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "downstream": [],
+          "max_hops": 1,
+          "upstream": [
+            {
+              "distance": 1,
+              "name": "stg_orders",
+              "resource_type": "model"
+            }
+          ]
+        },
+        "id": "ev_lineage_5f66a07357ee",
+        "kind": "lineage",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "at_sample_limit": false,
+          "columns": {
+            "amount": {
+              "distinct_count": 3,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "DECIMAL(12,2)"
+            },
+            "customer_id": {
+              "distinct_count": 3,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "INTEGER"
+            },
+            "order_date": {
+              "distinct_count": 3,
+              "duplicate_count": 0,
+              "max": "2026-10-04",
+              "min": "2026-10-01",
+              "null_count": 0,
+              "type": "DATE"
+            },
+            "order_id": {
+              "distinct_count": 3,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "INTEGER"
+            },
+            "status": {
+              "distinct_count": 1,
+              "duplicate_count": 2,
+              "null_count": 0,
+              "type": "VARCHAR"
+            }
+          },
+          "sample_limit": 10000,
+          "sampled_rows": 3
+        },
+        "id": "ev_bounded_data_profile_e0ec54839e8a",
+        "kind": "bounded_data_profile",
+        "source": "episode/warehouse.duckdb"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "canonical": true,
+          "description": "One row per source order, including all lifecycle statuses.",
+          "grain": [
+            "order_id"
+          ],
+          "lifecycle": "active",
+          "name": "stg_orders",
+          "owner": "data-platform",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_6b4510bb2d56",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Source order identifier.",
+              "name": "order_id"
+            },
+            {
+              "data_tests": [
+                "not_null"
+              ],
+              "description": "Customer that placed the order.",
+              "name": "customer_id"
+            },
+            {
+              "data_tests": [
+                {
+                  "accepted_values": {
+                    "arguments": {
+                      "values": [
+                        "completed",
+                        "refunded",
+                        "cancelled"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "description": "Current order lifecycle status.",
+              "name": "status"
+            },
+            {
+              "data_tests": [
+                "not_null"
+              ],
+              "description": "Date the order was placed.",
+              "name": "order_date"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "order_id",
+              "lifecycle": "active",
+              "owner": "data-platform"
+            }
+          },
+          "description": "One row per source order, including all lifecycle statuses.",
+          "name": "stg_orders",
+          "present": true
+        },
+        "id": "ev_dbt_schema_6a7d423b03b5",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "sql": "select\n    cast(order_id as integer) as order_id,\n    cast(customer_id as integer) as customer_id,\n    cast(status as varchar) as status,\n    cast(order_date as date) as order_date,\n    cast(amount as decimal(12, 2)) as amount\nfrom {{ ref('raw_orders') }}\n\n"
+        },
+        "id": "ev_dbt_model_sql_95ff70388050",
+        "kind": "dbt_model_sql",
+        "source": "project/models/stg_orders.sql"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "aggregations": [],
+          "filters": [],
+          "grain_candidates": [],
+          "group_by": [],
+          "joins": [],
+          "select_expressions": [
+            "CAST(order_id AS INT) AS order_id",
+            "CAST(customer_id AS INT) AS customer_id",
+            "CAST(status AS TEXT) AS status",
+            "CAST(order_date AS DATE) AS order_date",
+            "CAST(amount AS DECIMAL(12, 2)) AS amount"
+          ],
+          "sources": [
+            "raw_orders"
+          ]
+        },
+        "id": "ev_parsed_sql_facts_db68b3383406",
+        "kind": "parsed_sql_facts",
+        "source": "project/models/stg_orders.sql"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "access": "protected",
+          "alias": "stg_orders",
+          "build_path": null,
+          "checksum": {
+            "checksum": "612dbc6e63be52e813b84fb5057a9fb54cc3064305661cb740437db2a20a0e6c",
+            "name": "sha256"
+          },
+          "columns": {
+            "customer_id": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Customer that placed the order.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "customer_id",
+              "quote": null,
+              "tags": []
+            },
+            "order_date": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Date the order was placed.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "order_date",
+              "quote": null,
+              "tags": []
+            },
+            "order_id": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Source order identifier.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "order_id",
+              "quote": null,
+              "tags": []
+            },
+            "status": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Current order lifecycle status.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "status",
+              "quote": null,
+              "tags": []
+            }
+          },
+          "compiled_path": null,
+          "config": {
+            "access": "protected",
+            "alias": null,
+            "batch_size": null,
+            "begin": null,
+            "column_types": {},
+            "concurrent_batches": null,
+            "contract": {
+              "alias_types": true,
+              "enforced": false
+            },
+            "database": null,
+            "docs": {
+              "node_color": null,
+              "show": true
+            },
+            "enabled": true,
+            "event_time": null,
+            "freshness": null,
+            "full_refresh": null,
+            "grants": {},
+            "group": null,
+            "incremental_strategy": null,
+            "latest_version_pointer": {
+              "alias": null,
+              "enabled": null
+            },
+            "lookback": 1,
+            "materialized": "table",
+            "meta": {
+              "grain": "order_id",
+              "lifecycle": "active",
+              "owner": "data-platform"
+            },
+            "on_configuration_change": "apply",
+            "on_error": null,
+            "on_schema_change": "ignore",
+            "packages": [],
+            "persist_docs": {},
+            "post-hook": [],
+            "pre-hook": [],
+            "quoting": {},
+            "schema": null,
+            "static_analysis": null,
+            "tags": [],
+            "unique_key": null
+          },
+          "constraints": [],
+          "contract": {
+            "alias_types": true,
+            "checksum": null,
+            "enforced": false
+          },
+          "created_at": "<normalized>",
+          "database": "warehouse",
+          "depends_on": {
+            "macros": [],
+            "nodes": [
+              "seed.catalog_steward_fixture.raw_orders"
+            ]
+          },
+          "deprecation_date": null,
+          "description": "One row per source order, including all lifecycle statuses.",
+          "doc_blocks": [],
+          "docs": {
+            "node_color": null,
+            "show": true
+          },
+          "fqn": [
+            "catalog_steward_fixture",
+            "stg_orders"
+          ],
+          "functions": [],
+          "group": null,
+          "language": "sql",
+          "latest_version": null,
+          "meta": {
+            "grain": "order_id",
+            "lifecycle": "active",
+            "owner": "data-platform"
+          },
+          "metrics": [],
+          "name": "stg_orders",
+          "original_file_path": "models/stg_orders.sql",
+          "package_name": "catalog_steward_fixture",
+          "patch_path": "catalog_steward_fixture://models/schema.yml",
+          "path": "stg_orders.sql",
+          "primary_key": [
+            "order_id"
+          ],
+          "raw_code": "select\n    cast(order_id as integer) as order_id,\n    cast(customer_id as integer) as customer_id,\n    cast(status as varchar) as status,\n    cast(order_date as date) as order_date,\n    cast(amount as decimal(12, 2)) as amount\nfrom {{ ref('raw_orders') }}",
+          "refs": [
+            {
+              "name": "raw_orders",
+              "package": null,
+              "version": null
+            }
+          ],
+          "relation_name": "\"warehouse\".\"main\".\"stg_orders\"",
+          "resource_type": "model",
+          "schema": "main",
+          "sources": [],
+          "tags": [],
+          "time_spine": null,
+          "unique_id": "model.catalog_steward_fixture.stg_orders",
+          "unrendered_config": {
+            "materialized": "table",
+            "meta": {
+              "grain": "order_id",
+              "lifecycle": "active",
+              "owner": "data-platform"
+            }
+          },
+          "version": null
+        },
+        "id": "ev_dbt_manifest_7bb60a8dd712",
+        "kind": "dbt_manifest",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "downstream": [
+            {
+              "distance": 1,
+              "name": "customer_orders",
+              "resource_type": "model"
+            },
+            {
+              "distance": 1,
+              "name": "daily_revenue",
+              "resource_type": "model"
+            },
+            {
+              "distance": 1,
+              "name": "high_value_orders",
+              "resource_type": "model"
+            },
+            {
+              "distance": 1,
+              "name": "accepted_values_stg_orders_status__completed__refunded__cancelled",
+              "resource_type": "test"
+            },
+            {
+              "distance": 1,
+              "name": "not_null_stg_orders_customer_id",
+              "resource_type": "test"
+            },
+            {
+              "distance": 1,
+              "name": "not_null_stg_orders_order_date",
+              "resource_type": "test"
+            },
+            {
+              "distance": 1,
+              "name": "not_null_stg_orders_order_id",
+              "resource_type": "test"
+            },
+            {
+              "distance": 1,
+              "name": "unique_stg_orders_order_id",
+              "resource_type": "test"
+            }
+          ],
+          "max_hops": 1,
+          "upstream": [
+            {
+              "distance": 1,
+              "name": "raw_orders",
+              "resource_type": "seed"
+            }
+          ]
+        },
+        "id": "ev_lineage_3b7ebeea9cf6",
+        "kind": "lineage",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "at_sample_limit": false,
+          "columns": {
+            "amount": {
+              "distinct_count": 7,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "DECIMAL(12,2)"
+            },
+            "customer_id": {
+              "distinct_count": 4,
+              "duplicate_count": 3,
+              "null_count": 0,
+              "type": "INTEGER"
+            },
+            "order_date": {
+              "distinct_count": 4,
+              "duplicate_count": 3,
+              "max": "2026-10-04",
+              "min": "2026-10-01",
+              "null_count": 0,
+              "type": "DATE"
+            },
+            "order_id": {
+              "distinct_count": 7,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "INTEGER"
+            },
+            "status": {
+              "distinct_count": 3,
+              "duplicate_count": 4,
+              "null_count": 0,
+              "type": "VARCHAR"
+            }
+          },
+          "sample_limit": 10000,
+          "sampled_rows": 7
+        },
+        "id": "ev_bounded_data_profile_ce263343b8fb",
+        "kind": "bounded_data_profile",
+        "source": "episode/warehouse.duckdb"
+      },
+      {
+        "asset": null,
+        "content": {
+          "diff": "--- a/models/high_value_orders.sql\n+++ b/models/high_value_orders.sql\n@@ -0,0 +1,5 @@\n+select *\n+from {{ ref('stg_orders') }}\n+where status = 'completed'\n+  and amount >= 100\n+\n"
+        },
+        "id": "ev_repository_diff_or_history_ab181adbad4c",
+        "kind": "repository_diff_or_history",
+        "source": "episode/input.diff"
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "propose",
+            "operation": "request_review",
+            "rationale": "Request an accountable reviewer to supply the missing catalog and dbt documentation, including a directly supported description and any owner or grain backed by repository evidence. Do not infer these fields from the asset name or SQL alone."
+          },
+          "asset": "high_value_orders",
+          "claim": "Catalog metadata and dbt schema documentation are absent, and the manifest description is empty. The SQL filters stg_orders to status = 'completed' and amount >= 100; this supports documenting those mechanics, but does not establish an owner or a broader business meaning.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_catalog_metadata_82ae9089f9d2",
+            "ev_dbt_schema_ada6caa3d7d9",
+            "ev_dbt_model_sql_c2474a3ceba3",
+            "ev_parsed_sql_facts_a3e840436bc5",
+            "ev_dbt_manifest_80ebd7dd4f02"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        }
+      ],
+      "summary": "high_value_orders has a defining model and manifest entry but no catalog metadata or dbt schema documentation. Its SQL supports describing the selected rows by the explicit completed-status and amount threshold filters, but does not establish an owner, a business definition of \u2018high value,\u2019 or a grain. No further issue is sufficiently evidenced for an action.",
+      "unresolved_questions": [
+        "Who is authorized to define high_value_orders metadata, including its owner, business description, and grain?"
+      ]
+    },
+    "protocol_rejections": 0,
+    "repair_used": false,
+    "seconds": 5.659130811691284,
+    "status": "complete",
+    "transcript": [
+      {
+        "content": "Inspect, prioritize, and plan hygiene actions for this bounded task:\n{\"asset_scope\": [\"high_value_orders\", \"stg_orders\"], \"collection_errors\": [], \"evidence\": [{\"asset\": \"high_value_orders\", \"content\": {\"asset\": \"high_value_orders\", \"present\": false}, \"id\": \"ev_catalog_metadata_82ae9089f9d2\", \"kind\": \"catalog_metadata\", \"source\": \"project/catalog/catalog.json\"}, {\"asset\": \"high_value_orders\", \"content\": {\"asset\": \"high_value_orders\", \"present\": false}, \"id\": \"ev_dbt_schema_ada6caa3d7d9\", \"kind\": \"dbt_schema\", \"source\": \"project/models/**/*.yml\"}, {\"asset\": \"high_value_orders\", \"content\": {\"sql\": \"select *\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\n  and amount >= 100\\n\\n\"}, \"id\": \"ev_dbt_model_sql_c2474a3ceba3\", \"kind\": \"dbt_model_sql\", \"source\": \"project/models/high_value_orders.sql\"}, {\"asset\": \"high_value_orders\", \"content\": {\"aggregations\": [], \"filters\": [\"status = 'completed' AND amount >= 100\"], \"grain_candidates\": [], \"group_by\": [], \"joins\": [], \"select_expressions\": [\"*\"], \"sources\": [\"stg_orders\"]}, \"id\": \"ev_parsed_sql_facts_a3e840436bc5\", \"kind\": \"parsed_sql_facts\", \"source\": \"project/models/high_value_orders.sql\"}, {\"asset\": \"high_value_orders\", \"content\": {\"access\": \"protected\", \"alias\": \"high_value_orders\", \"build_path\": null, \"checksum\": {\"checksum\": \"01a264e122ba4aedb37bf50a518cc0beb45848257fbc7b44faa59878419fae49\", \"name\": \"sha256\"}, \"columns\": {}, \"compiled_path\": null, \"config\": {\"access\": \"protected\", \"alias\": null, \"batch_size\": null, \"begin\": null, \"column_types\": {}, \"concurrent_batches\": null, \"contract\": {\"alias_types\": true, \"enforced\": false}, \"database\": null, \"docs\": {\"node_color\": null, \"show\": true}, \"enabled\": true, \"event_time\": null, \"freshness\": null, \"full_refresh\": null, \"grants\": {}, \"group\": null, \"incremental_strategy\": null, \"latest_version_pointer\": {\"alias\": null, \"enabled\": null}, \"lookback\": 1, \"materialized\": \"table\", \"meta\": {}, \"on_configuration_change\": \"apply\", \"on_error\": null, \"on_schema_change\": \"ignore\", \"packages\": [], \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"schema\": null, \"static_analysis\": null, \"tags\": [], \"unique_key\": null}, \"constraints\": [], \"contract\": {\"alias_types\": true, \"checksum\": null, \"enforced\": false}, \"created_at\": \"<normalized>\", \"database\": \"warehouse\", \"depends_on\": {\"macros\": [], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"deprecation_date\": null, \"description\": \"\", \"doc_blocks\": [], \"docs\": {\"node_color\": null, \"show\": true}, \"fqn\": [\"catalog_steward_fixture\", \"high_value_orders\"], \"functions\": [], \"group\": null, \"language\": \"sql\", \"latest_version\": null, \"meta\": {}, \"metrics\": [], \"name\": \"high_value_orders\", \"original_file_path\": \"models/high_value_orders.sql\", \"package_name\": \"catalog_steward_fixture\", \"patch_path\": null, \"path\": \"high_value_orders.sql\", \"primary_key\": [], \"raw_code\": \"select *\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\n  and amount >= 100\", \"refs\": [{\"name\": \"stg_orders\", \"package\": null, \"version\": null}], \"relation_name\": \"\\\"warehouse\\\".\\\"main\\\".\\\"high_value_orders\\\"\", \"resource_type\": \"model\", \"schema\": \"main\", \"sources\": [], \"tags\": [], \"time_spine\": null, \"unique_id\": \"model.catalog_steward_fixture.high_value_orders\", \"unrendered_config\": {\"materialized\": \"table\"}, \"version\": null}, \"id\": \"ev_dbt_manifest_80ebd7dd4f02\", \"kind\": \"dbt_manifest\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"high_value_orders\", \"content\": {\"downstream\": [], \"max_hops\": 1, \"upstream\": [{\"distance\": 1, \"name\": \"stg_orders\", \"resource_type\": \"model\"}]}, \"id\": \"ev_lineage_5f66a07357ee\", \"kind\": \"lineage\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"high_value_orders\", \"content\": {\"at_sample_limit\": false, \"columns\": {\"amount\": {\"distinct_count\": 3, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"DECIMAL(12,2)\"}, \"customer_id\": {\"distinct_count\": 3, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"INTEGER\"}, \"order_date\": {\"distinct_count\": 3, \"duplicate_count\": 0, \"max\": \"2026-10-04\", \"min\": \"2026-10-01\", \"null_count\": 0, \"type\": \"DATE\"}, \"order_id\": {\"distinct_count\": 3, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"INTEGER\"}, \"status\": {\"distinct_count\": 1, \"duplicate_count\": 2, \"null_count\": 0, \"type\": \"VARCHAR\"}}, \"sample_limit\": 10000, \"sampled_rows\": 3}, \"id\": \"ev_bounded_data_profile_e0ec54839e8a\", \"kind\": \"bounded_data_profile\", \"source\": \"episode/warehouse.duckdb\"}, {\"asset\": \"stg_orders\", \"content\": {\"canonical\": true, \"description\": \"One row per source order, including all lifecycle statuses.\", \"grain\": [\"order_id\"], \"lifecycle\": \"active\", \"name\": \"stg_orders\", \"owner\": \"data-platform\", \"present\": true, \"type\": \"model\"}, \"id\": \"ev_catalog_metadata_6b4510bb2d56\", \"kind\": \"catalog_metadata\", \"source\": \"project/catalog/catalog.json\"}, {\"asset\": \"stg_orders\", \"content\": {\"columns\": [{\"data_tests\": [\"not_null\", \"unique\"], \"description\": \"Source order identifier.\", \"name\": \"order_id\"}, {\"data_tests\": [\"not_null\"], \"description\": \"Customer that placed the order.\", \"name\": \"customer_id\"}, {\"data_tests\": [{\"accepted_values\": {\"arguments\": {\"values\": [\"completed\", \"refunded\", \"cancelled\"]}}}], \"description\": \"Current order lifecycle status.\", \"name\": \"status\"}, {\"data_tests\": [\"not_null\"], \"description\": \"Date the order was placed.\", \"name\": \"order_date\"}], \"config\": {\"meta\": {\"grain\": \"order_id\", \"lifecycle\": \"active\", \"owner\": \"data-platform\"}}, \"description\": \"One row per source order, including all lifecycle statuses.\", \"name\": \"stg_orders\", \"present\": true}, \"id\": \"ev_dbt_schema_6a7d423b03b5\", \"kind\": \"dbt_schema\", \"source\": \"project/models/schema.yml\"}, {\"asset\": \"stg_orders\", \"content\": {\"sql\": \"select\\n    cast(order_id as integer) as order_id,\\n    cast(customer_id as integer) as customer_id,\\n    cast(status as varchar) as status,\\n    cast(order_date as date) as order_date,\\n    cast(amount as decimal(12, 2)) as amount\\nfrom {{ ref('raw_orders') }}\\n\\n\"}, \"id\": \"ev_dbt_model_sql_95ff70388050\", \"kind\": \"dbt_model_sql\", \"source\": \"project/models/stg_orders.sql\"}, {\"asset\": \"stg_orders\", \"content\": {\"aggregations\": [], \"filters\": [], \"grain_candidates\": [], \"group_by\": [], \"joins\": [], \"select_expressions\": [\"CAST(order_id AS INT) AS order_id\", \"CAST(customer_id AS INT) AS customer_id\", \"CAST(status AS TEXT) AS status\", \"CAST(order_date AS DATE) AS order_date\", \"CAST(amount AS DECIMAL(12, 2)) AS amount\"], \"sources\": [\"raw_orders\"]}, \"id\": \"ev_parsed_sql_facts_db68b3383406\", \"kind\": \"parsed_sql_facts\", \"source\": \"project/models/stg_orders.sql\"}, {\"asset\": \"stg_orders\", \"content\": {\"access\": \"protected\", \"alias\": \"stg_orders\", \"build_path\": null, \"checksum\": {\"checksum\": \"612dbc6e63be52e813b84fb5057a9fb54cc3064305661cb740437db2a20a0e6c\", \"name\": \"sha256\"}, \"columns\": {\"customer_id\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Customer that placed the order.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"customer_id\", \"quote\": null, \"tags\": []}, \"order_date\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Date the order was placed.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"order_date\", \"quote\": null, \"tags\": []}, \"order_id\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Source order identifier.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"order_id\", \"quote\": null, \"tags\": []}, \"status\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Current order lifecycle status.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"status\", \"quote\": null, \"tags\": []}}, \"compiled_path\": null, \"config\": {\"access\": \"protected\", \"alias\": null, \"batch_size\": null, \"begin\": null, \"column_types\": {}, \"concurrent_batches\": null, \"contract\": {\"alias_types\": true, \"enforced\": false}, \"database\": null, \"docs\": {\"node_color\": null, \"show\": true}, \"enabled\": true, \"event_time\": null, \"freshness\": null, \"full_refresh\": null, \"grants\": {}, \"group\": null, \"incremental_strategy\": null, \"latest_version_pointer\": {\"alias\": null, \"enabled\": null}, \"lookback\": 1, \"materialized\": \"table\", \"meta\": {\"grain\": \"order_id\", \"lifecycle\": \"active\", \"owner\": \"data-platform\"}, \"on_configuration_change\": \"apply\", \"on_error\": null, \"on_schema_change\": \"ignore\", \"packages\": [], \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"schema\": null, \"static_analysis\": null, \"tags\": [], \"unique_key\": null}, \"constraints\": [], \"contract\": {\"alias_types\": true, \"checksum\": null, \"enforced\": false}, \"created_at\": \"<normalized>\", \"database\": \"warehouse\", \"depends_on\": {\"macros\": [], \"nodes\": [\"seed.catalog_steward_fixture.raw_orders\"]}, \"deprecation_date\": null, \"description\": \"One row per source order, including all lifecycle statuses.\", \"doc_blocks\": [], \"docs\": {\"node_color\": null, \"show\": true}, \"fqn\": [\"catalog_steward_fixture\", \"stg_orders\"], \"functions\": [], \"group\": null, \"language\": \"sql\", \"latest_version\": null, \"meta\": {\"grain\": \"order_id\", \"lifecycle\": \"active\", \"owner\": \"data-platform\"}, \"metrics\": [], \"name\": \"stg_orders\", \"original_file_path\": \"models/stg_orders.sql\", \"package_name\": \"catalog_steward_fixture\", \"patch_path\": \"catalog_steward_fixture://models/schema.yml\", \"path\": \"stg_orders.sql\", \"primary_key\": [\"order_id\"], \"raw_code\": \"select\\n    cast(order_id as integer) as order_id,\\n    cast(customer_id as integer) as customer_id,\\n    cast(status as varchar) as status,\\n    cast(order_date as date) as order_date,\\n    cast(amount as decimal(12, 2)) as amount\\nfrom {{ ref('raw_orders') }}\", \"refs\": [{\"name\": \"raw_orders\", \"package\": null, \"version\": null}], \"relation_name\": \"\\\"warehouse\\\".\\\"main\\\".\\\"stg_orders\\\"\", \"resource_type\": \"model\", \"schema\": \"main\", \"sources\": [], \"tags\": [], \"time_spine\": null, \"unique_id\": \"model.catalog_steward_fixture.stg_orders\", \"unrendered_config\": {\"materialized\": \"table\", \"meta\": {\"grain\": \"order_id\", \"lifecycle\": \"active\", \"owner\": \"data-platform\"}}, \"version\": null}, \"id\": \"ev_dbt_manifest_7bb60a8dd712\", \"kind\": \"dbt_manifest\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"stg_orders\", \"content\": {\"downstream\": [{\"distance\": 1, \"name\": \"customer_orders\", \"resource_type\": \"model\"}, {\"distance\": 1, \"name\": \"daily_revenue\", \"resource_type\": \"model\"}, {\"distance\": 1, \"name\": \"high_value_orders\", \"resource_type\": \"model\"}, {\"distance\": 1, \"name\": \"accepted_values_stg_orders_status__completed__refunded__cancelled\", \"resource_type\": \"test\"}, {\"distance\": 1, \"name\": \"not_null_stg_orders_customer_id\", \"resource_type\": \"test\"}, {\"distance\": 1, \"name\": \"not_null_stg_orders_order_date\", \"resource_type\": \"test\"}, {\"distance\": 1, \"name\": \"not_null_stg_orders_order_id\", \"resource_type\": \"test\"}, {\"distance\": 1, \"name\": \"unique_stg_orders_order_id\", \"resource_type\": \"test\"}], \"max_hops\": 1, \"upstream\": [{\"distance\": 1, \"name\": \"raw_orders\", \"resource_type\": \"seed\"}]}, \"id\": \"ev_lineage_3b7ebeea9cf6\", \"kind\": \"lineage\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"stg_orders\", \"content\": {\"at_sample_limit\": false, \"columns\": {\"amount\": {\"distinct_count\": 7, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"DECIMAL(12,2)\"}, \"customer_id\": {\"distinct_count\": 4, \"duplicate_count\": 3, \"null_count\": 0, \"type\": \"INTEGER\"}, \"order_date\": {\"distinct_count\": 4, \"duplicate_count\": 3, \"max\": \"2026-10-04\", \"min\": \"2026-10-01\", \"null_count\": 0, \"type\": \"DATE\"}, \"order_id\": {\"distinct_count\": 7, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"INTEGER\"}, \"status\": {\"distinct_count\": 3, \"duplicate_count\": 4, \"null_count\": 0, \"type\": \"VARCHAR\"}}, \"sample_limit\": 10000, \"sampled_rows\": 7}, \"id\": \"ev_bounded_data_profile_ce263343b8fb\", \"kind\": \"bounded_data_profile\", \"source\": \"episode/warehouse.duckdb\"}, {\"asset\": null, \"content\": {\"diff\": \"--- a/models/high_value_orders.sql\\n+++ b/models/high_value_orders.sql\\n@@ -0,0 +1,5 @@\\n+select *\\n+from {{ ref('stg_orders') }}\\n+where status = 'completed'\\n+  and amount >= 100\\n+\\n\"}, \"id\": \"ev_repository_diff_or_history_ab181adbad4c\", \"kind\": \"repository_diff_or_history\", \"source\": \"episode/input.diff\"}], \"trigger\": \"change_review\"}",
+        "type": "user"
+      },
+      {
+        "content": "{\"content\":\"{\\\"summary\\\":\\\"high_value_orders has a defining model and manifest entry but no catalog metadata or dbt schema documentation. Its SQL supports describing the selected rows by the explicit completed-status and amount threshold filters, but does not establish an owner, a business definition of \u2018high value,\u2019 or a grain. No further issue is sufficiently evidenced for an action.\\\",\\\"findings\\\":[{\\\"issue_type\\\":\\\"missing_required_metadata\\\",\\\"asset\\\":\\\"high_value_orders\\\",\\\"claim\\\":\\\"Catalog metadata and dbt schema documentation are absent, and the manifest description is empty. The SQL filters stg_orders to status = 'completed' and amount >= 100; this supports documenting those mechanics, but does not establish an owner or a broader business meaning.\\\",\\\"impact\\\":\\\"medium\\\",\\\"confidence\\\":\\\"high\\\",\\\"evidence_ids\\\":[\\\"ev_catalog_metadata_82ae9089f9d2\\\",\\\"ev_dbt_schema_ada6caa3d7d9\\\",\\\"ev_dbt_model_sql_c2474a3ceba3\\\",\\\"ev_parsed_sql_facts_a3e840436bc5\\\",\\\"ev_dbt_manifest_80ebd7dd4f02\\\"],\\\"action\\\":{\\\"class\\\":\\\"propose\\\",\\\"operation\\\":\\\"request_review\\\",\\\"rationale\\\":\\\"Request an accountable reviewer to supply the missing catalog and dbt documentation, including a directly supported description and any owner or grain backed by repository evidence. Do not infer these fields from the asset name or SQL alone.\\\"}}],\\\"unresolved_questions\\\":[\\\"Who is authorized to define high_value_orders metadata, including its owner, business description, and grain?\\\"]}\",\"type\":\"final\"}",
+        "type": "assistant"
+      }
+    ],
+    "usage": {
+      "cached_calls": 0,
+      "calls": 1,
+      "cost_usd": 0.000730965,
+      "input_tokens": 5776,
+      "model": "openai/gpt-6-luna",
+      "output_tokens": 502,
+      "seconds": 5.599518060684204
+    },
+    "verification": [
+      {
+        "action_class": "propose",
+        "asset": "high_value_orders",
+        "finding_key": "9597de5ceaa4ec13",
+        "issue_type": "missing_required_metadata",
+        "patch_path": null,
+        "status": "proposed",
+        "verification": {
+          "checks": [
+            "action allowed by issue contract",
+            "all cited evidence IDs resolved"
+          ],
+          "passed": true
+        }
+      }
+    ]
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "steward",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.000730965,
+    "episode_id": "change_new_model_missing_metadata",
+    "episode_success": true,
+    "escalation_count": 1,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": 1.0,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 1,
+    "turns": 1,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 5.659130811691284
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "findings": [
+    {
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "rationale": "Request owner review of lifecycle and canonical designations before making a catalog change; no repository diff or history supports an automatic update."
+      },
+      "asset": "legacy_customer_orders",
+      "claim": "legacy_customer_orders is described as an older compatibility copy and directly selects from customer_orders, but catalog metadata marks it active and canonical. Review whether those designations remain intentional; available evidence does not establish that it should be retired or which asset should be canonical.",
+      "confidence": "medium",
+      "evidence_ids": [
+        "ev_catalog_metadata_d87da0e8c982",
+        "ev_dbt_manifest_7d15b3c30a8a",
+        "ev_lineage_213f4a6ed6d6",
+        "ev_repository_diff_or_history_7b3df39f73d6"
+      ],
+      "impact": "high",
+      "issue_type": "lifecycle_drift"
+    },
+    {
+      "action": {
+        "class": "report",
+        "operation": "report_only",
+        "rationale": "Report the pass-through structure and bounded profile for review; do not infer a different business key or change tests or model logic from this sample."
+      },
+      "asset": "legacy_customer_orders",
+      "claim": "The model is a select-star pass-through from customer_orders, while its schema asserts customer_id is unique and not null. The bounded profile shows four sampled customer_id values without duplicates, but completed_order_count has duplicates; this sample neither establishes a uniqueness violation for customer_id nor proves the declared grain beyond the bounded data.",
+      "confidence": "medium",
+      "evidence_ids": [
+        "ev_dbt_model_sql_6b4324a8004a",
+        "ev_parsed_sql_facts_424f7b9fbeb0",
+        "ev_lineage_213f4a6ed6d6",
+        "ev_bounded_data_profile_d6cca2ce7a60"
+      ],
+      "impact": "medium",
+      "issue_type": "grain_or_join_drift"
+    }
+  ],
+  "summary": "The legacy model\u2019s active and canonical catalog metadata warrants review given its compatibility-copy description and pass-through dependency. Evidence does not establish intended retirement or canonical status, so no metadata change is recommended automatically.",
+  "unresolved_questions": [
+    "Should legacy_customer_orders remain active, and is its canonical=true designation intentional despite its compatibility-copy description and dependency on customer_orders?",
+    "Does a broader uniqueness check support the customer_id uniqueness test for legacy_customer_orders?"
+  ]
+}

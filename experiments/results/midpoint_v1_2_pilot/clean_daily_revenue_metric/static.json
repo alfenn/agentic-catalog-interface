@@ -1,0 +1,130 @@
+{
+  "result": {
+    "condition": "static",
+    "episode_id": "clean_daily_revenue_metric",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order revenue and maximum order amount at one row per order date; refunded and cancelled orders are excluded.",
+          "grain": [
+            "order_date"
+          ],
+          "lifecycle": "active",
+          "name": "daily_revenue",
+          "owner": "finance-analytics",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_e90bccb15abc",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Order date and model grain.",
+              "name": "order_date"
+            },
+            {
+              "description": "Number of completed orders on the date.",
+              "name": "completed_order_count"
+            },
+            {
+              "description": "Sum of completed order amounts on the date.",
+              "name": "completed_revenue"
+            },
+            {
+              "description": "Largest completed order amount on the date.",
+              "name": "max_completed_order_amount"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "order_date",
+              "lifecycle": "active",
+              "owner": "finance-analytics"
+            }
+          },
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "name": "daily_revenue",
+          "present": true
+        },
+        "id": "ev_dbt_schema_17d7581f683e",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": null,
+        "content": {
+          "failed_assets": [],
+          "output_tail": "\u001b[0m21:11:29  Running with dbt=1.12.6\n\u001b[0m21:11:29  Registered adapter: duckdb=1.11.1\n\u001b[0m21:11:29  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m21:11:29  \n\u001b[0m21:11:29  Concurrency: 1 threads (target='dev')\n\u001b[0m21:11:29  \n\u001b[0m21:11:29  1 of 2 START test not_null_daily_revenue_order_date ............................ [RUN]\n\u001b[0m21:11:29  1 of 2 PASS not_null_daily_revenue_order_date .................................. [\u001b[32mPASS\u001b[0m in 0.02s]\n\u001b[0m21:11:29  2 of 2 START test unique_daily_revenue_order_date .............................. [RUN]\n\u001b[0m21:11:29  2 of 2 PASS unique_daily_revenue_order_date .................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m21:11:29  \n\u001b[0m21:11:29  Finished running 2 data tests in 0 hours 0 minutes and 0.06 seconds (0.06s).\n\u001b[0m21:11:29  \n\u001b[0m21:11:29  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m21:11:29  \n\u001b[0m21:11:29  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2\n",
+          "result_count": 2,
+          "returncode": 0
+        },
+        "id": "ev_static_dbt_tests_6365c1177de1",
+        "kind": "static_dbt_tests",
+        "source": "project/target/run_results.json"
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [],
+      "summary": "Static required-field and dbt-test results.",
+      "unresolved_questions": []
+    },
+    "protocol_rejections": 0,
+    "repair_used": false,
+    "seconds": 1.0963339805603027,
+    "status": "complete",
+    "transcript": [],
+    "usage": {
+      "calls": 0,
+      "cost_usd": 0.0,
+      "model": null
+    },
+    "verification": [
+      {
+        "dbt_tests_ran": true,
+        "failed_assets": []
+      }
+    ]
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": true,
+    "condition": "static",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.0,
+    "episode_id": "clean_daily_revenue_metric",
+    "episode_success": true,
+    "escalation_count": 0,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 0,
+    "turns": 0,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 1.0963339805603027
+  }
+}

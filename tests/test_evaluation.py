@@ -224,7 +224,8 @@ def test_failed_agent_runs_keep_transcript_usage_and_evidence(tmp_path: Path) ->
         episode_ids=["rem_daily_revenue_filter_drift"],
         model_factory=lambda condition, episode_id: CostedScript(
             [format_tool_call("list_files", {}) if condition == "generic" else
-             format_tool_call("get_change_diff", {}), format_final(json.dumps(bad_plan))]
+             format_tool_call("get_change_diff", {}), format_final(json.dumps(bad_plan)),
+             format_final(json.dumps(bad_plan))]
         ),
         workspace_root=tmp_path / "workspaces",
     )
@@ -235,11 +236,15 @@ def test_failed_agent_runs_keep_transcript_usage_and_evidence(tmp_path: Path) ->
         assert "unknown evidence IDs" in result["error"]
         assert not result["error"].startswith("ConditionFailed")
         assert [event["type"] for event in result["transcript"]].count("tool_call") == 1
+        # The first bad plan used the one repair turn; the second is the error.
+        assert [event["type"] for event in result["transcript"]].count("final_rejected") == 1
+        assert result["repair_used"] is True
+        assert result["protocol_rejections"] == 0
         assert result["final_text"] == json.dumps(bad_plan)
         assert result["evidence"]
         assert score["episode_success"] is False
         assert score["cost_usd"] == 0.25
-        assert score["turns"] == 2
+        assert score["turns"] == 3
 
 
 def test_steward_condition_uses_configured_max_turns(tmp_path: Path) -> None:
@@ -269,16 +274,16 @@ def test_config_must_match_version_and_pin_reasoning_effort(tmp_path: Path) -> N
     from catalog_steward.evaluation import DEFAULT_CONFIG
 
     frozen = yaml.safe_load(DEFAULT_CONFIG.read_text(encoding="utf-8"))
-    assert frozen["version"] == "1.1.0"
+    assert frozen["version"] == "1.2.0"
     assert frozen["reasoning_effort"] == "low"
     assert frozen["prompt_versions"] == {
-        "generic": "generic-hygiene-v2",
-        "steward": "specialized-steward-v2",
+        "generic": "generic-hygiene-v3",
+        "steward": "specialized-steward-v3",
     }
     for change in (
-        {"version": "1.0.0"},
+        {"version": "1.1.0"},
         {"reasoning_effort": None},
-        {"prompt_versions": {"generic": "generic-hygiene-v1", "steward": "specialized-steward-v1"}},
+        {"prompt_versions": {"generic": "generic-hygiene-v2", "steward": "specialized-steward-v2"}},
         {"frozen": False},
     ):
         path = tmp_path / "config.yaml"
@@ -346,3 +351,94 @@ def test_live_steward_without_key_exits_before_any_reset(monkeypatch, tmp_path: 
     assert steward.main(["clean_daily_revenue_metric"]) != 0
     error = capsys.readouterr().err.strip()
     assert error.count("\n") == 0 and "OPENROUTER_API_KEY" in error
+
+
+def test_repair_turn_fixes_bad_plan_once_for_both_conditions(tmp_path: Path) -> None:
+    config = load_config()
+    bad_plan = {
+        "summary": "Cites a fabricated evidence ID.",
+        "findings": [
+            {
+                "issue_type": "sql_metadata_drift",
+                "asset": "daily_revenue",
+                "claim": "Filter drift.",
+                "impact": "high",
+                "confidence": "high",
+                "evidence_ids": ["ev_project_file_000000000000"],
+                "action": {"class": "report", "operation": "report_only", "rationale": "Report."},
+            }
+        ],
+        "unresolved_questions": [],
+    }
+    clean_plan = {"summary": "No evidence-backed finding.", "findings": [], "unresolved_questions": []}
+
+    def repaired(messages):
+        rejection = json.loads(messages[-1]["content"])
+        assert rejection["type"] == "final_answer_rejected"
+        assert "unknown evidence IDs" in rejection["error"]
+        # Send the repaired plan as an object to exercise object content as well.
+        return json.dumps({"type": "final", "content": clean_plan})
+
+    output = tmp_path / "results"
+    records = run_evaluation(
+        config=config,
+        output_dir=output,
+        conditions=["generic", "steward"],
+        episode_ids=["clean_daily_revenue_metric"],
+        model_factory=lambda condition, episode_id: ScriptedLM(
+            [format_final(json.dumps(bad_plan)), repaired]
+        ),
+        workspace_root=tmp_path / "workspaces",
+    )
+
+    for record in records:
+        result = record["result"]
+        assert result["status"] == "complete", result.get("error")
+        assert result["plan"] == clean_plan
+        assert result["repair_used"] is True
+        assert result["protocol_rejections"] == 0
+        assert record["score"]["episode_success"] is True
+        assert record["score"]["turns"] == 2
+    summary = json.loads((output / "summary.json").read_text(encoding="utf-8"))
+    for condition in ("generic", "steward"):
+        row = summary["by_condition"][condition]
+        assert row["run_count"] == 1
+        assert row["repair_used_count"] == 1
+        assert row["protocol_rejections"] == 0
+        assert row["error_count"] == 0
+
+
+def test_wrapped_reply_counts_as_rejection_in_results_and_summary(tmp_path: Path) -> None:
+    config = load_config()
+    clean_plan = {"summary": "No finding.", "findings": [], "unresolved_questions": []}
+    wrapped = json.dumps({"final_answer": {"type": "final", "content": json.dumps(clean_plan)}})
+
+    def factory(condition: str, episode_id: str) -> ScriptedLM:
+        def retry(messages):
+            error = json.loads(messages[-1]["content"])["error"]
+            assert "['final_answer']" in error and "without a wrapper key" in error
+            return format_final(json.dumps(clean_plan))
+
+        return ScriptedLM([wrapped, retry])
+
+    output = tmp_path / "results"
+    records = run_evaluation(
+        config=config,
+        output_dir=output,
+        conditions=["generic", "steward"],
+        episode_ids=["clean_daily_revenue_metric"],
+        model_factory=factory,
+        workspace_root=tmp_path / "workspaces",
+    )
+
+    for record in records:
+        assert record["result"]["status"] == "complete"
+        assert record["result"]["protocol_rejections"] == 1
+        assert record["result"]["repair_used"] is False
+    summary = json.loads((output / "summary.json").read_text(encoding="utf-8"))
+    for condition in ("generic", "steward"):
+        row = summary["by_condition"][condition]
+        assert row["protocol_rejections"] == 1
+        assert row["runs_with_protocol_rejections"] == 1
+        assert row["repair_used_count"] == 0
+        assert row["episode_successes"] == 1

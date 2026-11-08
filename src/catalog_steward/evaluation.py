@@ -16,7 +16,7 @@ from typing import Any, Callable, Iterable
 import jsonschema
 import yaml
 
-from catalog_steward.agent import AgentConfig, AgentSession
+from catalog_steward.agent import AgentConfig, AgentSession, validator_from
 from catalog_steward.config import REPO_ROOT, load_settings
 from catalog_steward.contract import issue_by_id, load_contract
 from catalog_steward.episodes import (
@@ -33,8 +33,8 @@ from catalog_steward.steward import PLAN_SCHEMA_PATH, STEWARD_PROMPT_VERSION, St
 from catalog_steward.tools import ToolSpec
 
 DEFAULT_CONFIG = REPO_ROOT / "experiments/configs/midpoint_v1.yaml"
-CONFIG_VERSION = "1.1.0"
-GENERIC_PROMPT_VERSION = "generic-hygiene-v2"
+CONFIG_VERSION = "1.2.0"
+GENERIC_PROMPT_VERSION = "generic-hygiene-v3"
 SCORING_VERSION = "midpoint-score-v1"
 RUN_SETTING_KEYS = ("model", "temperature", "max_tokens", "max_turns", "reasoning_effort")
 
@@ -52,6 +52,10 @@ class ConditionResult:
     evidence: list[dict[str, Any]]
     verification: list[dict[str, Any]]
     error: str | None = None
+    # Agent conditions only: replies the protocol parser rejected, and whether the one
+    # final-answer repair turn was used.
+    protocol_rejections: int = 0
+    repair_used: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -68,6 +72,12 @@ class ConditionFailed(RuntimeError):
 def _model_usage(model: Any) -> dict[str, Any]:
     usage_method = getattr(model, "usage", None)
     return usage_method() if callable(usage_method) else {}
+
+
+def _session_counters(session: AgentSession | None) -> dict[str, Any]:
+    if session is None:
+        return {"protocol_rejections": 0, "repair_used": False}
+    return {"protocol_rejections": session.protocol_rejections, "repair_used": session.repairs_used > 0}
 
 
 def _object_schema(properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -287,17 +297,9 @@ def run_generic(
         "asset_scope": episode["asset_scope"],
         "project_listing": listing.to_dict(),
     }
-    session = AgentSession(
-        model,
-        generic_tools(store),
-        AgentConfig(max_turns=max_turns, system_prompt=system),
-    )
-    agent = None
-    try:
-        agent = session.send(json.dumps(prompt, sort_keys=True))
-        if agent.status != "done":
-            raise RuntimeError(f"generic agent did not finish: {agent.status}: {agent.text}")
-        plan = json.loads(agent.text)
+
+    def validate_plan(text: str) -> dict[str, Any]:
+        plan = json.loads(text)
         jsonschema.Draft202012Validator(schema).validate(plan)
         available = {item.id for item in store.items}
         scope = set(episode["asset_scope"])
@@ -307,6 +309,20 @@ def run_generic(
             unknown = set(finding["evidence_ids"]) - available
             if unknown:
                 raise ValueError(f"generic finding cites unknown evidence IDs: {sorted(unknown)}")
+        return plan
+
+    session = AgentSession(
+        model,
+        generic_tools(store),
+        AgentConfig(max_turns=max_turns, system_prompt=system),
+        final_validator=validator_from(validate_plan),
+    )
+    agent = None
+    try:
+        agent = session.send(json.dumps(prompt, sort_keys=True))
+        if agent.status != "done":
+            raise RuntimeError(f"generic agent did not finish: {agent.status}: {agent.text}")
+        plan = validate_plan(agent.text)
     except Exception as exc:
         raise ConditionFailed(
             f"{type(exc).__name__}: {exc}",
@@ -316,6 +332,7 @@ def run_generic(
                 "usage": agent.usage if agent is not None else _model_usage(model),
                 "seconds": time.time() - started,
                 "evidence": [item.to_dict() for item in store.items],
+                **_session_counters(session),
             },
         ) from exc
     return ConditionResult(
@@ -329,6 +346,8 @@ def run_generic(
         seconds=time.time() - started,
         evidence=[item.to_dict() for item in store.items],
         verification=[],
+        protocol_rejections=agent.protocol_rejections,
+        repair_used=agent.repair_used,
     )
 
 
@@ -357,6 +376,7 @@ def run_steward(
                 "usage": agent.usage if agent is not None else _model_usage(model),
                 "seconds": time.time() - started,
                 "evidence": [item.to_dict() for item in run.store.items],
+                **_session_counters(run.session),
             },
         ) from exc
     plan = json.loads(Path(result.plan_path).read_text(encoding="utf-8"))
@@ -371,6 +391,8 @@ def run_steward(
         seconds=time.time() - started,
         evidence=[item.to_dict() for item in run.store.items],
         verification=[asdict(outcome) for outcome in result.outcomes],
+        protocol_rejections=result.agent.protocol_rejections,
+        repair_used=result.agent.repair_used,
     )
 
 
@@ -555,12 +577,44 @@ def run_evaluation(
         "records": records,
         "episode_successes": sum(record["score"].get("episode_success", False) for record in records),
         "run_count": len(records),
+        "by_condition": condition_summary(records),
     }
     (output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     return records
+
+
+def condition_summary(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Per-condition totals, including protocol scaffolding use, for summary.json."""
+
+    by_condition: dict[str, dict[str, Any]] = {}
+    for record in records:
+        result, score = record["result"], record["score"]
+        row = by_condition.setdefault(
+            result["condition"],
+            {
+                "run_count": 0,
+                "error_count": 0,
+                "episode_successes": 0,
+                "protocol_rejections": 0,
+                "runs_with_protocol_rejections": 0,
+                "repair_used_count": 0,
+                "model_calls": 0,
+                "cost_usd": 0.0,
+            },
+        )
+        rejections = int(result.get("protocol_rejections", 0))
+        row["run_count"] += 1
+        row["error_count"] += result.get("status") == "error"
+        row["episode_successes"] += bool(score.get("episode_success", False))
+        row["protocol_rejections"] += rejections
+        row["runs_with_protocol_rejections"] += rejections > 0
+        row["repair_used_count"] += bool(result.get("repair_used", False))
+        row["model_calls"] += int(score.get("turns", 0))
+        row["cost_usd"] += float(score.get("cost_usd", 0.0))
+    return by_condition
 
 
 def _copy_run_artifacts(workspace: EpisodeWorkspace, destination: Path) -> None:

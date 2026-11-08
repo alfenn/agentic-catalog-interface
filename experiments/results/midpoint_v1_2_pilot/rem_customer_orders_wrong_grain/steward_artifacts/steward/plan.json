@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {
+      "action": {
+        "class": "patch",
+        "field": "grain",
+        "operation": "update_catalog_field",
+        "rationale": "Align the stale catalog grain with the model's documented and implemented grouping key; do not alter model SQL.",
+        "value": [
+          "customer_id"
+        ],
+        "verification": {
+          "equals": [
+            "customer_id"
+          ],
+          "field": "grain"
+        }
+      },
+      "asset": "customer_orders",
+      "claim": "Catalog grain is recorded as order_id, but the dbt schema, manifest grain metadata and primary key, and model SQL grouping identify customer_id as the model grain.",
+      "confidence": "high",
+      "evidence_ids": [
+        "ev_catalog_metadata_d87a2ba4a66c",
+        "ev_dbt_schema_5247fb441133",
+        "ev_dbt_model_sql_75943fbe687b",
+        "ev_parsed_sql_facts_63cc1aa3b19e",
+        "ev_dbt_manifest_ee8187171351"
+      ],
+      "impact": "high",
+      "issue_type": "sql_metadata_drift"
+    }
+  ],
+  "summary": "One high-priority catalog grain mismatch is supported by the model definition and manifest. No other hygiene action is sufficiently established by the supplied evidence.",
+  "unresolved_questions": []
+}

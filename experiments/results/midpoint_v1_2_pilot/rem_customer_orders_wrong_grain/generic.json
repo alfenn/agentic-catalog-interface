@@ -1,0 +1,384 @@
+{
+  "result": {
+    "condition": "generic",
+    "episode_id": "rem_customer_orders_wrong_grain",
+    "error": null,
+    "evidence": [
+      {
+        "asset": null,
+        "content": {
+          "at_limit": false,
+          "files": [
+            {
+              "bytes": 909,
+              "path": "catalog/catalog.json"
+            },
+            {
+              "bytes": 82,
+              "path": "catalog/overrides.json"
+            },
+            {
+              "bytes": 330,
+              "path": "dbt_project.yml"
+            },
+            {
+              "bytes": 281,
+              "path": "models/customer_orders.sql"
+            },
+            {
+              "bytes": 176,
+              "path": "models/daily_revenue.sql"
+            },
+            {
+              "bytes": 1805,
+              "path": "models/schema.yml"
+            },
+            {
+              "bytes": 257,
+              "path": "models/stg_orders.sql"
+            },
+            {
+              "bytes": 158,
+              "path": "profiles.yml"
+            },
+            {
+              "bytes": 120,
+              "path": "seeds/raw_customers.csv"
+            },
+            {
+              "bytes": 179,
+              "path": "seeds/raw_order_items.csv"
+            },
+            {
+              "bytes": 287,
+              "path": "seeds/raw_orders.csv"
+            },
+            {
+              "bytes": 287,
+              "path": "target/compiled/catalog_steward_fixture/models/customer_orders.sql"
+            },
+            {
+              "bytes": 182,
+              "path": "target/compiled/catalog_steward_fixture/models/daily_revenue.sql"
+            },
+            {
+              "bytes": 263,
+              "path": "target/compiled/catalog_steward_fixture/models/stg_orders.sql"
+            },
+            {
+              "bytes": null,
+              "path": "target/graph.gpickle"
+            },
+            {
+              "bytes": 2080,
+              "path": "target/graph_summary.json"
+            },
+            {
+              "bytes": 821464,
+              "path": "target/manifest.json"
+            },
+            {
+              "bytes": 153,
+              "path": "target/osi_document.json"
+            },
+            {
+              "bytes": null,
+              "path": "target/partial_parse.msgpack"
+            },
+            {
+              "bytes": 701,
+              "path": "target/perf_info.json"
+            },
+            {
+              "bytes": 402,
+              "path": "target/run/catalog_steward_fixture/models/customer_orders.sql"
+            },
+            {
+              "bytes": 295,
+              "path": "target/run/catalog_steward_fixture/models/daily_revenue.sql"
+            },
+            {
+              "bytes": 373,
+              "path": "target/run/catalog_steward_fixture/models/stg_orders.sql"
+            },
+            {
+              "bytes": 304,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_customers.csv"
+            },
+            {
+              "bytes": 331,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_order_items.csv"
+            },
+            {
+              "bytes": 324,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_orders.csv"
+            },
+            {
+              "bytes": 6101,
+              "path": "target/run_results.json"
+            },
+            {
+              "bytes": 310,
+              "path": "target/semantic_manifest.json"
+            }
+          ],
+          "max_files": 250
+        },
+        "id": "ev_project_listing_1e355e20b973",
+        "kind": "project_listing",
+        "source": "project/."
+      },
+      {
+        "asset": null,
+        "content": {
+          "diff": ""
+        },
+        "id": "ev_repository_diff_or_history_7b3df39f73d6",
+        "kind": "repository_diff_or_history",
+        "source": "episode/input.diff"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "catalog/catalog.json",
+          "text": "{\n  \"version\": \"1.0\",\n  \"assets\": [\n    {\n      \"name\": \"stg_orders\",\n      \"type\": \"model\",\n      \"description\": \"One row per source order, including all lifecycle statuses.\",\n      \"owner\": \"data-platform\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"order_id\"],\n      \"canonical\": true\n    },\n    {\n      \"name\": \"customer_orders\",\n      \"type\": \"model\",\n      \"description\": \"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\",\n      \"owner\": \"analytics\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"customer_id\"],\n      \"canonical\": true\n    },\n    {\n      \"name\": \"daily_revenue\",\n      \"type\": \"model\",\n      \"description\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\",\n      \"owner\": \"finance-analytics\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"order_date\"],\n      \"canonical\": true\n    }\n  ]\n}\n\n"
+        },
+        "id": "ev_project_file_d3b19550376b",
+        "kind": "project_file",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "models/customer_orders.sql",
+          "text": "select\n    customer_id,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue,\n    min(order_date) as first_completed_order_date,\n    max(order_date) as latest_completed_order_date\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by customer_id\n\n"
+        },
+        "id": "ev_project_file_fd9af3dbe92c",
+        "kind": "project_file",
+        "source": "project/models/customer_orders.sql"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "models/schema.yml",
+          "text": "version: 2\n\nmodels:\n  - name: stg_orders\n    description: One row per source order, including all lifecycle statuses.\n    config:\n      meta:\n        owner: data-platform\n        lifecycle: active\n        grain: order_id\n    columns:\n      - name: order_id\n        description: Source order identifier.\n        data_tests: [not_null, unique]\n      - name: customer_id\n        description: Customer that placed the order.\n        data_tests: [not_null]\n      - name: status\n        description: Current order lifecycle status.\n        data_tests:\n          - accepted_values:\n              arguments:\n                values: [completed, refunded, cancelled]\n      - name: order_date\n        description: Date the order was placed.\n        data_tests: [not_null]\n\n  - name: customer_orders\n    description: Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\n    config:\n      meta:\n        owner: analytics\n        lifecycle: active\n        grain: customer_id\n    columns:\n      - name: customer_id\n        description: Customer identifier and model grain.\n        data_tests: [not_null, unique]\n      - name: completed_order_count\n        description: Number of completed orders for the customer.\n\n  - name: daily_revenue\n    description: Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\n    config:\n      meta:\n        owner: finance-analytics\n        lifecycle: active\n        grain: order_date\n    columns:\n      - name: order_date\n        description: Order date and model grain.\n        data_tests: [not_null, unique]\n      - name: completed_order_count\n        description: Number of completed orders on the date.\n      - name: completed_revenue\n        description: Sum of completed order amounts on the date.\n\n"
+        },
+        "id": "ev_project_file_95fbeb560050",
+        "kind": "project_file",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "catalog/overrides.json",
+          "text": "{\n  \"assets\": {\n    \"customer_orders\": {\n      \"grain\": [\"order_id\"]\n    }\n  }\n}\n\n"
+        },
+        "id": "ev_project_file_32bdda36256c",
+        "kind": "project_file",
+        "source": "project/catalog/overrides.json"
+      }
+    ],
+    "mode": "remediation",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "patch",
+            "field": "grain",
+            "operation": "update_catalog_field",
+            "rationale": "Align the override grain with the SQL group-by and documented model grain to prevent consumers from interpreting this customer-level aggregate as order-level data.",
+            "value": [
+              "customer_id"
+            ],
+            "verification": {
+              "equals": [
+                "customer_id"
+              ],
+              "field": "grain"
+            }
+          },
+          "asset": "customer_orders",
+          "claim": "The catalog override declares customer_orders grain as order_id, but the model groups by customer_id and the catalog and schema documentation describe one row per customer.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_project_file_32bdda36256c",
+            "ev_project_file_fd9af3dbe92c",
+            "ev_project_file_d3b19550376b",
+            "ev_project_file_95fbeb560050"
+          ],
+          "impact": "high",
+          "issue_type": "grain_or_join_drift"
+        }
+      ],
+      "summary": "customer_orders has conflicting grain metadata: its SQL and model documentation establish one row per customer, but the catalog override declares order_id. Correct the override to match the model\u2019s actual grain.",
+      "unresolved_questions": []
+    },
+    "protocol_rejections": 2,
+    "repair_used": false,
+    "seconds": 43.42087006568909,
+    "status": "complete",
+    "transcript": [
+      {
+        "content": "{\"asset_scope\": [\"customer_orders\"], \"project_listing\": {\"asset\": null, \"content\": {\"at_limit\": false, \"files\": [{\"bytes\": 909, \"path\": \"catalog/catalog.json\"}, {\"bytes\": 82, \"path\": \"catalog/overrides.json\"}, {\"bytes\": 330, \"path\": \"dbt_project.yml\"}, {\"bytes\": 281, \"path\": \"models/customer_orders.sql\"}, {\"bytes\": 176, \"path\": \"models/daily_revenue.sql\"}, {\"bytes\": 1805, \"path\": \"models/schema.yml\"}, {\"bytes\": 257, \"path\": \"models/stg_orders.sql\"}, {\"bytes\": 158, \"path\": \"profiles.yml\"}, {\"bytes\": 120, \"path\": \"seeds/raw_customers.csv\"}, {\"bytes\": 179, \"path\": \"seeds/raw_order_items.csv\"}, {\"bytes\": 287, \"path\": \"seeds/raw_orders.csv\"}, {\"bytes\": 287, \"path\": \"target/compiled/catalog_steward_fixture/models/customer_orders.sql\"}, {\"bytes\": 182, \"path\": \"target/compiled/catalog_steward_fixture/models/daily_revenue.sql\"}, {\"bytes\": 263, \"path\": \"target/compiled/catalog_steward_fixture/models/stg_orders.sql\"}, {\"bytes\": null, \"path\": \"target/graph.gpickle\"}, {\"bytes\": 2080, \"path\": \"target/graph_summary.json\"}, {\"bytes\": 821464, \"path\": \"target/manifest.json\"}, {\"bytes\": 153, \"path\": \"target/osi_document.json\"}, {\"bytes\": null, \"path\": \"target/partial_parse.msgpack\"}, {\"bytes\": 701, \"path\": \"target/perf_info.json\"}, {\"bytes\": 402, \"path\": \"target/run/catalog_steward_fixture/models/customer_orders.sql\"}, {\"bytes\": 295, \"path\": \"target/run/catalog_steward_fixture/models/daily_revenue.sql\"}, {\"bytes\": 373, \"path\": \"target/run/catalog_steward_fixture/models/stg_orders.sql\"}, {\"bytes\": 304, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_customers.csv\"}, {\"bytes\": 331, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_order_items.csv\"}, {\"bytes\": 324, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_orders.csv\"}, {\"bytes\": 6101, \"path\": \"target/run_results.json\"}, {\"bytes\": 310, \"path\": \"target/semantic_manifest.json\"}], \"max_files\": 250}, \"id\": \"ev_project_listing_1e355e20b973\", \"kind\": \"project_listing\", \"source\": \"project/.\"}, \"prompt_version\": \"generic-hygiene-v3\", \"trigger\": \"remediation\"}",
+        "type": "user"
+      },
+      {
+        "content": "{\"arguments\":{},\"name\":\"read_diff\",\"type\":\"tool\"}\n\n{\"arguments\":{},\"name\":\"list_files\",\"type\":\"tool\"}\n\n{\"arguments\":{},\"name\":\"read_diff\",\"type\":\"tool\"}\n\n{\"arguments\":{\"path\":\"catalog/catalog.json\"},\"name\":\"read_file\",\"type\":\"tool\"}\n\n{\"arguments\":{},\"name\":\"list_files\",\"type\":\"tool\"}\n\n{\"arguments\":{\"path\":\"models/customer_orders.sql\"},\"name\":\"read_file\",\"type\":\"tool\"}\n\n{\"arguments\":{},\"name\":\"read_diff\",\"type\":\"tool\"}\n\n{\"arguments\":{\"path\":\"models/schema.yml\"},\"name\":\"read_file\",\"type\":\"tool\"}\n\n{\"content\":\"{\\\"summary\\\":\\\"The supplied project listing identifies the customer_orders asset and relevant project files, but does not include their contents or the proposed diff. No data-hygiene issue can be substantiated from the available evidence.\\\",\\\"findings\\\":[],\\\"unresolved_questions\\\":[\\\"What do the customer_orders SQL, catalog metadata, schema documentation, and proposed change diff contain?\\\"]}\",\"type\":\"final\"}",
+        "type": "assistant"
+      },
+      {
+        "content": "response is not one valid JSON object (Extra data: line 3 column 1 (char 51)); reply with only the JSON object, no surrounding prose",
+        "type": "error"
+      },
+      {
+        "content": "{\"arguments\":{},\"name\":\"list_files\",\"type\":\"tool\"}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {},
+        "name": "list_files",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"at_limit\": false, \"files\": [{\"bytes\": 909, \"path\": \"catalog/catalog.json\"}, {\"bytes\": 82, \"path\": \"catalog/overrides.json\"}, {\"bytes\": 330, \"path\": \"dbt_project.yml\"}, {\"bytes\": 281, \"path\": \"models/customer_orders.sql\"}, {\"bytes\": 176, \"path\": \"models/daily_revenue.sql\"}, {\"bytes\": 1805, \"path\": \"models/schema.yml\"}, {\"bytes\": 257, \"path\": \"models/stg_orders.sql\"}, {\"bytes\": 158, \"path\": \"profiles.yml\"}, {\"bytes\": 120, \"path\": \"seeds/raw_customers.csv\"}, {\"bytes\": 179, \"path\": \"seeds/raw_order_items.csv\"}, {\"bytes\": 287, \"path\": \"seeds/raw_orders.csv\"}, {\"bytes\": 287, \"path\": \"target/compiled/catalog_steward_fixture/models/customer_orders.sql\"}, {\"bytes\": 182, \"path\": \"target/compiled/catalog_steward_fixture/models/daily_revenue.sql\"}, {\"bytes\": 263, \"path\": \"target/compiled/catalog_steward_fixture/models/stg_orders.sql\"}, {\"bytes\": null, \"path\": \"target/graph.gpickle\"}, {\"bytes\": 2080, \"path\": \"target/graph_summary.json\"}, {\"bytes\": 821464, \"path\": \"target/manifest.json\"}, {\"bytes\": 153, \"path\": \"target/osi_document.json\"}, {\"bytes\": null, \"path\": \"target/partial_parse.msgpack\"}, {\"bytes\": 701, \"path\": \"target/perf_info.json\"}, {\"bytes\": 402, \"path\": \"target/run/catalog_steward_fixture/models/customer_orders.sql\"}, {\"bytes\": 295, \"path\": \"target/run/catalog_steward_fixture/models/daily_revenue.sql\"}, {\"bytes\": 373, \"path\": \"target/run/catalog_steward_fixture/models/stg_orders.sql\"}, {\"bytes\": 304, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_customers.csv\"}, {\"bytes\": 331, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_order_items.csv\"}, {\"bytes\": 324, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_orders.csv\"}, {\"bytes\": 6101, \"path\": \"target/run_results.json\"}, {\"bytes\": 310, \"path\": \"target/semantic_manifest.json\"}], \"max_files\": 250}, \"id\": \"ev_project_listing_1e355e20b973\", \"kind\": \"project_listing\", \"source\": \"project/.\"}",
+        "name": "list_files",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"arguments\":{},\"name\":\"read_diff\",\"type\":\"tool\"}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {},
+        "name": "read_diff",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"diff\": \"\"}, \"id\": \"ev_repository_diff_or_history_7b3df39f73d6\", \"kind\": \"repository_diff_or_history\", \"source\": \"episode/input.diff\"}",
+        "name": "read_diff",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"arguments\":{\"path\":\"catalog/catalog.json\"},\"name\":\"read_file\",\"type\":\"tool\"}\n\n{\"arguments\":{\"path\":\"models/customer_orders.sql\"},\"name\":\"read_file\",\"type\":\"tool\"}\n\n{\"arguments\":{\"path\":\"models/schema.yml\"},\"name\":\"read_file\",\"type\":\"tool\"}\n\n{\"summary\":\"The available evidence confirms the project file listing and that the proposed diff is empty, but does not provide the contents needed to assess customer_orders metadata or SQL hygiene.\",\"findings\":[],\"unresolved_questions\":[\"What are the contents of catalog/catalog.json, models/customer_orders.sql, and models/schema.yml?\"]}",
+        "type": "assistant"
+      },
+      {
+        "content": "response is not one valid JSON object (Extra data: line 3 column 1 (char 80)); reply with only the JSON object, no surrounding prose",
+        "type": "error"
+      },
+      {
+        "content": "{\"arguments\":{\"path\":\"catalog/catalog.json\"},\"name\":\"read_file\",\"type\":\"tool\"}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "catalog/catalog.json"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"catalog/catalog.json\", \"text\": \"{\\n  \\\"version\\\": \\\"1.0\\\",\\n  \\\"assets\\\": [\\n    {\\n      \\\"name\\\": \\\"stg_orders\\\",\\n      \\\"type\\\": \\\"model\\\",\\n      \\\"description\\\": \\\"One row per source order, including all lifecycle statuses.\\\",\\n      \\\"owner\\\": \\\"data-platform\\\",\\n      \\\"lifecycle\\\": \\\"active\\\",\\n      \\\"grain\\\": [\\\"order_id\\\"],\\n      \\\"canonical\\\": true\\n    },\\n    {\\n      \\\"name\\\": \\\"customer_orders\\\",\\n      \\\"type\\\": \\\"model\\\",\\n      \\\"description\\\": \\\"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\\\",\\n      \\\"owner\\\": \\\"analytics\\\",\\n      \\\"lifecycle\\\": \\\"active\\\",\\n      \\\"grain\\\": [\\\"customer_id\\\"],\\n      \\\"canonical\\\": true\\n    },\\n    {\\n      \\\"name\\\": \\\"daily_revenue\\\",\\n      \\\"type\\\": \\\"model\\\",\\n      \\\"description\\\": \\\"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\\\",\\n      \\\"owner\\\": \\\"finance-analytics\\\",\\n      \\\"lifecycle\\\": \\\"active\\\",\\n      \\\"grain\\\": [\\\"order_date\\\"],\\n      \\\"canonical\\\": true\\n    }\\n  ]\\n}\\n\\n\"}, \"id\": \"ev_project_file_d3b19550376b\", \"kind\": \"project_file\", \"source\": \"project/catalog/catalog.json\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"arguments\":{\"path\":\"models/customer_orders.sql\"},\"name\":\"read_file\",\"type\":\"tool\"}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "models/customer_orders.sql"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"models/customer_orders.sql\", \"text\": \"select\\n    customer_id,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue,\\n    min(order_date) as first_completed_order_date,\\n    max(order_date) as latest_completed_order_date\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by customer_id\\n\\n\"}, \"id\": \"ev_project_file_fd9af3dbe92c\", \"kind\": \"project_file\", \"source\": \"project/models/customer_orders.sql\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"arguments\":{\"path\":\"models/schema.yml\"},\"name\":\"read_file\",\"type\":\"tool\"}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "models/schema.yml"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"models/schema.yml\", \"text\": \"version: 2\\n\\nmodels:\\n  - name: stg_orders\\n    description: One row per source order, including all lifecycle statuses.\\n    config:\\n      meta:\\n        owner: data-platform\\n        lifecycle: active\\n        grain: order_id\\n    columns:\\n      - name: order_id\\n        description: Source order identifier.\\n        data_tests: [not_null, unique]\\n      - name: customer_id\\n        description: Customer that placed the order.\\n        data_tests: [not_null]\\n      - name: status\\n        description: Current order lifecycle status.\\n        data_tests:\\n          - accepted_values:\\n              arguments:\\n                values: [completed, refunded, cancelled]\\n      - name: order_date\\n        description: Date the order was placed.\\n        data_tests: [not_null]\\n\\n  - name: customer_orders\\n    description: Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\\n    config:\\n      meta:\\n        owner: analytics\\n        lifecycle: active\\n        grain: customer_id\\n    columns:\\n      - name: customer_id\\n        description: Customer identifier and model grain.\\n        data_tests: [not_null, unique]\\n      - name: completed_order_count\\n        description: Number of completed orders for the customer.\\n\\n  - name: daily_revenue\\n    description: Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\\n    config:\\n      meta:\\n        owner: finance-analytics\\n        lifecycle: active\\n        grain: order_date\\n    columns:\\n      - name: order_date\\n        description: Order date and model grain.\\n        data_tests: [not_null, unique]\\n      - name: completed_order_count\\n        description: Number of completed orders on the date.\\n      - name: completed_revenue\\n        description: Sum of completed order amounts on the date.\\n\\n\"}, \"id\": \"ev_project_file_95fbeb560050\", \"kind\": \"project_file\", \"source\": \"project/models/schema.yml\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"arguments\":{\"path\":\"catalog/overrides.json\"},\"name\":\"read_file\",\"type\":\"tool\"}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "catalog/overrides.json"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"catalog/overrides.json\", \"text\": \"{\\n  \\\"assets\\\": {\\n    \\\"customer_orders\\\": {\\n      \\\"grain\\\": [\\\"order_id\\\"]\\n    }\\n  }\\n}\\n\\n\"}, \"id\": \"ev_project_file_32bdda36256c\", \"kind\": \"project_file\", \"source\": \"project/catalog/overrides.json\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"content\":\"{\\\"summary\\\":\\\"customer_orders has conflicting grain metadata: its SQL and model documentation establish one row per customer, but the catalog override declares order_id. Correct the override to match the model\u2019s actual grain.\\\",\\\"findings\\\":[{\\\"issue_type\\\":\\\"grain_or_join_drift\\\",\\\"asset\\\":\\\"customer_orders\\\",\\\"claim\\\":\\\"The catalog override declares customer_orders grain as order_id, but the model groups by customer_id and the catalog and schema documentation describe one row per customer.\\\",\\\"impact\\\":\\\"high\\\",\\\"confidence\\\":\\\"high\\\",\\\"evidence_ids\\\":[\\\"ev_project_file_32bdda36256c\\\",\\\"ev_project_file_fd9af3dbe92c\\\",\\\"ev_project_file_d3b19550376b\\\",\\\"ev_project_file_95fbeb560050\\\"],\\\"action\\\":{\\\"class\\\":\\\"patch\\\",\\\"operation\\\":\\\"update_catalog_field\\\",\\\"field\\\":\\\"grain\\\",\\\"value\\\":[\\\"customer_id\\\"],\\\"rationale\\\":\\\"Align the override grain with the SQL group-by and documented model grain to prevent consumers from interpreting this customer-level aggregate as order-level data.\\\",\\\"verification\\\":{\\\"field\\\":\\\"grain\\\",\\\"equals\\\":[\\\"customer_id\\\"]}}}],\\\"unresolved_questions\\\":[]}\",\"type\":\"final\"}",
+        "type": "assistant"
+      }
+    ],
+    "usage": {
+      "cached_calls": 0,
+      "calls": 9,
+      "cost_usd": 0.0012956299999999999,
+      "input_tokens": 26908,
+      "model": "openai/gpt-6-luna",
+      "output_tokens": 1384,
+      "seconds": 43.30438733100891
+    },
+    "verification": []
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "generic",
+    "correct_action_rate": 0.0,
+    "cost_usd": 0.0012956299999999999,
+    "episode_id": "rem_customer_orders_wrong_grain",
+    "episode_success": false,
+    "escalation_count": 0,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 1,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 1,
+    "turns": 9,
+    "unsafe_action_rate": 1.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 43.42087006568909
+  }
+}

@@ -16,7 +16,7 @@ from typing import Any
 
 import jsonschema
 
-from catalog_steward.agent import AgentConfig, AgentResult, AgentSession
+from catalog_steward.agent import AgentConfig, AgentResult, AgentSession, validator_from
 from catalog_steward.config import REPO_ROOT, load_settings
 from catalog_steward.contract import issue_by_id, load_contract
 from catalog_steward.episodes import (
@@ -34,7 +34,7 @@ from catalog_steward.llm import ChatModel, LM
 PLAN_SCHEMA_PATH = REPO_ROOT / "design/steward_plan.schema.json"
 LEDGER_NAME = "steward_ledger.jsonl"
 ALLOWED_PATCH_FIELDS = {"description", "owner", "lifecycle", "grain", "canonical"}
-STEWARD_PROMPT_VERSION = "specialized-steward-v2"
+STEWARD_PROMPT_VERSION = "specialized-steward-v3"
 
 
 @dataclass(frozen=True)
@@ -115,6 +115,7 @@ class StewardRun:
             model,
             evidence_tools(self.store),
             AgentConfig(max_turns=max_turns, system_prompt=self._system_prompt()),
+            final_validator=validator_from(self._validate_plan),
         )
         self.session = session
         agent_result = session.send(prompt)

@@ -1,0 +1,8 @@
+--- a/models/high_value_orders.sql
++++ b/models/high_value_orders.sql
+@@ -0,0 +1,5 @@
++select *
++from {{ ref('stg_orders') }}
++where status = 'completed'
++  and amount >= 100
++

@@ -1,0 +1,27 @@
+{
+  "findings": [
+    {
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "rationale": "Request an accountable reviewer to supply the missing catalog and dbt documentation, including a directly supported description and any owner or grain backed by repository evidence. Do not infer these fields from the asset name or SQL alone."
+      },
+      "asset": "high_value_orders",
+      "claim": "Catalog metadata and dbt schema documentation are absent, and the manifest description is empty. The SQL filters stg_orders to status = 'completed' and amount >= 100; this supports documenting those mechanics, but does not establish an owner or a broader business meaning.",
+      "confidence": "high",
+      "evidence_ids": [
+        "ev_catalog_metadata_82ae9089f9d2",
+        "ev_dbt_schema_ada6caa3d7d9",
+        "ev_dbt_model_sql_c2474a3ceba3",
+        "ev_parsed_sql_facts_a3e840436bc5",
+        "ev_dbt_manifest_80ebd7dd4f02"
+      ],
+      "impact": "medium",
+      "issue_type": "missing_required_metadata"
+    }
+  ],
+  "summary": "high_value_orders has a defining model and manifest entry but no catalog metadata or dbt schema documentation. Its SQL supports describing the selected rows by the explicit completed-status and amount threshold filters, but does not establish an owner, a business definition of \u2018high value,\u2019 or a grain. No further issue is sufficiently evidenced for an action.",
+  "unresolved_questions": [
+    "Who is authorized to define high_value_orders metadata, including its owner, business description, and grain?"
+  ]
+}

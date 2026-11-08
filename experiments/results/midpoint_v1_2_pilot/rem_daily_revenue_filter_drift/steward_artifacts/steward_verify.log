@@ -1,0 +1,3 @@
+[0m21:04:15  Running with dbt=1.12.6
+[0m21:04:15  Registered adapter: duckdb=1.11.1
+[0m21:04:15  Performance info: /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_910f4dce65ca/project/target/perf_info.json

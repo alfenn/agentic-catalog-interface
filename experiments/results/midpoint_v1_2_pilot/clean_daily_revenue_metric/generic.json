@@ -1,0 +1,420 @@
+{
+  "result": {
+    "condition": "generic",
+    "episode_id": "clean_daily_revenue_metric",
+    "error": null,
+    "evidence": [
+      {
+        "asset": null,
+        "content": {
+          "at_limit": false,
+          "files": [
+            {
+              "bytes": 909,
+              "path": "catalog/catalog.json"
+            },
+            {
+              "bytes": 195,
+              "path": "catalog/overrides.json"
+            },
+            {
+              "bytes": 330,
+              "path": "dbt_project.yml"
+            },
+            {
+              "bytes": 281,
+              "path": "models/customer_orders.sql"
+            },
+            {
+              "bytes": 223,
+              "path": "models/daily_revenue.sql"
+            },
+            {
+              "bytes": 1911,
+              "path": "models/schema.yml"
+            },
+            {
+              "bytes": 257,
+              "path": "models/stg_orders.sql"
+            },
+            {
+              "bytes": 158,
+              "path": "profiles.yml"
+            },
+            {
+              "bytes": 120,
+              "path": "seeds/raw_customers.csv"
+            },
+            {
+              "bytes": 179,
+              "path": "seeds/raw_order_items.csv"
+            },
+            {
+              "bytes": 287,
+              "path": "seeds/raw_orders.csv"
+            },
+            {
+              "bytes": 287,
+              "path": "target/compiled/catalog_steward_fixture/models/customer_orders.sql"
+            },
+            {
+              "bytes": 229,
+              "path": "target/compiled/catalog_steward_fixture/models/daily_revenue.sql"
+            },
+            {
+              "bytes": 263,
+              "path": "target/compiled/catalog_steward_fixture/models/stg_orders.sql"
+            },
+            {
+              "bytes": null,
+              "path": "target/graph.gpickle"
+            },
+            {
+              "bytes": 2080,
+              "path": "target/graph_summary.json"
+            },
+            {
+              "bytes": 822005,
+              "path": "target/manifest.json"
+            },
+            {
+              "bytes": 153,
+              "path": "target/osi_document.json"
+            },
+            {
+              "bytes": null,
+              "path": "target/partial_parse.msgpack"
+            },
+            {
+              "bytes": 701,
+              "path": "target/perf_info.json"
+            },
+            {
+              "bytes": 402,
+              "path": "target/run/catalog_steward_fixture/models/customer_orders.sql"
+            },
+            {
+              "bytes": 342,
+              "path": "target/run/catalog_steward_fixture/models/daily_revenue.sql"
+            },
+            {
+              "bytes": 373,
+              "path": "target/run/catalog_steward_fixture/models/stg_orders.sql"
+            },
+            {
+              "bytes": 304,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_customers.csv"
+            },
+            {
+              "bytes": 331,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_order_items.csv"
+            },
+            {
+              "bytes": 324,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_orders.csv"
+            },
+            {
+              "bytes": 6149,
+              "path": "target/run_results.json"
+            },
+            {
+              "bytes": 310,
+              "path": "target/semantic_manifest.json"
+            }
+          ],
+          "max_files": 250
+        },
+        "id": "ev_project_listing_4c19e16683d1",
+        "kind": "project_listing",
+        "source": "project/."
+      },
+      {
+        "asset": null,
+        "content": {
+          "diff": "--- a/catalog/overrides.json\n+++ b/catalog/overrides.json\n@@ -0,0 +1,8 @@\n+{\n+  \"assets\": {\n+    \"daily_revenue\": {\n+      \"description\": \"Completed-order revenue and maximum order amount at one row per order date; refunded and cancelled orders are excluded.\"\n+    }\n+  }\n+}\n+\n--- a/models/daily_revenue.sql\n+++ b/models/daily_revenue.sql\n@@ -1,7 +1,8 @@\n select\n     order_date,\n     count(*) as completed_order_count,\n-    sum(amount) as completed_revenue\n+    sum(amount) as completed_revenue,\n+    max(amount) as max_completed_order_amount\n from {{ ref('stg_orders') }}\n where status = 'completed'\n group by order_date\n--- a/models/schema.yml\n+++ b/models/schema.yml\n@@ -54,4 +54,6 @@\n         description: Number of completed orders on the date.\n       - name: completed_revenue\n         description: Sum of completed order amounts on the date.\n+      - name: max_completed_order_amount\n+        description: Largest completed order amount on the date.\n \n"
+        },
+        "id": "ev_repository_diff_or_history_55b1b45dd3d1",
+        "kind": "repository_diff_or_history",
+        "source": "episode/input.diff"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "catalog/catalog.json",
+          "text": "{\n  \"version\": \"1.0\",\n  \"assets\": [\n    {\n      \"name\": \"stg_orders\",\n      \"type\": \"model\",\n      \"description\": \"One row per source order, including all lifecycle statuses.\",\n      \"owner\": \"data-platform\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"order_id\"],\n      \"canonical\": true\n    },\n    {\n      \"name\": \"customer_orders\",\n      \"type\": \"model\",\n      \"description\": \"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\",\n      \"owner\": \"analytics\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"customer_id\"],\n      \"canonical\": true\n    },\n    {\n      \"name\": \"daily_revenue\",\n      \"type\": \"model\",\n      \"description\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\",\n      \"owner\": \"finance-analytics\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"order_date\"],\n      \"canonical\": true\n    }\n  ]\n}\n\n"
+        },
+        "id": "ev_project_file_d3b19550376b",
+        "kind": "project_file",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "catalog/overrides.json",
+          "text": "{\n  \"assets\": {\n    \"daily_revenue\": {\n      \"description\": \"Completed-order revenue and maximum order amount at one row per order date; refunded and cancelled orders are excluded.\"\n    }\n  }\n}\n\n"
+        },
+        "id": "ev_project_file_8abf74acde08",
+        "kind": "project_file",
+        "source": "project/catalog/overrides.json"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "models/daily_revenue.sql",
+          "text": "select\n    order_date,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue,\n    max(amount) as max_completed_order_amount\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by order_date\n\n"
+        },
+        "id": "ev_project_file_5d1feb73a764",
+        "kind": "project_file",
+        "source": "project/models/daily_revenue.sql"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "models/schema.yml",
+          "text": "version: 2\n\nmodels:\n  - name: stg_orders\n    description: One row per source order, including all lifecycle statuses.\n    config:\n      meta:\n        owner: data-platform\n        lifecycle: active\n        grain: order_id\n    columns:\n      - name: order_id\n        description: Source order identifier.\n        data_tests: [not_null, unique]\n      - name: customer_id\n        description: Customer that placed the order.\n        data_tests: [not_null]\n      - name: status\n        description: Current order lifecycle status.\n        data_tests:\n          - accepted_values:\n              arguments:\n                values: [completed, refunded, cancelled]\n      - name: order_date\n        description: Date the order was placed.\n        data_tests: [not_null]\n\n  - name: customer_orders\n    description: Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\n    config:\n      meta:\n        owner: analytics\n        lifecycle: active\n        grain: customer_id\n    columns:\n      - name: customer_id\n        description: Customer identifier and model grain.\n        data_tests: [not_null, unique]\n      - name: completed_order_count\n        description: Number of completed orders for the customer.\n\n  - name: daily_revenue\n    description: Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\n    config:\n      meta:\n        owner: finance-analytics\n        lifecycle: active\n        grain: order_date\n    columns:\n      - name: order_date\n        description: Order date and model grain.\n        data_tests: [not_null, unique]\n      - name: completed_order_count\n        description: Number of completed orders on the date.\n      - name: completed_revenue\n        description: Sum of completed order amounts on the date.\n      - name: max_completed_order_amount\n        description: Largest completed order amount on the date.\n\n"
+        },
+        "id": "ev_project_file_505ebbe78242",
+        "kind": "project_file",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": null,
+        "content": {
+          "path": "models/stg_orders.sql",
+          "text": "select\n    cast(order_id as integer) as order_id,\n    cast(customer_id as integer) as customer_id,\n    cast(status as varchar) as status,\n    cast(order_date as date) as order_date,\n    cast(amount as decimal(12, 2)) as amount\nfrom {{ ref('raw_orders') }}\n\n"
+        },
+        "id": "ev_project_file_c5a2eef6eaaa",
+        "kind": "project_file",
+        "source": "project/models/stg_orders.sql"
+      },
+      {
+        "asset": null,
+        "content": {
+          "at_limit": false,
+          "columns": [
+            "order_date",
+            "completed_order_count",
+            "completed_revenue",
+            "max_completed_order_amount"
+          ],
+          "max_rows": 100,
+          "rows": [
+            [
+              "2026-10-01",
+              1,
+              120,
+              120
+            ],
+            [
+              "2026-10-02",
+              1,
+              200,
+              200
+            ],
+            [
+              "2026-10-03",
+              1,
+              80,
+              80
+            ],
+            [
+              "2026-10-04",
+              2,
+              240,
+              150
+            ]
+          ],
+          "sql": "SELECT order_date, COUNT(*) AS completed_order_count, SUM(amount) AS completed_revenue, MAX(amount) AS max_completed_order_amount FROM raw_orders WHERE status = 'completed' GROUP BY order_date ORDER BY order_date"
+        },
+        "id": "ev_raw_query_d9d76c1aac7b",
+        "kind": "raw_query",
+        "source": "episode/warehouse.duckdb"
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [],
+      "summary": "The proposed daily_revenue change is consistent: SQL adds the maximum completed order amount grouped by order_date, and the catalog override describes that output and grain. No actionable hygiene issue was identified.",
+      "unresolved_questions": []
+    },
+    "protocol_rejections": 1,
+    "repair_used": false,
+    "seconds": 41.45428514480591,
+    "status": "complete",
+    "transcript": [
+      {
+        "content": "{\"asset_scope\": [\"daily_revenue\"], \"project_listing\": {\"asset\": null, \"content\": {\"at_limit\": false, \"files\": [{\"bytes\": 909, \"path\": \"catalog/catalog.json\"}, {\"bytes\": 195, \"path\": \"catalog/overrides.json\"}, {\"bytes\": 330, \"path\": \"dbt_project.yml\"}, {\"bytes\": 281, \"path\": \"models/customer_orders.sql\"}, {\"bytes\": 223, \"path\": \"models/daily_revenue.sql\"}, {\"bytes\": 1911, \"path\": \"models/schema.yml\"}, {\"bytes\": 257, \"path\": \"models/stg_orders.sql\"}, {\"bytes\": 158, \"path\": \"profiles.yml\"}, {\"bytes\": 120, \"path\": \"seeds/raw_customers.csv\"}, {\"bytes\": 179, \"path\": \"seeds/raw_order_items.csv\"}, {\"bytes\": 287, \"path\": \"seeds/raw_orders.csv\"}, {\"bytes\": 287, \"path\": \"target/compiled/catalog_steward_fixture/models/customer_orders.sql\"}, {\"bytes\": 229, \"path\": \"target/compiled/catalog_steward_fixture/models/daily_revenue.sql\"}, {\"bytes\": 263, \"path\": \"target/compiled/catalog_steward_fixture/models/stg_orders.sql\"}, {\"bytes\": null, \"path\": \"target/graph.gpickle\"}, {\"bytes\": 2080, \"path\": \"target/graph_summary.json\"}, {\"bytes\": 822005, \"path\": \"target/manifest.json\"}, {\"bytes\": 153, \"path\": \"target/osi_document.json\"}, {\"bytes\": null, \"path\": \"target/partial_parse.msgpack\"}, {\"bytes\": 701, \"path\": \"target/perf_info.json\"}, {\"bytes\": 402, \"path\": \"target/run/catalog_steward_fixture/models/customer_orders.sql\"}, {\"bytes\": 342, \"path\": \"target/run/catalog_steward_fixture/models/daily_revenue.sql\"}, {\"bytes\": 373, \"path\": \"target/run/catalog_steward_fixture/models/stg_orders.sql\"}, {\"bytes\": 304, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_customers.csv\"}, {\"bytes\": 331, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_order_items.csv\"}, {\"bytes\": 324, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_orders.csv\"}, {\"bytes\": 6149, \"path\": \"target/run_results.json\"}, {\"bytes\": 310, \"path\": \"target/semantic_manifest.json\"}], \"max_files\": 250}, \"id\": \"ev_project_listing_4c19e16683d1\", \"kind\": \"project_listing\", \"source\": \"project/.\"}, \"prompt_version\": \"generic-hygiene-v3\", \"trigger\": \"change_review\"}",
+        "type": "user"
+      },
+      {
+        "content": "{\"summary\":\"No findings are reported: the available project listing identifies the in-scope asset\u2019s files but does not establish any catalog hygiene issue.\",\"findings\":[],\"unresolved_questions\":[\"What do the daily_revenue model SQL, catalog metadata, and proposed change diff contain?\"]}",
+        "type": "assistant"
+      },
+      {
+        "content": "response has no \"type\" key; top-level keys were ['findings', 'summary', 'unresolved_questions']. Reply with {\"type\": \"tool\", \"name\": ..., \"arguments\": {...}} or {\"type\": \"final\", \"content\": ...}",
+        "type": "error"
+      },
+      {
+        "content": "{\"type\":\"tool\",\"name\":\"read_diff\",\"arguments\":{}}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {},
+        "name": "read_diff",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"diff\": \"--- a/catalog/overrides.json\\n+++ b/catalog/overrides.json\\n@@ -0,0 +1,8 @@\\n+{\\n+  \\\"assets\\\": {\\n+    \\\"daily_revenue\\\": {\\n+      \\\"description\\\": \\\"Completed-order revenue and maximum order amount at one row per order date; refunded and cancelled orders are excluded.\\\"\\n+    }\\n+  }\\n+}\\n+\\n--- a/models/daily_revenue.sql\\n+++ b/models/daily_revenue.sql\\n@@ -1,7 +1,8 @@\\n select\\n     order_date,\\n     count(*) as completed_order_count,\\n-    sum(amount) as completed_revenue\\n+    sum(amount) as completed_revenue,\\n+    max(amount) as max_completed_order_amount\\n from {{ ref('stg_orders') }}\\n where status = 'completed'\\n group by order_date\\n--- a/models/schema.yml\\n+++ b/models/schema.yml\\n@@ -54,4 +54,6 @@\\n         description: Number of completed orders on the date.\\n       - name: completed_revenue\\n         description: Sum of completed order amounts on the date.\\n+      - name: max_completed_order_amount\\n+        description: Largest completed order amount on the date.\\n \\n\"}, \"id\": \"ev_repository_diff_or_history_55b1b45dd3d1\", \"kind\": \"repository_diff_or_history\", \"source\": \"episode/input.diff\"}",
+        "name": "read_diff",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"type\":\"tool\",\"name\":\"read_file\",\"arguments\":{\"path\":\"catalog/catalog.json\"}}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "catalog/catalog.json"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"catalog/catalog.json\", \"text\": \"{\\n  \\\"version\\\": \\\"1.0\\\",\\n  \\\"assets\\\": [\\n    {\\n      \\\"name\\\": \\\"stg_orders\\\",\\n      \\\"type\\\": \\\"model\\\",\\n      \\\"description\\\": \\\"One row per source order, including all lifecycle statuses.\\\",\\n      \\\"owner\\\": \\\"data-platform\\\",\\n      \\\"lifecycle\\\": \\\"active\\\",\\n      \\\"grain\\\": [\\\"order_id\\\"],\\n      \\\"canonical\\\": true\\n    },\\n    {\\n      \\\"name\\\": \\\"customer_orders\\\",\\n      \\\"type\\\": \\\"model\\\",\\n      \\\"description\\\": \\\"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\\\",\\n      \\\"owner\\\": \\\"analytics\\\",\\n      \\\"lifecycle\\\": \\\"active\\\",\\n      \\\"grain\\\": [\\\"customer_id\\\"],\\n      \\\"canonical\\\": true\\n    },\\n    {\\n      \\\"name\\\": \\\"daily_revenue\\\",\\n      \\\"type\\\": \\\"model\\\",\\n      \\\"description\\\": \\\"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\\\",\\n      \\\"owner\\\": \\\"finance-analytics\\\",\\n      \\\"lifecycle\\\": \\\"active\\\",\\n      \\\"grain\\\": [\\\"order_date\\\"],\\n      \\\"canonical\\\": true\\n    }\\n  ]\\n}\\n\\n\"}, \"id\": \"ev_project_file_d3b19550376b\", \"kind\": \"project_file\", \"source\": \"project/catalog/catalog.json\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"type\":\"tool\",\"name\":\"read_file\",\"arguments\":{\"path\":\"catalog/overrides.json\"}}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "catalog/overrides.json"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"catalog/overrides.json\", \"text\": \"{\\n  \\\"assets\\\": {\\n    \\\"daily_revenue\\\": {\\n      \\\"description\\\": \\\"Completed-order revenue and maximum order amount at one row per order date; refunded and cancelled orders are excluded.\\\"\\n    }\\n  }\\n}\\n\\n\"}, \"id\": \"ev_project_file_8abf74acde08\", \"kind\": \"project_file\", \"source\": \"project/catalog/overrides.json\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"type\":\"tool\",\"name\":\"read_file\",\"arguments\":{\"path\":\"models/daily_revenue.sql\"}}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "models/daily_revenue.sql"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"models/daily_revenue.sql\", \"text\": \"select\\n    order_date,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue,\\n    max(amount) as max_completed_order_amount\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by order_date\\n\\n\"}, \"id\": \"ev_project_file_5d1feb73a764\", \"kind\": \"project_file\", \"source\": \"project/models/daily_revenue.sql\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"type\":\"tool\",\"name\":\"read_file\",\"arguments\":{\"path\":\"models/schema.yml\"}}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "models/schema.yml"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"models/schema.yml\", \"text\": \"version: 2\\n\\nmodels:\\n  - name: stg_orders\\n    description: One row per source order, including all lifecycle statuses.\\n    config:\\n      meta:\\n        owner: data-platform\\n        lifecycle: active\\n        grain: order_id\\n    columns:\\n      - name: order_id\\n        description: Source order identifier.\\n        data_tests: [not_null, unique]\\n      - name: customer_id\\n        description: Customer that placed the order.\\n        data_tests: [not_null]\\n      - name: status\\n        description: Current order lifecycle status.\\n        data_tests:\\n          - accepted_values:\\n              arguments:\\n                values: [completed, refunded, cancelled]\\n      - name: order_date\\n        description: Date the order was placed.\\n        data_tests: [not_null]\\n\\n  - name: customer_orders\\n    description: Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\\n    config:\\n      meta:\\n        owner: analytics\\n        lifecycle: active\\n        grain: customer_id\\n    columns:\\n      - name: customer_id\\n        description: Customer identifier and model grain.\\n        data_tests: [not_null, unique]\\n      - name: completed_order_count\\n        description: Number of completed orders for the customer.\\n\\n  - name: daily_revenue\\n    description: Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\\n    config:\\n      meta:\\n        owner: finance-analytics\\n        lifecycle: active\\n        grain: order_date\\n    columns:\\n      - name: order_date\\n        description: Order date and model grain.\\n        data_tests: [not_null, unique]\\n      - name: completed_order_count\\n        description: Number of completed orders on the date.\\n      - name: completed_revenue\\n        description: Sum of completed order amounts on the date.\\n      - name: max_completed_order_amount\\n        description: Largest completed order amount on the date.\\n\\n\"}, \"id\": \"ev_project_file_505ebbe78242\", \"kind\": \"project_file\", \"source\": \"project/models/schema.yml\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"type\":\"tool\",\"name\":\"read_file\",\"arguments\":{\"path\":\"models/stg_orders.sql\"}}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "path": "models/stg_orders.sql"
+        },
+        "name": "read_file",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"path\": \"models/stg_orders.sql\", \"text\": \"select\\n    cast(order_id as integer) as order_id,\\n    cast(customer_id as integer) as customer_id,\\n    cast(status as varchar) as status,\\n    cast(order_date as date) as order_date,\\n    cast(amount as decimal(12, 2)) as amount\\nfrom {{ ref('raw_orders') }}\\n\\n\"}, \"id\": \"ev_project_file_c5a2eef6eaaa\", \"kind\": \"project_file\", \"source\": \"project/models/stg_orders.sql\"}",
+        "name": "read_file",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"type\":\"tool\",\"name\":\"query_sql\",\"arguments\":{\"sql\":\"select order_date, count(*) as completed_order_count, sum(amount) as completed_revenue, max(amount) as max_completed_order_amount from raw_orders where status = 'completed' group by order_date order by order_date\",\"max_rows\":100}}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {
+          "max_rows": 100,
+          "sql": "select order_date, count(*) as completed_order_count, sum(amount) as completed_revenue, max(amount) as max_completed_order_amount from raw_orders where status = 'completed' group by order_date order by order_date"
+        },
+        "name": "query_sql",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"at_limit\": false, \"columns\": [\"order_date\", \"completed_order_count\", \"completed_revenue\", \"max_completed_order_amount\"], \"max_rows\": 100, \"rows\": [[\"2026-10-01\", 1, 120, 120], [\"2026-10-02\", 1, 200, 200], [\"2026-10-03\", 1, 80, 80], [\"2026-10-04\", 2, 240, 150]], \"sql\": \"SELECT order_date, COUNT(*) AS completed_order_count, SUM(amount) AS completed_revenue, MAX(amount) AS max_completed_order_amount FROM raw_orders WHERE status = 'completed' GROUP BY order_date ORDER BY order_date\"}, \"id\": \"ev_raw_query_d9d76c1aac7b\", \"kind\": \"raw_query\", \"source\": \"episode/warehouse.duckdb\"}",
+        "name": "query_sql",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"type\":\"final\",\"content\":\"{\\\"summary\\\":\\\"The proposed daily_revenue change is consistent: SQL adds the maximum completed order amount grouped by order_date, and the catalog override describes that output and grain. No actionable hygiene issue was identified.\\\",\\\"findings\\\":[],\\\"unresolved_questions\\\":[]}\"}",
+        "type": "assistant"
+      }
+    ],
+    "usage": {
+      "cached_calls": 0,
+      "calls": 9,
+      "cost_usd": 0.001458125,
+      "input_tokens": 25413,
+      "model": "openai/gpt-6-luna",
+      "output_tokens": 1775,
+      "seconds": 41.34372138977051
+    },
+    "verification": []
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": true,
+    "condition": "generic",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.001458125,
+    "episode_id": "clean_daily_revenue_metric",
+    "episode_success": true,
+    "escalation_count": 0,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 0,
+    "turns": 9,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 41.45428514480591
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "result": {
+    "condition": "generic",
+    "episode_id": "clean_new_model_documented",
+    "error": null,
+    "evidence": [
+      {
+        "asset": null,
+        "content": {
+          "at_limit": false,
+          "files": [
+            {
+              "bytes": 909,
+              "path": "catalog/catalog.json"
+            },
+            {
+              "bytes": 285,
+              "path": "catalog/overrides.json"
+            },
+            {
+              "bytes": 330,
+              "path": "dbt_project.yml"
+            },
+            {
+              "bytes": 281,
+              "path": "models/customer_orders.sql"
+            },
+            {
+              "bytes": 265,
+              "path": "models/customer_regions.sql"
+            },
+            {
+              "bytes": 495,
+              "path": "models/customer_regions.yml"
+            },
+            {
+              "bytes": 176,
+              "path": "models/daily_revenue.sql"
+            },
+            {
+              "bytes": 1805,
+              "path": "models/schema.yml"
+            },
+            {
+              "bytes": 257,
+              "path": "models/stg_orders.sql"
+            },
+            {
+              "bytes": 158,
+              "path": "profiles.yml"
+            },
+            {
+              "bytes": 120,
+              "path": "seeds/raw_customers.csv"
+            },
+            {
+              "bytes": 179,
+              "path": "seeds/raw_order_items.csv"
+            },
+            {
+              "bytes": 287,
+              "path": "seeds/raw_orders.csv"
+            },
+            {
+              "bytes": 287,
+              "path": "target/compiled/catalog_steward_fixture/models/customer_orders.sql"
+            },
+            {
+              "bytes": 279,
+              "path": "target/compiled/catalog_steward_fixture/models/customer_regions.sql"
+            },
+            {
+              "bytes": 182,
+              "path": "target/compiled/catalog_steward_fixture/models/daily_revenue.sql"
+            },
+            {
+              "bytes": 263,
+              "path": "target/compiled/catalog_steward_fixture/models/stg_orders.sql"
+            },
+            {
+              "bytes": null,
+              "path": "target/graph.gpickle"
+            },
+            {
+              "bytes": 2690,
+              "path": "target/graph_summary.json"
+            },
+            {
+              "bytes": 835360,
+              "path": "target/manifest.json"
+            },
+            {
+              "bytes": 153,
+              "path": "target/osi_document.json"
+            },
+            {
+              "bytes": null,
+              "path": "target/partial_parse.msgpack"
+            },
+            {
+              "bytes": 701,
+              "path": "target/perf_info.json"
+            },
+            {
+              "bytes": 402,
+              "path": "target/run/catalog_steward_fixture/models/customer_orders.sql"
+            },
+            {
+              "bytes": 395,
+              "path": "target/run/catalog_steward_fixture/models/customer_regions.sql"
+            },
+            {
+              "bytes": 295,
+              "path": "target/run/catalog_steward_fixture/models/daily_revenue.sql"
+            },
+            {
+              "bytes": 373,
+              "path": "target/run/catalog_steward_fixture/models/stg_orders.sql"
+            },
+            {
+              "bytes": 304,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_customers.csv"
+            },
+            {
+              "bytes": 331,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_order_items.csv"
+            },
+            {
+              "bytes": 324,
+              "path": "target/run/catalog_steward_fixture/seeds/raw_orders.csv"
+            },
+            {
+              "bytes": 7166,
+              "path": "target/run_results.json"
+            },
+            {
+              "bytes": 310,
+              "path": "target/semantic_manifest.json"
+            }
+          ],
+          "max_files": 250
+        },
+        "id": "ev_project_listing_74886a39a5f6",
+        "kind": "project_listing",
+        "source": "project/."
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [],
+      "summary": "No catalog or model hygiene issue could be substantiated from the available evidence; the project listing confirms the scoped assets have related project files but does not expose their contents.",
+      "unresolved_questions": [
+        "What do the catalog metadata, model SQL, and proposed change diff contain for customer_regions, customer_orders, and raw_customers?"
+      ]
+    },
+    "protocol_rejections": 0,
+    "repair_used": false,
+    "seconds": 14.348381042480469,
+    "status": "complete",
+    "transcript": [
+      {
+        "content": "{\"asset_scope\": [\"customer_regions\", \"customer_orders\", \"raw_customers\"], \"project_listing\": {\"asset\": null, \"content\": {\"at_limit\": false, \"files\": [{\"bytes\": 909, \"path\": \"catalog/catalog.json\"}, {\"bytes\": 285, \"path\": \"catalog/overrides.json\"}, {\"bytes\": 330, \"path\": \"dbt_project.yml\"}, {\"bytes\": 281, \"path\": \"models/customer_orders.sql\"}, {\"bytes\": 265, \"path\": \"models/customer_regions.sql\"}, {\"bytes\": 495, \"path\": \"models/customer_regions.yml\"}, {\"bytes\": 176, \"path\": \"models/daily_revenue.sql\"}, {\"bytes\": 1805, \"path\": \"models/schema.yml\"}, {\"bytes\": 257, \"path\": \"models/stg_orders.sql\"}, {\"bytes\": 158, \"path\": \"profiles.yml\"}, {\"bytes\": 120, \"path\": \"seeds/raw_customers.csv\"}, {\"bytes\": 179, \"path\": \"seeds/raw_order_items.csv\"}, {\"bytes\": 287, \"path\": \"seeds/raw_orders.csv\"}, {\"bytes\": 287, \"path\": \"target/compiled/catalog_steward_fixture/models/customer_orders.sql\"}, {\"bytes\": 279, \"path\": \"target/compiled/catalog_steward_fixture/models/customer_regions.sql\"}, {\"bytes\": 182, \"path\": \"target/compiled/catalog_steward_fixture/models/daily_revenue.sql\"}, {\"bytes\": 263, \"path\": \"target/compiled/catalog_steward_fixture/models/stg_orders.sql\"}, {\"bytes\": null, \"path\": \"target/graph.gpickle\"}, {\"bytes\": 2690, \"path\": \"target/graph_summary.json\"}, {\"bytes\": 835360, \"path\": \"target/manifest.json\"}, {\"bytes\": 153, \"path\": \"target/osi_document.json\"}, {\"bytes\": null, \"path\": \"target/partial_parse.msgpack\"}, {\"bytes\": 701, \"path\": \"target/perf_info.json\"}, {\"bytes\": 402, \"path\": \"target/run/catalog_steward_fixture/models/customer_orders.sql\"}, {\"bytes\": 395, \"path\": \"target/run/catalog_steward_fixture/models/customer_regions.sql\"}, {\"bytes\": 295, \"path\": \"target/run/catalog_steward_fixture/models/daily_revenue.sql\"}, {\"bytes\": 373, \"path\": \"target/run/catalog_steward_fixture/models/stg_orders.sql\"}, {\"bytes\": 304, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_customers.csv\"}, {\"bytes\": 331, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_order_items.csv\"}, {\"bytes\": 324, \"path\": \"target/run/catalog_steward_fixture/seeds/raw_orders.csv\"}, {\"bytes\": 7166, \"path\": \"target/run_results.json\"}, {\"bytes\": 310, \"path\": \"target/semantic_manifest.json\"}], \"max_files\": 250}, \"id\": \"ev_project_listing_74886a39a5f6\", \"kind\": \"project_listing\", \"source\": \"project/.\"}, \"prompt_version\": \"generic-hygiene-v3\", \"trigger\": \"change_review\"}",
+        "type": "user"
+      },
+      {
+        "content": "{\"content\":\"{\\\"summary\\\":\\\"No catalog or model hygiene issue could be substantiated from the available evidence; the project listing confirms the scoped assets have related project files but does not expose their contents.\\\",\\\"findings\\\":[],\\\"unresolved_questions\\\":[\\\"What do the catalog metadata, model SQL, and proposed change diff contain for customer_regions, customer_orders, and raw_customers?\\\"]}\",\"type\":\"final\"}",
+        "type": "assistant"
+      }
+    ],
+    "usage": {
+      "cached_calls": 0,
+      "calls": 1,
+      "cost_usd": 0.000635035,
+      "input_tokens": 1876,
+      "model": "openai/gpt-6-luna",
+      "output_tokens": 1074,
+      "seconds": 14.320925951004028
+    },
+    "verification": []
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": true,
+    "condition": "generic",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.000635035,
+    "episode_id": "clean_new_model_documented",
+    "episode_success": true,
+    "escalation_count": 0,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 0,
+    "turns": 1,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 14.348381042480469
+  }
+}

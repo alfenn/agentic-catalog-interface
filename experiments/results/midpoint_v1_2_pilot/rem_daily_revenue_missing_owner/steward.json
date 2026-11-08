@@ -1,0 +1,464 @@
+{
+  "result": {
+    "condition": "steward",
+    "episode_id": "rem_daily_revenue_missing_owner",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "grain": [
+            "order_date"
+          ],
+          "lifecycle": "active",
+          "name": "daily_revenue",
+          "owner": null,
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_cd0904885c95",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Order date and model grain.",
+              "name": "order_date"
+            },
+            {
+              "description": "Number of completed orders on the date.",
+              "name": "completed_order_count"
+            },
+            {
+              "description": "Sum of completed order amounts on the date.",
+              "name": "completed_revenue"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "order_date",
+              "lifecycle": "active",
+              "owner": "finance-analytics"
+            }
+          },
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "name": "daily_revenue",
+          "present": true
+        },
+        "id": "ev_dbt_schema_01fe3ea3102d",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "sql": "select\n    order_date,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by order_date\n\n"
+        },
+        "id": "ev_dbt_model_sql_0809eedf6d5e",
+        "kind": "dbt_model_sql",
+        "source": "project/models/daily_revenue.sql"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "aggregations": [
+            "COUNT(*)",
+            "SUM(amount)"
+          ],
+          "filters": [
+            "status = 'completed'"
+          ],
+          "grain_candidates": [
+            "order_date"
+          ],
+          "group_by": [
+            "order_date"
+          ],
+          "joins": [],
+          "select_expressions": [
+            "order_date",
+            "COUNT(*) AS completed_order_count",
+            "SUM(amount) AS completed_revenue"
+          ],
+          "sources": [
+            "stg_orders"
+          ]
+        },
+        "id": "ev_parsed_sql_facts_05abec786ab2",
+        "kind": "parsed_sql_facts",
+        "source": "project/models/daily_revenue.sql"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "access": "protected",
+          "alias": "daily_revenue",
+          "build_path": null,
+          "checksum": {
+            "checksum": "f5f96873d8427a40d6a7f7d3570b066d97ff22f0e5d8d764ea3ab72e7f5241a0",
+            "name": "sha256"
+          },
+          "columns": {
+            "completed_order_count": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Number of completed orders on the date.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "completed_order_count",
+              "quote": null,
+              "tags": []
+            },
+            "completed_revenue": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Sum of completed order amounts on the date.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "completed_revenue",
+              "quote": null,
+              "tags": []
+            },
+            "order_date": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Order date and model grain.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "order_date",
+              "quote": null,
+              "tags": []
+            }
+          },
+          "compiled_path": null,
+          "config": {
+            "access": "protected",
+            "alias": null,
+            "batch_size": null,
+            "begin": null,
+            "column_types": {},
+            "concurrent_batches": null,
+            "contract": {
+              "alias_types": true,
+              "enforced": false
+            },
+            "database": null,
+            "docs": {
+              "node_color": null,
+              "show": true
+            },
+            "enabled": true,
+            "event_time": null,
+            "freshness": null,
+            "full_refresh": null,
+            "grants": {},
+            "group": null,
+            "incremental_strategy": null,
+            "latest_version_pointer": {
+              "alias": null,
+              "enabled": null
+            },
+            "lookback": 1,
+            "materialized": "table",
+            "meta": {
+              "grain": "order_date",
+              "lifecycle": "active",
+              "owner": "finance-analytics"
+            },
+            "on_configuration_change": "apply",
+            "on_error": null,
+            "on_schema_change": "ignore",
+            "packages": [],
+            "persist_docs": {},
+            "post-hook": [],
+            "pre-hook": [],
+            "quoting": {},
+            "schema": null,
+            "static_analysis": null,
+            "tags": [],
+            "unique_key": null
+          },
+          "constraints": [],
+          "contract": {
+            "alias_types": true,
+            "checksum": null,
+            "enforced": false
+          },
+          "created_at": "<normalized>",
+          "database": "warehouse",
+          "depends_on": {
+            "macros": [],
+            "nodes": [
+              "model.catalog_steward_fixture.stg_orders"
+            ]
+          },
+          "deprecation_date": null,
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "doc_blocks": [],
+          "docs": {
+            "node_color": null,
+            "show": true
+          },
+          "fqn": [
+            "catalog_steward_fixture",
+            "daily_revenue"
+          ],
+          "functions": [],
+          "group": null,
+          "language": "sql",
+          "latest_version": null,
+          "meta": {
+            "grain": "order_date",
+            "lifecycle": "active",
+            "owner": "finance-analytics"
+          },
+          "metrics": [],
+          "name": "daily_revenue",
+          "original_file_path": "models/daily_revenue.sql",
+          "package_name": "catalog_steward_fixture",
+          "patch_path": "catalog_steward_fixture://models/schema.yml",
+          "path": "daily_revenue.sql",
+          "primary_key": [
+            "order_date"
+          ],
+          "raw_code": "select\n    order_date,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by order_date",
+          "refs": [
+            {
+              "name": "stg_orders",
+              "package": null,
+              "version": null
+            }
+          ],
+          "relation_name": "\"warehouse\".\"main\".\"daily_revenue\"",
+          "resource_type": "model",
+          "schema": "main",
+          "sources": [],
+          "tags": [],
+          "time_spine": null,
+          "unique_id": "model.catalog_steward_fixture.daily_revenue",
+          "unrendered_config": {
+            "materialized": "table",
+            "meta": {
+              "grain": "order_date",
+              "lifecycle": "active",
+              "owner": "finance-analytics"
+            }
+          },
+          "version": null
+        },
+        "id": "ev_dbt_manifest_3922eb92f966",
+        "kind": "dbt_manifest",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "downstream": [
+            {
+              "distance": 1,
+              "name": "not_null_daily_revenue_order_date",
+              "resource_type": "test"
+            },
+            {
+              "distance": 1,
+              "name": "unique_daily_revenue_order_date",
+              "resource_type": "test"
+            }
+          ],
+          "max_hops": 1,
+          "upstream": [
+            {
+              "distance": 1,
+              "name": "stg_orders",
+              "resource_type": "model"
+            }
+          ]
+        },
+        "id": "ev_lineage_9002692b9ec2",
+        "kind": "lineage",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "at_sample_limit": false,
+          "columns": {
+            "completed_order_count": {
+              "distinct_count": 2,
+              "duplicate_count": 2,
+              "null_count": 0,
+              "type": "BIGINT"
+            },
+            "completed_revenue": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "DECIMAL(38,2)"
+            },
+            "order_date": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "max": "2026-10-04",
+              "min": "2026-10-01",
+              "null_count": 0,
+              "type": "DATE"
+            }
+          },
+          "sample_limit": 10000,
+          "sampled_rows": 4
+        },
+        "id": "ev_bounded_data_profile_2fe447c9f36e",
+        "kind": "bounded_data_profile",
+        "source": "episode/warehouse.duckdb"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "grain": [
+            "order_date"
+          ],
+          "lifecycle": "active",
+          "name": "daily_revenue",
+          "owner": "finance-analytics",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_4b1de1095eba",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      }
+    ],
+    "mode": "remediation",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "patch",
+            "field": "owner",
+            "operation": "update_catalog_field",
+            "rationale": "Align the catalog owner with the explicit dbt metadata and manifest value.",
+            "value": "finance-analytics",
+            "verification": {
+              "equals": "finance-analytics",
+              "field": "owner"
+            }
+          },
+          "asset": "daily_revenue",
+          "claim": "The catalog owner is unset, while dbt schema configuration and the manifest both specify finance-analytics.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_catalog_metadata_cd0904885c95",
+            "ev_dbt_schema_01fe3ea3102d",
+            "ev_dbt_manifest_3922eb92f966"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        }
+      ],
+      "summary": "One catalog metadata gap is supported by dbt repository evidence; other supplied metadata and model behavior are consistent.",
+      "unresolved_questions": []
+    },
+    "protocol_rejections": 0,
+    "repair_used": false,
+    "seconds": 6.940515995025635,
+    "status": "complete",
+    "transcript": [
+      {
+        "content": "Inspect, prioritize, and plan hygiene actions for this bounded task:\n{\"asset_scope\": [\"daily_revenue\"], \"collection_errors\": [], \"evidence\": [{\"asset\": \"daily_revenue\", \"content\": {\"canonical\": true, \"description\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\", \"grain\": [\"order_date\"], \"lifecycle\": \"active\", \"name\": \"daily_revenue\", \"owner\": null, \"present\": true, \"type\": \"model\"}, \"id\": \"ev_catalog_metadata_cd0904885c95\", \"kind\": \"catalog_metadata\", \"source\": \"project/catalog/catalog.json+project/catalog/overrides.json\"}, {\"asset\": \"daily_revenue\", \"content\": {\"columns\": [{\"data_tests\": [\"not_null\", \"unique\"], \"description\": \"Order date and model grain.\", \"name\": \"order_date\"}, {\"description\": \"Number of completed orders on the date.\", \"name\": \"completed_order_count\"}, {\"description\": \"Sum of completed order amounts on the date.\", \"name\": \"completed_revenue\"}], \"config\": {\"meta\": {\"grain\": \"order_date\", \"lifecycle\": \"active\", \"owner\": \"finance-analytics\"}}, \"description\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\", \"name\": \"daily_revenue\", \"present\": true}, \"id\": \"ev_dbt_schema_01fe3ea3102d\", \"kind\": \"dbt_schema\", \"source\": \"project/models/schema.yml\"}, {\"asset\": \"daily_revenue\", \"content\": {\"sql\": \"select\\n    order_date,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by order_date\\n\\n\"}, \"id\": \"ev_dbt_model_sql_0809eedf6d5e\", \"kind\": \"dbt_model_sql\", \"source\": \"project/models/daily_revenue.sql\"}, {\"asset\": \"daily_revenue\", \"content\": {\"aggregations\": [\"COUNT(*)\", \"SUM(amount)\"], \"filters\": [\"status = 'completed'\"], \"grain_candidates\": [\"order_date\"], \"group_by\": [\"order_date\"], \"joins\": [], \"select_expressions\": [\"order_date\", \"COUNT(*) AS completed_order_count\", \"SUM(amount) AS completed_revenue\"], \"sources\": [\"stg_orders\"]}, \"id\": \"ev_parsed_sql_facts_05abec786ab2\", \"kind\": \"parsed_sql_facts\", \"source\": \"project/models/daily_revenue.sql\"}, {\"asset\": \"daily_revenue\", \"content\": {\"access\": \"protected\", \"alias\": \"daily_revenue\", \"build_path\": null, \"checksum\": {\"checksum\": \"f5f96873d8427a40d6a7f7d3570b066d97ff22f0e5d8d764ea3ab72e7f5241a0\", \"name\": \"sha256\"}, \"columns\": {\"completed_order_count\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Number of completed orders on the date.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"completed_order_count\", \"quote\": null, \"tags\": []}, \"completed_revenue\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Sum of completed order amounts on the date.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"completed_revenue\", \"quote\": null, \"tags\": []}, \"order_date\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Order date and model grain.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"order_date\", \"quote\": null, \"tags\": []}}, \"compiled_path\": null, \"config\": {\"access\": \"protected\", \"alias\": null, \"batch_size\": null, \"begin\": null, \"column_types\": {}, \"concurrent_batches\": null, \"contract\": {\"alias_types\": true, \"enforced\": false}, \"database\": null, \"docs\": {\"node_color\": null, \"show\": true}, \"enabled\": true, \"event_time\": null, \"freshness\": null, \"full_refresh\": null, \"grants\": {}, \"group\": null, \"incremental_strategy\": null, \"latest_version_pointer\": {\"alias\": null, \"enabled\": null}, \"lookback\": 1, \"materialized\": \"table\", \"meta\": {\"grain\": \"order_date\", \"lifecycle\": \"active\", \"owner\": \"finance-analytics\"}, \"on_configuration_change\": \"apply\", \"on_error\": null, \"on_schema_change\": \"ignore\", \"packages\": [], \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"schema\": null, \"static_analysis\": null, \"tags\": [], \"unique_key\": null}, \"constraints\": [], \"contract\": {\"alias_types\": true, \"checksum\": null, \"enforced\": false}, \"created_at\": \"<normalized>\", \"database\": \"warehouse\", \"depends_on\": {\"macros\": [], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"deprecation_date\": null, \"description\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\", \"doc_blocks\": [], \"docs\": {\"node_color\": null, \"show\": true}, \"fqn\": [\"catalog_steward_fixture\", \"daily_revenue\"], \"functions\": [], \"group\": null, \"language\": \"sql\", \"latest_version\": null, \"meta\": {\"grain\": \"order_date\", \"lifecycle\": \"active\", \"owner\": \"finance-analytics\"}, \"metrics\": [], \"name\": \"daily_revenue\", \"original_file_path\": \"models/daily_revenue.sql\", \"package_name\": \"catalog_steward_fixture\", \"patch_path\": \"catalog_steward_fixture://models/schema.yml\", \"path\": \"daily_revenue.sql\", \"primary_key\": [\"order_date\"], \"raw_code\": \"select\\n    order_date,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by order_date\", \"refs\": [{\"name\": \"stg_orders\", \"package\": null, \"version\": null}], \"relation_name\": \"\\\"warehouse\\\".\\\"main\\\".\\\"daily_revenue\\\"\", \"resource_type\": \"model\", \"schema\": \"main\", \"sources\": [], \"tags\": [], \"time_spine\": null, \"unique_id\": \"model.catalog_steward_fixture.daily_revenue\", \"unrendered_config\": {\"materialized\": \"table\", \"meta\": {\"grain\": \"order_date\", \"lifecycle\": \"active\", \"owner\": \"finance-analytics\"}}, \"version\": null}, \"id\": \"ev_dbt_manifest_3922eb92f966\", \"kind\": \"dbt_manifest\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"daily_revenue\", \"content\": {\"downstream\": [{\"distance\": 1, \"name\": \"not_null_daily_revenue_order_date\", \"resource_type\": \"test\"}, {\"distance\": 1, \"name\": \"unique_daily_revenue_order_date\", \"resource_type\": \"test\"}], \"max_hops\": 1, \"upstream\": [{\"distance\": 1, \"name\": \"stg_orders\", \"resource_type\": \"model\"}]}, \"id\": \"ev_lineage_9002692b9ec2\", \"kind\": \"lineage\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"daily_revenue\", \"content\": {\"at_sample_limit\": false, \"columns\": {\"completed_order_count\": {\"distinct_count\": 2, \"duplicate_count\": 2, \"null_count\": 0, \"type\": \"BIGINT\"}, \"completed_revenue\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"DECIMAL(38,2)\"}, \"order_date\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"max\": \"2026-10-04\", \"min\": \"2026-10-01\", \"null_count\": 0, \"type\": \"DATE\"}}, \"sample_limit\": 10000, \"sampled_rows\": 4}, \"id\": \"ev_bounded_data_profile_2fe447c9f36e\", \"kind\": \"bounded_data_profile\", \"source\": \"episode/warehouse.duckdb\"}], \"trigger\": \"remediation\"}",
+        "type": "user"
+      },
+      {
+        "content": "{\"content\":\"{\\\"summary\\\":\\\"One catalog metadata gap is supported by dbt repository evidence; other supplied metadata and model behavior are consistent.\\\",\\\"findings\\\":[{\\\"issue_type\\\":\\\"missing_required_metadata\\\",\\\"asset\\\":\\\"daily_revenue\\\",\\\"claim\\\":\\\"The catalog owner is unset, while dbt schema configuration and the manifest both specify finance-analytics.\\\",\\\"impact\\\":\\\"medium\\\",\\\"confidence\\\":\\\"high\\\",\\\"evidence_ids\\\":[\\\"ev_catalog_metadata_cd0904885c95\\\",\\\"ev_dbt_schema_01fe3ea3102d\\\",\\\"ev_dbt_manifest_3922eb92f966\\\"],\\\"action\\\":{\\\"class\\\":\\\"patch\\\",\\\"operation\\\":\\\"update_catalog_field\\\",\\\"field\\\":\\\"owner\\\",\\\"value\\\":\\\"finance-analytics\\\",\\\"verification\\\":{\\\"field\\\":\\\"owner\\\",\\\"equals\\\":\\\"finance-analytics\\\"},\\\"rationale\\\":\\\"Align the catalog owner with the explicit dbt metadata and manifest value.\\\"}}],\\\"unresolved_questions\\\":[]}\",\"type\":\"final\"}",
+        "type": "assistant"
+      }
+    ],
+    "usage": {
+      "cached_calls": 0,
+      "calls": 1,
+      "cost_usd": 0.000427965,
+      "input_tokens": 4032,
+      "model": "openai/gpt-6-luna",
+      "output_tokens": 332,
+      "seconds": 5.758133888244629
+    },
+    "verification": [
+      {
+        "action_class": "patch",
+        "asset": "daily_revenue",
+        "finding_key": "48b550d4a544ec0f",
+        "issue_type": "missing_required_metadata",
+        "patch_path": "/Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_dc2c80212ea5/artifacts/48b550d4a544ec0f.patch",
+        "status": "verified",
+        "verification": {
+          "checks": [
+            "catalog owner equals expected value: True",
+            "dbt parse succeeds after patch: True"
+          ],
+          "passed": true,
+          "post_change_evidence_id": "ev_catalog_metadata_4b1de1095eba"
+        }
+      }
+    ]
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "steward",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.000427965,
+    "episode_id": "rem_daily_revenue_missing_owner",
+    "episode_success": true,
+    "escalation_count": 0,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 1,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 1,
+    "turns": 1,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 6.940515995025635
+  }
+}

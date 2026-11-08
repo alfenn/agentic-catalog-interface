@@ -1,0 +1,10 @@
+--- a/models/daily_revenue.sql
++++ b/models/daily_revenue.sql
+@@ -3,6 +3,6 @@
+     count(*) as completed_order_count,
+     sum(amount) as completed_revenue
+ from {{ ref('stg_orders') }}
+-where status = 'completed'
++where status != 'cancelled'
+ group by order_date
+ 

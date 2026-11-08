@@ -1,0 +1,32 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -0,0 +1,8 @@
++{
++  "assets": {
++    "daily_revenue": {
++      "description": "Completed-order revenue and maximum order amount at one row per order date; refunded and cancelled orders are excluded."
++    }
++  }
++}
++
+--- a/models/daily_revenue.sql
++++ b/models/daily_revenue.sql
+@@ -1,7 +1,8 @@
+ select
+     order_date,
+     count(*) as completed_order_count,
+-    sum(amount) as completed_revenue
++    sum(amount) as completed_revenue,
++    max(amount) as max_completed_order_amount
+ from {{ ref('stg_orders') }}
+ where status = 'completed'
+ group by order_date
+--- a/models/schema.yml
++++ b/models/schema.yml
+@@ -54,4 +54,6 @@
+         description: Number of completed orders on the date.
+       - name: completed_revenue
+         description: Sum of completed order amounts on the date.
++      - name: max_completed_order_amount
++        description: Largest completed order amount on the date.
+ 

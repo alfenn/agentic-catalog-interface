@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from catalog_steward.protocol import (
@@ -64,3 +66,51 @@ def test_render_tools_contains_names_schemas_and_output_contract() -> None:
     assert "arguments" in rendered
     assert "final" in rendered
 
+
+
+def test_render_tools_shows_two_separate_unwrapped_shapes() -> None:
+    rendered = render_tools([])
+
+    assert '{"arguments": {}, "name": "tool_name", "type": "tool"}' in rendered
+    assert '{"content": "<answer as a string>", "type": "final"}' in rendered
+    assert "no wrapper key" in rendered
+    assert "tool_call" not in rendered and "final_answer" not in rendered
+
+
+@pytest.mark.parametrize(
+    ("reply", "wrapper"),
+    [
+        ('{"final_answer": {"type": "final", "content": "x"}}', "final_answer"),
+        ('{"tool_call": {"name": "read_diff", "arguments": {}, "type": "tool"}}', "tool_call"),
+    ],
+)
+def test_wrapped_reply_gets_actionable_error(reply: str, wrapper: str) -> None:
+    parsed = parse_response(reply)
+
+    assert parsed.kind is None
+    assert f"top-level keys were ['{wrapper}']" in parsed.error
+    assert "without a wrapper key" in parsed.error
+
+
+def test_tool_error_names_received_keys() -> None:
+    parsed = parse_response('{"type": "tool", "name": "x", "arguments": {}, "id": 1}')
+
+    assert parsed.error == (
+        "tool response requires exactly the keys type, name, and arguments; "
+        "got keys ['arguments', 'id', 'name', 'type']"
+    )
+
+
+@pytest.mark.parametrize("content", [{"b": 1, "a": [1, 2]}, [{"z": None}]])
+def test_object_or_array_final_content_is_serialized_canonically(content) -> None:
+    parsed = parse_response(json.dumps({"type": "final", "content": content}))
+
+    assert parsed.error is None
+    assert parsed.kind == "final"
+    assert parsed.content == json.dumps(content, sort_keys=True)
+
+
+def test_other_strictness_rules_still_apply() -> None:
+    assert parse_response('{"type": "final", "content": {"a": 1}, "extra": 1}').error
+    assert parse_response('{"type": "final", "content": 3}').error
+    assert parse_response('{"type": "done", "content": "x"}').error

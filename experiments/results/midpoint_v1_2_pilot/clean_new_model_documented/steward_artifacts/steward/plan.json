@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "rationale": "Request repository-owner review to determine whether this seed needs catalog and dbt documentation, and to supply supported metadata values. Do not infer owner or business description from its name or profile."
+      },
+      "asset": "raw_customers",
+      "claim": "raw_customers is present as a seed in the dbt manifest and is used by customer_regions, but it has no catalog entry or dbt schema documentation. The evidence does not establish values for missing business metadata.",
+      "confidence": "high",
+      "evidence_ids": [
+        "ev_catalog_metadata_18ebe96f35f2",
+        "ev_dbt_schema_955984f48e05",
+        "ev_dbt_manifest_8d533b978239"
+      ],
+      "impact": "medium",
+      "issue_type": "missing_required_metadata"
+    }
+  ],
+  "summary": "One prioritized metadata gap is identified. Available evidence does not establish appropriate business descriptions, ownership, lifecycle, or grain for raw_customers, so review is needed before adding those fields.",
+  "unresolved_questions": [
+    "Should raw_customers have a catalog entry and dbt schema documentation, and what repository-supported description, owner, lifecycle, and grain should they contain?"
+  ]
+}

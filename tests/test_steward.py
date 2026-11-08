@@ -139,8 +139,10 @@ def test_plan_cannot_cite_unknown_evidence(tmp_path: Path) -> None:
         },
     )
 
+    # The first bad plan uses the one repair turn; repeating it is an error.
     with pytest.raises(ValueError, match="unknown evidence"):
-        run.run(ScriptedLM([format_final(json.dumps(_plan(finding)))]))
+        run.run(ScriptedLM([format_final(json.dumps(_plan(finding)))] * 2))
+    assert run.session.repairs_used == 1
 
 
 def test_issue_policy_blocks_disallowed_patch(tmp_path: Path) -> None:
@@ -169,8 +171,10 @@ def test_issue_policy_blocks_disallowed_patch(tmp_path: Path) -> None:
         },
     )
 
+    # The first bad plan uses the one repair turn; repeating it is an error.
     with pytest.raises(ValueError, match="not allowed"):
-        run.run(ScriptedLM([format_final(json.dumps(_plan(finding)))]))
+        run.run(ScriptedLM([format_final(json.dumps(_plan(finding)))] * 2))
+    assert run.session.repairs_used == 1
 
 
 def test_failed_verification_is_visible_and_rolls_back(tmp_path: Path) -> None:

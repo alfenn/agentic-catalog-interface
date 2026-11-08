@@ -1,0 +1,109 @@
+{
+  "result": {
+    "condition": "static",
+    "episode_id": "change_rename_without_lifecycle",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "asset": "revenue_daily",
+          "present": false
+        },
+        "id": "ev_catalog_metadata_cda5ae68a561",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "asset": "revenue_daily",
+          "present": false
+        },
+        "id": "ev_dbt_schema_e8af7146fdf3",
+        "kind": "dbt_schema",
+        "source": "project/models/**/*.yml"
+      },
+      {
+        "asset": null,
+        "content": {
+          "failed_assets": [],
+          "output_tail": "\u001b[0m21:09:51  Running with dbt=1.12.6\n\u001b[0m21:09:51  Registered adapter: duckdb=1.11.1\n\u001b[0m21:09:51  Found 3 models, 3 seeds, 7 data tests, 511 macros\n\u001b[0m21:09:51  [\u001b[33mWARNING\u001b[0m]: Nothing to do. Try checking your model configs and model specification args\n",
+          "result_count": 0,
+          "returncode": 0
+        },
+        "id": "ev_static_dbt_tests_c12a09fc40c5",
+        "kind": "static_dbt_tests",
+        "source": "project/target/run_results.json"
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "report",
+            "operation": "report_only",
+            "rationale": "Static checks report the condition but do not infer a semantic fix."
+          },
+          "asset": "revenue_daily",
+          "claim": "Missing required metadata: catalog entry, dbt schema entry.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_catalog_metadata_cda5ae68a561",
+            "ev_dbt_schema_e8af7146fdf3"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        }
+      ],
+      "summary": "Static required-field and dbt-test results.",
+      "unresolved_questions": []
+    },
+    "protocol_rejections": 0,
+    "repair_used": false,
+    "seconds": 1.0178368091583252,
+    "status": "complete",
+    "transcript": [],
+    "usage": {
+      "calls": 0,
+      "cost_usd": 0.0,
+      "model": null
+    },
+    "verification": [
+      {
+        "dbt_tests_ran": true,
+        "failed_assets": []
+      }
+    ]
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "static",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.0,
+    "episode_id": "change_rename_without_lifecycle",
+    "episode_success": false,
+    "escalation_count": 1,
+    "evidence_validity": 1.0,
+    "false_negatives": 1,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 0.5,
+    "regression_detection_rate": 0.5,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 1,
+    "turns": 0,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 1.0178368091583252
+  }
+}

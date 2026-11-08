@@ -403,4 +403,72 @@ context: [
   temporary AWS session token; it was stripped before anything was
   committed.
 - The course site lists the midpoint as due Nov 6; this work is finishing
-  after that date, which the author is aware of.
+  after that date, so the date was flagged to the author rather than assumed
+  to be covered by an extension.
+
+## 2026-11-08 — Paid smoke run and protocol repair
+
+- First paid calls: 2 episodes × generic/steward under config 1.1.0 cost
+  $0.0039 in 18 model calls. The model ID and transport worked. Three of the
+  four runs found the expected issue with supporting evidence; none took a
+  manifest-listed unsafe action; no label appeared in any transcript.
+- The protocol's own format example caused 7 of the 8 rejected replies:
+  `render_tools()` showed both reply shapes as one object keyed by
+  `tool_call` and `final_answer`, and the model copied the wrapper. The error
+  text did not say what to fix, so one generic run repeated the wrapper three
+  times and stopped before reading the diff. Because the generic agent makes
+  more calls, format failures would count disproportionately against it and
+  inflate the steward's apparent advantage. That makes this a fairness
+  defect, not just noise.
+- Decision: fix the shared protocol rather than add per-condition prompting.
+  Show two separate example objects with no wrapper key, accept a final
+  `content` sent as a JSON object by serializing it, make protocol errors
+  name what was received and what to send instead, and give both conditions
+  one identical repair turn when a final answer fails plan or schema
+  validation. Rejected replies and repair use are recorded per result, so the
+  report can show how much the scaffolding mattered. Versions go to 1.2.0 with
+  v3 prompts.
+- The smoke run showed zero plan-validation failures, so the repair turn is
+  symmetric insurance, not a response to an observed failure. It is cheap,
+  identical across conditions, and visible in the results.
+- Gate: the full pilot runs only if a smoke rerun under 1.2.0 completes all
+  four runs with at most one rejected reply each. There will be no further
+  prompt iteration after that, to avoid tuning on the evaluation set.
+- Still a scorer limitation, handled by manual audit: the manifest's
+  episode-specific unsafe actions are not machine-checked; the scorer checks
+  only action classes against the contract.
+
+## 2026-11-08 — Full three-condition pilot (config 1.2.0)
+
+- The protocol fix removed wrapper copying entirely. The 1.2.0 smoke rerun
+  completed all four runs with at most one rejection each, so the gate
+  passed and the full pilot ran once: 30 runs, 0 errors, 8.5 minutes,
+  $0.0172 (total project spend $0.0244). Raw results are in
+  `experiments/results/midpoint_v1_2_pilot/`.
+- Outcome: static 4/10 episodes (4 TP / 0 FP / 6 FN), generic 5/10
+  (5 / 4 / 5), steward 5/10 (9 / 6 / 1). The steward found nine of the ten
+  expected issues with about a fifth of the generic agent's model calls (14
+  vs 65), but it over-reported, including false alarms on both clean
+  controls, so it ties the generic agent on episode success. This is a
+  pilot result on ten author-built fixtures, not evidence of a general
+  advantage.
+- Disclosure: four of the twenty model records (both demo episodes × both
+  model conditions) are exact cache replays of the 1.2.0 smoke rerun. The
+  inputs and config were identical, so the cache served them by design. The
+  go/no-go decision used those runs only to check pipeline health; nothing
+  was tuned in between. The report must state this.
+- New failure mode, not fixed, by the pre-committed no-iteration rule: the
+  generic agent batched many tool calls into one reply (8 of its 9
+  rejections). Once it also invented the tool results it expected, built
+  its plan on them, and after the repair turn swapped an invented evidence ID
+  for a real but irrelevant one, so the run passed validation with
+  ungrounded claims. Evidence validity (IDs resolve) cannot detect this, so
+  the manual audit has to. Scaffolding still costs the generic agent more
+  (7 of 10 runs had a rejection vs 2 of 10 for the steward). Fixing batching
+  is the first protocol change for the final study.
+- Design finding: action permission is keyed on the model's own issue-type
+  label. On the wrong-grain episode the steward called the problem
+  `sql_metadata_drift`, where a patch is allowed, rather than
+  `grain_or_join_drift`, where only a proposal is, and its grain patch
+  verified. The final study should derive or check the issue type
+  independently of the model's label.

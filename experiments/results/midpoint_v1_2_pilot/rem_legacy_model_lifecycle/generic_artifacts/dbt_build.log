@@ -1,0 +1,47 @@
+$ dbt seed --project-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_ebb99c6232a1/project --profiles-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_ebb99c6232a1/project
+[0m21:06:14  Running with dbt=1.12.6
+[0m21:06:14  Registered adapter: duckdb=1.11.1
+[0m21:06:14  Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m21:06:14  Found 4 models, 3 seeds, 11 data tests, 511 macros
+[0m21:06:14  
+[0m21:06:14  Concurrency: 1 threads (target='dev')
+[0m21:06:14  
+[0m21:06:14  1 of 3 START seed file main.raw_customers ...................................... [RUN]
+[0m21:06:14  1 of 3 OK loaded seed file main.raw_customers .................................. [[32mINSERT 5[0m in 0.03s]
+[0m21:06:14  2 of 3 START seed file main.raw_order_items .................................... [RUN]
+[0m21:06:15  2 of 3 OK loaded seed file main.raw_order_items ................................ [[32mINSERT 10[0m in 0.01s]
+[0m21:06:15  3 of 3 START seed file main.raw_orders ......................................... [RUN]
+[0m21:06:15  3 of 3 OK loaded seed file main.raw_orders ..................................... [[32mINSERT 8[0m in 0.01s]
+[0m21:06:15  
+[0m21:06:15  Finished running 3 seeds in 0 hours 0 minutes and 0.09 seconds (0.09s).
+[0m21:06:15  
+[0m21:06:15  [32mCompleted successfully[0m
+[0m21:06:15  
+[0m21:06:15  Done. PASS=3 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=3
+
+$ dbt run --project-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_ebb99c6232a1/project --profiles-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_ebb99c6232a1/project
+[0m21:06:15  Running with dbt=1.12.6
+[0m21:06:15  Registered adapter: duckdb=1.11.1
+[0m21:06:16  Found 4 models, 3 seeds, 11 data tests, 511 macros
+[0m21:06:16  
+[0m21:06:16  Concurrency: 1 threads (target='dev')
+[0m21:06:16  
+[0m21:06:16  1 of 4 START sql table model main.stg_orders ................................... [RUN]
+[0m21:06:16  1 of 4 OK created sql table model main.stg_orders .............................. [[32mOK[0m in 0.04s]
+[0m21:06:16  2 of 4 START sql table model main.customer_orders .............................. [RUN]
+[0m21:06:16  2 of 4 OK created sql table model main.customer_orders ......................... [[32mOK[0m in 0.01s]
+[0m21:06:16  3 of 4 START sql table model main.daily_revenue ................................ [RUN]
+[0m21:06:16  3 of 4 OK created sql table model main.daily_revenue ........................... [[32mOK[0m in 0.01s]
+[0m21:06:16  4 of 4 START sql table model main.legacy_customer_orders ....................... [RUN]
+[0m21:06:16  4 of 4 OK created sql table model main.legacy_customer_orders .................. [[32mOK[0m in 0.01s]
+[0m21:06:16  
+[0m21:06:16  Finished running 4 table models in 0 hours 0 minutes and 0.11 seconds (0.11s).
+[0m21:06:16  
+[0m21:06:16  [32mCompleted successfully[0m
+[0m21:06:16  
+[0m21:06:16  Done. PASS=4 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=4
+
+$ dbt parse --project-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_ebb99c6232a1/project --profiles-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_ebb99c6232a1/project
+[0m21:06:16  Running with dbt=1.12.6
+[0m21:06:17  Registered adapter: duckdb=1.11.1
+[0m21:06:17  Performance info: /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_ebb99c6232a1/project/target/perf_info.json

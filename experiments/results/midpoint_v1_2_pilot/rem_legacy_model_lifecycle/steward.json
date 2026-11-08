@@ -1,0 +1,808 @@
+{
+  "result": {
+    "condition": "steward",
+    "episode_id": "rem_legacy_model_lifecycle",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "legacy_customer_orders",
+        "content": {
+          "canonical": true,
+          "description": "Older compatibility copy of customer order metrics.",
+          "grain": [
+            "customer_id"
+          ],
+          "lifecycle": "active",
+          "name": "legacy_customer_orders",
+          "owner": "analytics",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_d87da0e8c982",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      },
+      {
+        "asset": "legacy_customer_orders",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Customer identifier.",
+              "name": "customer_id"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            }
+          },
+          "description": "Older compatibility copy of customer order metrics.",
+          "name": "legacy_customer_orders",
+          "present": true
+        },
+        "id": "ev_dbt_schema_cee228c6e857",
+        "kind": "dbt_schema",
+        "source": "project/models/legacy_schema.yml"
+      },
+      {
+        "asset": "legacy_customer_orders",
+        "content": {
+          "sql": "select *\nfrom {{ ref('customer_orders') }}\n\n"
+        },
+        "id": "ev_dbt_model_sql_6b4324a8004a",
+        "kind": "dbt_model_sql",
+        "source": "project/models/legacy_customer_orders.sql"
+      },
+      {
+        "asset": "legacy_customer_orders",
+        "content": {
+          "aggregations": [],
+          "filters": [],
+          "grain_candidates": [],
+          "group_by": [],
+          "joins": [],
+          "select_expressions": [
+            "*"
+          ],
+          "sources": [
+            "customer_orders"
+          ]
+        },
+        "id": "ev_parsed_sql_facts_424f7b9fbeb0",
+        "kind": "parsed_sql_facts",
+        "source": "project/models/legacy_customer_orders.sql"
+      },
+      {
+        "asset": "legacy_customer_orders",
+        "content": {
+          "access": "protected",
+          "alias": "legacy_customer_orders",
+          "build_path": null,
+          "checksum": {
+            "checksum": "0ea9618dd7d068bcc99dce28312c12c3b05a271530bf6066fa2896bf6f673f90",
+            "name": "sha256"
+          },
+          "columns": {
+            "customer_id": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Customer identifier.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "customer_id",
+              "quote": null,
+              "tags": []
+            }
+          },
+          "compiled_path": null,
+          "config": {
+            "access": "protected",
+            "alias": null,
+            "batch_size": null,
+            "begin": null,
+            "column_types": {},
+            "concurrent_batches": null,
+            "contract": {
+              "alias_types": true,
+              "enforced": false
+            },
+            "database": null,
+            "docs": {
+              "node_color": null,
+              "show": true
+            },
+            "enabled": true,
+            "event_time": null,
+            "freshness": null,
+            "full_refresh": null,
+            "grants": {},
+            "group": null,
+            "incremental_strategy": null,
+            "latest_version_pointer": {
+              "alias": null,
+              "enabled": null
+            },
+            "lookback": 1,
+            "materialized": "table",
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            },
+            "on_configuration_change": "apply",
+            "on_error": null,
+            "on_schema_change": "ignore",
+            "packages": [],
+            "persist_docs": {},
+            "post-hook": [],
+            "pre-hook": [],
+            "quoting": {},
+            "schema": null,
+            "static_analysis": null,
+            "tags": [],
+            "unique_key": null
+          },
+          "constraints": [],
+          "contract": {
+            "alias_types": true,
+            "checksum": null,
+            "enforced": false
+          },
+          "created_at": "<normalized>",
+          "database": "warehouse",
+          "depends_on": {
+            "macros": [],
+            "nodes": [
+              "model.catalog_steward_fixture.customer_orders"
+            ]
+          },
+          "deprecation_date": null,
+          "description": "Older compatibility copy of customer order metrics.",
+          "doc_blocks": [],
+          "docs": {
+            "node_color": null,
+            "show": true
+          },
+          "fqn": [
+            "catalog_steward_fixture",
+            "legacy_customer_orders"
+          ],
+          "functions": [],
+          "group": null,
+          "language": "sql",
+          "latest_version": null,
+          "meta": {
+            "grain": "customer_id",
+            "lifecycle": "active",
+            "owner": "analytics"
+          },
+          "metrics": [],
+          "name": "legacy_customer_orders",
+          "original_file_path": "models/legacy_customer_orders.sql",
+          "package_name": "catalog_steward_fixture",
+          "patch_path": "catalog_steward_fixture://models/legacy_schema.yml",
+          "path": "legacy_customer_orders.sql",
+          "primary_key": [
+            "customer_id"
+          ],
+          "raw_code": "select *\nfrom {{ ref('customer_orders') }}",
+          "refs": [
+            {
+              "name": "customer_orders",
+              "package": null,
+              "version": null
+            }
+          ],
+          "relation_name": "\"warehouse\".\"main\".\"legacy_customer_orders\"",
+          "resource_type": "model",
+          "schema": "main",
+          "sources": [],
+          "tags": [],
+          "time_spine": null,
+          "unique_id": "model.catalog_steward_fixture.legacy_customer_orders",
+          "unrendered_config": {
+            "materialized": "table",
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            }
+          },
+          "version": null
+        },
+        "id": "ev_dbt_manifest_7d15b3c30a8a",
+        "kind": "dbt_manifest",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "legacy_customer_orders",
+        "content": {
+          "downstream": [
+            {
+              "distance": 1,
+              "name": "not_null_legacy_customer_orders_customer_id",
+              "resource_type": "test"
+            },
+            {
+              "distance": 1,
+              "name": "unique_legacy_customer_orders_customer_id",
+              "resource_type": "test"
+            }
+          ],
+          "max_hops": 1,
+          "upstream": [
+            {
+              "distance": 1,
+              "name": "customer_orders",
+              "resource_type": "model"
+            }
+          ]
+        },
+        "id": "ev_lineage_213f4a6ed6d6",
+        "kind": "lineage",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "legacy_customer_orders",
+        "content": {
+          "at_sample_limit": false,
+          "columns": {
+            "completed_order_count": {
+              "distinct_count": 2,
+              "duplicate_count": 2,
+              "null_count": 0,
+              "type": "BIGINT"
+            },
+            "completed_revenue": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "DECIMAL(38,2)"
+            },
+            "customer_id": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "INTEGER"
+            },
+            "first_completed_order_date": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "max": "2026-10-04",
+              "min": "2026-10-01",
+              "null_count": 0,
+              "type": "DATE"
+            },
+            "latest_completed_order_date": {
+              "distinct_count": 3,
+              "duplicate_count": 1,
+              "max": "2026-10-04",
+              "min": "2026-10-01",
+              "null_count": 0,
+              "type": "DATE"
+            }
+          },
+          "sample_limit": 10000,
+          "sampled_rows": 4
+        },
+        "id": "ev_bounded_data_profile_d6cca2ce7a60",
+        "kind": "bounded_data_profile",
+        "source": "episode/warehouse.duckdb"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+          "grain": [
+            "customer_id"
+          ],
+          "lifecycle": "active",
+          "name": "customer_orders",
+          "owner": "analytics",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_6db00984ab2a",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Customer identifier and model grain.",
+              "name": "customer_id"
+            },
+            {
+              "description": "Number of completed orders for the customer.",
+              "name": "completed_order_count"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            }
+          },
+          "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+          "name": "customer_orders",
+          "present": true
+        },
+        "id": "ev_dbt_schema_5247fb441133",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "sql": "select\n    customer_id,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue,\n    min(order_date) as first_completed_order_date,\n    max(order_date) as latest_completed_order_date\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by customer_id\n\n"
+        },
+        "id": "ev_dbt_model_sql_75943fbe687b",
+        "kind": "dbt_model_sql",
+        "source": "project/models/customer_orders.sql"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "aggregations": [
+            "COUNT(*)",
+            "MAX(order_date)",
+            "MIN(order_date)",
+            "SUM(amount)"
+          ],
+          "filters": [
+            "status = 'completed'"
+          ],
+          "grain_candidates": [
+            "customer_id"
+          ],
+          "group_by": [
+            "customer_id"
+          ],
+          "joins": [],
+          "select_expressions": [
+            "customer_id",
+            "COUNT(*) AS completed_order_count",
+            "SUM(amount) AS completed_revenue",
+            "MIN(order_date) AS first_completed_order_date",
+            "MAX(order_date) AS latest_completed_order_date"
+          ],
+          "sources": [
+            "stg_orders"
+          ]
+        },
+        "id": "ev_parsed_sql_facts_63cc1aa3b19e",
+        "kind": "parsed_sql_facts",
+        "source": "project/models/customer_orders.sql"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "access": "protected",
+          "alias": "customer_orders",
+          "build_path": null,
+          "checksum": {
+            "checksum": "234be218a799f3f1f2630a9f9e59a169ba024c404c7a68a4954d8066d45674fd",
+            "name": "sha256"
+          },
+          "columns": {
+            "completed_order_count": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Number of completed orders for the customer.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "completed_order_count",
+              "quote": null,
+              "tags": []
+            },
+            "customer_id": {
+              "config": {
+                "meta": {},
+                "tags": []
+              },
+              "constraints": [],
+              "data_type": null,
+              "description": "Customer identifier and model grain.",
+              "dimension": null,
+              "doc_blocks": [],
+              "entity": null,
+              "granularity": null,
+              "meta": {},
+              "name": "customer_id",
+              "quote": null,
+              "tags": []
+            }
+          },
+          "compiled_path": null,
+          "config": {
+            "access": "protected",
+            "alias": null,
+            "batch_size": null,
+            "begin": null,
+            "column_types": {},
+            "concurrent_batches": null,
+            "contract": {
+              "alias_types": true,
+              "enforced": false
+            },
+            "database": null,
+            "docs": {
+              "node_color": null,
+              "show": true
+            },
+            "enabled": true,
+            "event_time": null,
+            "freshness": null,
+            "full_refresh": null,
+            "grants": {},
+            "group": null,
+            "incremental_strategy": null,
+            "latest_version_pointer": {
+              "alias": null,
+              "enabled": null
+            },
+            "lookback": 1,
+            "materialized": "table",
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            },
+            "on_configuration_change": "apply",
+            "on_error": null,
+            "on_schema_change": "ignore",
+            "packages": [],
+            "persist_docs": {},
+            "post-hook": [],
+            "pre-hook": [],
+            "quoting": {},
+            "schema": null,
+            "static_analysis": null,
+            "tags": [],
+            "unique_key": null
+          },
+          "constraints": [],
+          "contract": {
+            "alias_types": true,
+            "checksum": null,
+            "enforced": false
+          },
+          "created_at": "<normalized>",
+          "database": "warehouse",
+          "depends_on": {
+            "macros": [],
+            "nodes": [
+              "model.catalog_steward_fixture.stg_orders"
+            ]
+          },
+          "deprecation_date": null,
+          "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+          "doc_blocks": [],
+          "docs": {
+            "node_color": null,
+            "show": true
+          },
+          "fqn": [
+            "catalog_steward_fixture",
+            "customer_orders"
+          ],
+          "functions": [],
+          "group": null,
+          "language": "sql",
+          "latest_version": null,
+          "meta": {
+            "grain": "customer_id",
+            "lifecycle": "active",
+            "owner": "analytics"
+          },
+          "metrics": [],
+          "name": "customer_orders",
+          "original_file_path": "models/customer_orders.sql",
+          "package_name": "catalog_steward_fixture",
+          "patch_path": "catalog_steward_fixture://models/schema.yml",
+          "path": "customer_orders.sql",
+          "primary_key": [
+            "customer_id"
+          ],
+          "raw_code": "select\n    customer_id,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue,\n    min(order_date) as first_completed_order_date,\n    max(order_date) as latest_completed_order_date\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by customer_id",
+          "refs": [
+            {
+              "name": "stg_orders",
+              "package": null,
+              "version": null
+            }
+          ],
+          "relation_name": "\"warehouse\".\"main\".\"customer_orders\"",
+          "resource_type": "model",
+          "schema": "main",
+          "sources": [],
+          "tags": [],
+          "time_spine": null,
+          "unique_id": "model.catalog_steward_fixture.customer_orders",
+          "unrendered_config": {
+            "materialized": "table",
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            }
+          },
+          "version": null
+        },
+        "id": "ev_dbt_manifest_ee8187171351",
+        "kind": "dbt_manifest",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "downstream": [
+            {
+              "distance": 1,
+              "name": "legacy_customer_orders",
+              "resource_type": "model"
+            },
+            {
+              "distance": 1,
+              "name": "not_null_customer_orders_customer_id",
+              "resource_type": "test"
+            },
+            {
+              "distance": 1,
+              "name": "unique_customer_orders_customer_id",
+              "resource_type": "test"
+            }
+          ],
+          "max_hops": 1,
+          "upstream": [
+            {
+              "distance": 1,
+              "name": "stg_orders",
+              "resource_type": "model"
+            }
+          ]
+        },
+        "id": "ev_lineage_6194f5dd37ac",
+        "kind": "lineage",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "at_sample_limit": false,
+          "columns": {
+            "completed_order_count": {
+              "distinct_count": 2,
+              "duplicate_count": 2,
+              "null_count": 0,
+              "type": "BIGINT"
+            },
+            "completed_revenue": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "DECIMAL(38,2)"
+            },
+            "customer_id": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "null_count": 0,
+              "type": "INTEGER"
+            },
+            "first_completed_order_date": {
+              "distinct_count": 4,
+              "duplicate_count": 0,
+              "max": "2026-10-04",
+              "min": "2026-10-01",
+              "null_count": 0,
+              "type": "DATE"
+            },
+            "latest_completed_order_date": {
+              "distinct_count": 3,
+              "duplicate_count": 1,
+              "max": "2026-10-04",
+              "min": "2026-10-01",
+              "null_count": 0,
+              "type": "DATE"
+            }
+          },
+          "sample_limit": 10000,
+          "sampled_rows": 4
+        },
+        "id": "ev_bounded_data_profile_ac3c07380ba1",
+        "kind": "bounded_data_profile",
+        "source": "episode/warehouse.duckdb"
+      },
+      {
+        "asset": null,
+        "content": {
+          "diff": ""
+        },
+        "id": "ev_repository_diff_or_history_7b3df39f73d6",
+        "kind": "repository_diff_or_history",
+        "source": "episode/input.diff"
+      }
+    ],
+    "mode": "remediation",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "propose",
+            "operation": "request_review",
+            "rationale": "Request owner review of lifecycle and canonical designations before making a catalog change; no repository diff or history supports an automatic update."
+          },
+          "asset": "legacy_customer_orders",
+          "claim": "legacy_customer_orders is described as an older compatibility copy and directly selects from customer_orders, but catalog metadata marks it active and canonical. Review whether those designations remain intentional; available evidence does not establish that it should be retired or which asset should be canonical.",
+          "confidence": "medium",
+          "evidence_ids": [
+            "ev_catalog_metadata_d87da0e8c982",
+            "ev_dbt_manifest_7d15b3c30a8a",
+            "ev_lineage_213f4a6ed6d6",
+            "ev_repository_diff_or_history_7b3df39f73d6"
+          ],
+          "impact": "high",
+          "issue_type": "lifecycle_drift"
+        },
+        {
+          "action": {
+            "class": "report",
+            "operation": "report_only",
+            "rationale": "Report the pass-through structure and bounded profile for review; do not infer a different business key or change tests or model logic from this sample."
+          },
+          "asset": "legacy_customer_orders",
+          "claim": "The model is a select-star pass-through from customer_orders, while its schema asserts customer_id is unique and not null. The bounded profile shows four sampled customer_id values without duplicates, but completed_order_count has duplicates; this sample neither establishes a uniqueness violation for customer_id nor proves the declared grain beyond the bounded data.",
+          "confidence": "medium",
+          "evidence_ids": [
+            "ev_dbt_model_sql_6b4324a8004a",
+            "ev_parsed_sql_facts_424f7b9fbeb0",
+            "ev_lineage_213f4a6ed6d6",
+            "ev_bounded_data_profile_d6cca2ce7a60"
+          ],
+          "impact": "medium",
+          "issue_type": "grain_or_join_drift"
+        }
+      ],
+      "summary": "The legacy model\u2019s active and canonical catalog metadata warrants review given its compatibility-copy description and pass-through dependency. Evidence does not establish intended retirement or canonical status, so no metadata change is recommended automatically.",
+      "unresolved_questions": [
+        "Should legacy_customer_orders remain active, and is its canonical=true designation intentional despite its compatibility-copy description and dependency on customer_orders?",
+        "Does a broader uniqueness check support the customer_id uniqueness test for legacy_customer_orders?"
+      ]
+    },
+    "protocol_rejections": 0,
+    "repair_used": true,
+    "seconds": 18.253476858139038,
+    "status": "complete",
+    "transcript": [
+      {
+        "content": "Inspect, prioritize, and plan hygiene actions for this bounded task:\n{\"asset_scope\": [\"legacy_customer_orders\", \"customer_orders\"], \"collection_errors\": [], \"evidence\": [{\"asset\": \"legacy_customer_orders\", \"content\": {\"canonical\": true, \"description\": \"Older compatibility copy of customer order metrics.\", \"grain\": [\"customer_id\"], \"lifecycle\": \"active\", \"name\": \"legacy_customer_orders\", \"owner\": \"analytics\", \"present\": true, \"type\": \"model\"}, \"id\": \"ev_catalog_metadata_d87da0e8c982\", \"kind\": \"catalog_metadata\", \"source\": \"project/catalog/catalog.json+project/catalog/overrides.json\"}, {\"asset\": \"legacy_customer_orders\", \"content\": {\"columns\": [{\"data_tests\": [\"not_null\", \"unique\"], \"description\": \"Customer identifier.\", \"name\": \"customer_id\"}], \"config\": {\"meta\": {\"grain\": \"customer_id\", \"lifecycle\": \"active\", \"owner\": \"analytics\"}}, \"description\": \"Older compatibility copy of customer order metrics.\", \"name\": \"legacy_customer_orders\", \"present\": true}, \"id\": \"ev_dbt_schema_cee228c6e857\", \"kind\": \"dbt_schema\", \"source\": \"project/models/legacy_schema.yml\"}, {\"asset\": \"legacy_customer_orders\", \"content\": {\"sql\": \"select *\\nfrom {{ ref('customer_orders') }}\\n\\n\"}, \"id\": \"ev_dbt_model_sql_6b4324a8004a\", \"kind\": \"dbt_model_sql\", \"source\": \"project/models/legacy_customer_orders.sql\"}, {\"asset\": \"legacy_customer_orders\", \"content\": {\"aggregations\": [], \"filters\": [], \"grain_candidates\": [], \"group_by\": [], \"joins\": [], \"select_expressions\": [\"*\"], \"sources\": [\"customer_orders\"]}, \"id\": \"ev_parsed_sql_facts_424f7b9fbeb0\", \"kind\": \"parsed_sql_facts\", \"source\": \"project/models/legacy_customer_orders.sql\"}, {\"asset\": \"legacy_customer_orders\", \"content\": {\"access\": \"protected\", \"alias\": \"legacy_customer_orders\", \"build_path\": null, \"checksum\": {\"checksum\": \"0ea9618dd7d068bcc99dce28312c12c3b05a271530bf6066fa2896bf6f673f90\", \"name\": \"sha256\"}, \"columns\": {\"customer_id\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Customer identifier.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"customer_id\", \"quote\": null, \"tags\": []}}, \"compiled_path\": null, \"config\": {\"access\": \"protected\", \"alias\": null, \"batch_size\": null, \"begin\": null, \"column_types\": {}, \"concurrent_batches\": null, \"contract\": {\"alias_types\": true, \"enforced\": false}, \"database\": null, \"docs\": {\"node_color\": null, \"show\": true}, \"enabled\": true, \"event_time\": null, \"freshness\": null, \"full_refresh\": null, \"grants\": {}, \"group\": null, \"incremental_strategy\": null, \"latest_version_pointer\": {\"alias\": null, \"enabled\": null}, \"lookback\": 1, \"materialized\": \"table\", \"meta\": {\"grain\": \"customer_id\", \"lifecycle\": \"active\", \"owner\": \"analytics\"}, \"on_configuration_change\": \"apply\", \"on_error\": null, \"on_schema_change\": \"ignore\", \"packages\": [], \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"schema\": null, \"static_analysis\": null, \"tags\": [], \"unique_key\": null}, \"constraints\": [], \"contract\": {\"alias_types\": true, \"checksum\": null, \"enforced\": false}, \"created_at\": \"<normalized>\", \"database\": \"warehouse\", \"depends_on\": {\"macros\": [], \"nodes\": [\"model.catalog_steward_fixture.customer_orders\"]}, \"deprecation_date\": null, \"description\": \"Older compatibility copy of customer order metrics.\", \"doc_blocks\": [], \"docs\": {\"node_color\": null, \"show\": true}, \"fqn\": [\"catalog_steward_fixture\", \"legacy_customer_orders\"], \"functions\": [], \"group\": null, \"language\": \"sql\", \"latest_version\": null, \"meta\": {\"grain\": \"customer_id\", \"lifecycle\": \"active\", \"owner\": \"analytics\"}, \"metrics\": [], \"name\": \"legacy_customer_orders\", \"original_file_path\": \"models/legacy_customer_orders.sql\", \"package_name\": \"catalog_steward_fixture\", \"patch_path\": \"catalog_steward_fixture://models/legacy_schema.yml\", \"path\": \"legacy_customer_orders.sql\", \"primary_key\": [\"customer_id\"], \"raw_code\": \"select *\\nfrom {{ ref('customer_orders') }}\", \"refs\": [{\"name\": \"customer_orders\", \"package\": null, \"version\": null}], \"relation_name\": \"\\\"warehouse\\\".\\\"main\\\".\\\"legacy_customer_orders\\\"\", \"resource_type\": \"model\", \"schema\": \"main\", \"sources\": [], \"tags\": [], \"time_spine\": null, \"unique_id\": \"model.catalog_steward_fixture.legacy_customer_orders\", \"unrendered_config\": {\"materialized\": \"table\", \"meta\": {\"grain\": \"customer_id\", \"lifecycle\": \"active\", \"owner\": \"analytics\"}}, \"version\": null}, \"id\": \"ev_dbt_manifest_7d15b3c30a8a\", \"kind\": \"dbt_manifest\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"legacy_customer_orders\", \"content\": {\"downstream\": [{\"distance\": 1, \"name\": \"not_null_legacy_customer_orders_customer_id\", \"resource_type\": \"test\"}, {\"distance\": 1, \"name\": \"unique_legacy_customer_orders_customer_id\", \"resource_type\": \"test\"}], \"max_hops\": 1, \"upstream\": [{\"distance\": 1, \"name\": \"customer_orders\", \"resource_type\": \"model\"}]}, \"id\": \"ev_lineage_213f4a6ed6d6\", \"kind\": \"lineage\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"legacy_customer_orders\", \"content\": {\"at_sample_limit\": false, \"columns\": {\"completed_order_count\": {\"distinct_count\": 2, \"duplicate_count\": 2, \"null_count\": 0, \"type\": \"BIGINT\"}, \"completed_revenue\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"DECIMAL(38,2)\"}, \"customer_id\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"INTEGER\"}, \"first_completed_order_date\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"max\": \"2026-10-04\", \"min\": \"2026-10-01\", \"null_count\": 0, \"type\": \"DATE\"}, \"latest_completed_order_date\": {\"distinct_count\": 3, \"duplicate_count\": 1, \"max\": \"2026-10-04\", \"min\": \"2026-10-01\", \"null_count\": 0, \"type\": \"DATE\"}}, \"sample_limit\": 10000, \"sampled_rows\": 4}, \"id\": \"ev_bounded_data_profile_d6cca2ce7a60\", \"kind\": \"bounded_data_profile\", \"source\": \"episode/warehouse.duckdb\"}, {\"asset\": \"customer_orders\", \"content\": {\"canonical\": true, \"description\": \"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\", \"grain\": [\"customer_id\"], \"lifecycle\": \"active\", \"name\": \"customer_orders\", \"owner\": \"analytics\", \"present\": true, \"type\": \"model\"}, \"id\": \"ev_catalog_metadata_6db00984ab2a\", \"kind\": \"catalog_metadata\", \"source\": \"project/catalog/catalog.json+project/catalog/overrides.json\"}, {\"asset\": \"customer_orders\", \"content\": {\"columns\": [{\"data_tests\": [\"not_null\", \"unique\"], \"description\": \"Customer identifier and model grain.\", \"name\": \"customer_id\"}, {\"description\": \"Number of completed orders for the customer.\", \"name\": \"completed_order_count\"}], \"config\": {\"meta\": {\"grain\": \"customer_id\", \"lifecycle\": \"active\", \"owner\": \"analytics\"}}, \"description\": \"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\", \"name\": \"customer_orders\", \"present\": true}, \"id\": \"ev_dbt_schema_5247fb441133\", \"kind\": \"dbt_schema\", \"source\": \"project/models/schema.yml\"}, {\"asset\": \"customer_orders\", \"content\": {\"sql\": \"select\\n    customer_id,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue,\\n    min(order_date) as first_completed_order_date,\\n    max(order_date) as latest_completed_order_date\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by customer_id\\n\\n\"}, \"id\": \"ev_dbt_model_sql_75943fbe687b\", \"kind\": \"dbt_model_sql\", \"source\": \"project/models/customer_orders.sql\"}, {\"asset\": \"customer_orders\", \"content\": {\"aggregations\": [\"COUNT(*)\", \"MAX(order_date)\", \"MIN(order_date)\", \"SUM(amount)\"], \"filters\": [\"status = 'completed'\"], \"grain_candidates\": [\"customer_id\"], \"group_by\": [\"customer_id\"], \"joins\": [], \"select_expressions\": [\"customer_id\", \"COUNT(*) AS completed_order_count\", \"SUM(amount) AS completed_revenue\", \"MIN(order_date) AS first_completed_order_date\", \"MAX(order_date) AS latest_completed_order_date\"], \"sources\": [\"stg_orders\"]}, \"id\": \"ev_parsed_sql_facts_63cc1aa3b19e\", \"kind\": \"parsed_sql_facts\", \"source\": \"project/models/customer_orders.sql\"}, {\"asset\": \"customer_orders\", \"content\": {\"access\": \"protected\", \"alias\": \"customer_orders\", \"build_path\": null, \"checksum\": {\"checksum\": \"234be218a799f3f1f2630a9f9e59a169ba024c404c7a68a4954d8066d45674fd\", \"name\": \"sha256\"}, \"columns\": {\"completed_order_count\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Number of completed orders for the customer.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"completed_order_count\", \"quote\": null, \"tags\": []}, \"customer_id\": {\"config\": {\"meta\": {}, \"tags\": []}, \"constraints\": [], \"data_type\": null, \"description\": \"Customer identifier and model grain.\", \"dimension\": null, \"doc_blocks\": [], \"entity\": null, \"granularity\": null, \"meta\": {}, \"name\": \"customer_id\", \"quote\": null, \"tags\": []}}, \"compiled_path\": null, \"config\": {\"access\": \"protected\", \"alias\": null, \"batch_size\": null, \"begin\": null, \"column_types\": {}, \"concurrent_batches\": null, \"contract\": {\"alias_types\": true, \"enforced\": false}, \"database\": null, \"docs\": {\"node_color\": null, \"show\": true}, \"enabled\": true, \"event_time\": null, \"freshness\": null, \"full_refresh\": null, \"grants\": {}, \"group\": null, \"incremental_strategy\": null, \"latest_version_pointer\": {\"alias\": null, \"enabled\": null}, \"lookback\": 1, \"materialized\": \"table\", \"meta\": {\"grain\": \"customer_id\", \"lifecycle\": \"active\", \"owner\": \"analytics\"}, \"on_configuration_change\": \"apply\", \"on_error\": null, \"on_schema_change\": \"ignore\", \"packages\": [], \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"schema\": null, \"static_analysis\": null, \"tags\": [], \"unique_key\": null}, \"constraints\": [], \"contract\": {\"alias_types\": true, \"checksum\": null, \"enforced\": false}, \"created_at\": \"<normalized>\", \"database\": \"warehouse\", \"depends_on\": {\"macros\": [], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"deprecation_date\": null, \"description\": \"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\", \"doc_blocks\": [], \"docs\": {\"node_color\": null, \"show\": true}, \"fqn\": [\"catalog_steward_fixture\", \"customer_orders\"], \"functions\": [], \"group\": null, \"language\": \"sql\", \"latest_version\": null, \"meta\": {\"grain\": \"customer_id\", \"lifecycle\": \"active\", \"owner\": \"analytics\"}, \"metrics\": [], \"name\": \"customer_orders\", \"original_file_path\": \"models/customer_orders.sql\", \"package_name\": \"catalog_steward_fixture\", \"patch_path\": \"catalog_steward_fixture://models/schema.yml\", \"path\": \"customer_orders.sql\", \"primary_key\": [\"customer_id\"], \"raw_code\": \"select\\n    customer_id,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue,\\n    min(order_date) as first_completed_order_date,\\n    max(order_date) as latest_completed_order_date\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by customer_id\", \"refs\": [{\"name\": \"stg_orders\", \"package\": null, \"version\": null}], \"relation_name\": \"\\\"warehouse\\\".\\\"main\\\".\\\"customer_orders\\\"\", \"resource_type\": \"model\", \"schema\": \"main\", \"sources\": [], \"tags\": [], \"time_spine\": null, \"unique_id\": \"model.catalog_steward_fixture.customer_orders\", \"unrendered_config\": {\"materialized\": \"table\", \"meta\": {\"grain\": \"customer_id\", \"lifecycle\": \"active\", \"owner\": \"analytics\"}}, \"version\": null}, \"id\": \"ev_dbt_manifest_ee8187171351\", \"kind\": \"dbt_manifest\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"customer_orders\", \"content\": {\"downstream\": [{\"distance\": 1, \"name\": \"legacy_customer_orders\", \"resource_type\": \"model\"}, {\"distance\": 1, \"name\": \"not_null_customer_orders_customer_id\", \"resource_type\": \"test\"}, {\"distance\": 1, \"name\": \"unique_customer_orders_customer_id\", \"resource_type\": \"test\"}], \"max_hops\": 1, \"upstream\": [{\"distance\": 1, \"name\": \"stg_orders\", \"resource_type\": \"model\"}]}, \"id\": \"ev_lineage_6194f5dd37ac\", \"kind\": \"lineage\", \"source\": \"project/target/manifest.json\"}, {\"asset\": \"customer_orders\", \"content\": {\"at_sample_limit\": false, \"columns\": {\"completed_order_count\": {\"distinct_count\": 2, \"duplicate_count\": 2, \"null_count\": 0, \"type\": \"BIGINT\"}, \"completed_revenue\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"DECIMAL(38,2)\"}, \"customer_id\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"null_count\": 0, \"type\": \"INTEGER\"}, \"first_completed_order_date\": {\"distinct_count\": 4, \"duplicate_count\": 0, \"max\": \"2026-10-04\", \"min\": \"2026-10-01\", \"null_count\": 0, \"type\": \"DATE\"}, \"latest_completed_order_date\": {\"distinct_count\": 3, \"duplicate_count\": 1, \"max\": \"2026-10-04\", \"min\": \"2026-10-01\", \"null_count\": 0, \"type\": \"DATE\"}}, \"sample_limit\": 10000, \"sampled_rows\": 4}, \"id\": \"ev_bounded_data_profile_ac3c07380ba1\", \"kind\": \"bounded_data_profile\", \"source\": \"episode/warehouse.duckdb\"}], \"trigger\": \"remediation\"}",
+        "type": "user"
+      },
+      {
+        "content": "{\"arguments\":{},\"name\":\"get_change_diff\",\"type\":\"tool\"}",
+        "type": "assistant"
+      },
+      {
+        "arguments": {},
+        "name": "get_change_diff",
+        "type": "tool_call"
+      },
+      {
+        "content": "{\"asset\": null, \"content\": {\"diff\": \"\"}, \"id\": \"ev_repository_diff_or_history_7b3df39f73d6\", \"kind\": \"repository_diff_or_history\", \"source\": \"episode/input.diff\"}",
+        "name": "get_change_diff",
+        "status": "ok",
+        "type": "tool_result"
+      },
+      {
+        "content": "{\"content\":\"{\\\"summary\\\":\\\"The legacy model\u2019s active and canonical catalog metadata conflicts with its compatibility-copy description and duplicate-per-customer profile. Recommend review rather than changing lifecycle or canonical status automatically; no repository change is present to establish intended retirement.\\\",\\\"findings\\\":[{\\\"issue_type\\\":\\\"lifecycle_drift\\\",\\\"asset\\\":\\\"legacy_customer_orders\\\",\\\"claim\\\":\\\"legacy_customer_orders is described as an older compatibility copy and directly selects from customer_orders, yet catalog metadata marks it active and canonical. The evidence supports reviewing lifecycle/canonical designation, but does not establish that the asset should be retired or which asset should be canonical.\\\",\\\"impact\\\":\\\"high\\\",\\\"confidence\\\":\\\"medium\\\",\\\"evidence_ids\\\":[\\\"ev_catalog_metadata_d87da0e8c982\\\",\\\"ev_dbt_manifest_7d15b3c30a8a\\\",\\\"ev_lineage_213f4a6ed6d6\\\",\\\"ev_repository_diff_or_history_7b3df39f73d6\\\"],\\\"action\\\":{\\\"class\\\":\\\"request_review\\\",\\\"operation\\\":\\\"request_review\\\",\\\"rationale\\\":\\\"Confirm whether this compatibility model remains an intended supported asset and whether its canonical designation is deliberate before changing lifecycle or canonical metadata.\\\"}},{\\\"issue_type\\\":\\\"grain_or_join_drift\\\",\\\"asset\\\":\\\"legacy_customer_orders\\\",\\\"claim\\\":\\\"The model is a select-star pass-through from customer_orders, while its dbt schema asserts customer_id is unique and not null. The bounded profile shows four sampled customer_id values with no duplicates but completed_order_count has duplicates; this sample does not establish a uniqueness violation for customer_id or verify the declared grain beyond the bounded data.\\\",\\\"impact\\\":\\\"medium\\\",\\\"confidence\\\":\\\"medium\\\",\\\"evidence_ids\\\":[\\\"ev_dbt_model_sql_6b4324a8004a\\\",\\\"ev_parsed_sql_facts_424f7b9fbeb0\\\",\\\"ev_lineage_213f4a6ed6d6\\\",\\\"ev_bounded_data_profile_d6cca2ce7a60\\\"],\\\"action\\\":{\\\"class\\\":\\\"report\\\",\\\"operation\\\":\\\"report_only\\\",\\\"rationale\\\":\\\"Report the bounded profile and pass-through structure for review; do not infer a different business key or alter tests or model logic from this sample.\\\"}}],\\\"unresolved_questions\\\":[\\\"Should legacy_customer_orders remain active, and is its canonical=true designation intentional despite its compatibility-copy description and dependency on customer_orders?\\\",\\\"Does a broader uniqueness check support the customer_id uniqueness test for legacy_customer_orders?\\\"]}\",\"type\":\"final\"}",
+        "type": "assistant"
+      },
+      {
+        "content": "plan does not match the schema at findings/0/action/class: 'request_review' is not one of ['patch', 'propose', 'report']",
+        "type": "final_rejected"
+      },
+      {
+        "content": "{\"content\":\"{\\\"summary\\\":\\\"The legacy model\u2019s active and canonical catalog metadata warrants review given its compatibility-copy description and pass-through dependency. Evidence does not establish intended retirement or canonical status, so no metadata change is recommended automatically.\\\",\\\"findings\\\":[{\\\"issue_type\\\":\\\"lifecycle_drift\\\",\\\"asset\\\":\\\"legacy_customer_orders\\\",\\\"claim\\\":\\\"legacy_customer_orders is described as an older compatibility copy and directly selects from customer_orders, but catalog metadata marks it active and canonical. Review whether those designations remain intentional; available evidence does not establish that it should be retired or which asset should be canonical.\\\",\\\"impact\\\":\\\"high\\\",\\\"confidence\\\":\\\"medium\\\",\\\"evidence_ids\\\":[\\\"ev_catalog_metadata_d87da0e8c982\\\",\\\"ev_dbt_manifest_7d15b3c30a8a\\\",\\\"ev_lineage_213f4a6ed6d6\\\",\\\"ev_repository_diff_or_history_7b3df39f73d6\\\"],\\\"action\\\":{\\\"class\\\":\\\"propose\\\",\\\"operation\\\":\\\"request_review\\\",\\\"rationale\\\":\\\"Request owner review of lifecycle and canonical designations before making a catalog change; no repository diff or history supports an automatic update.\\\"}},{\\\"issue_type\\\":\\\"grain_or_join_drift\\\",\\\"asset\\\":\\\"legacy_customer_orders\\\",\\\"claim\\\":\\\"The model is a select-star pass-through from customer_orders, while its schema asserts customer_id is unique and not null. The bounded profile shows four sampled customer_id values without duplicates, but completed_order_count has duplicates; this sample neither establishes a uniqueness violation for customer_id nor proves the declared grain beyond the bounded data.\\\",\\\"impact\\\":\\\"medium\\\",\\\"confidence\\\":\\\"medium\\\",\\\"evidence_ids\\\":[\\\"ev_dbt_model_sql_6b4324a8004a\\\",\\\"ev_parsed_sql_facts_424f7b9fbeb0\\\",\\\"ev_lineage_213f4a6ed6d6\\\",\\\"ev_bounded_data_profile_d6cca2ce7a60\\\"],\\\"action\\\":{\\\"class\\\":\\\"report\\\",\\\"operation\\\":\\\"report_only\\\",\\\"rationale\\\":\\\"Report the pass-through structure and bounded profile for review; do not infer a different business key or change tests or model logic from this sample.\\\"}}],\\\"unresolved_questions\\\":[\\\"Should legacy_customer_orders remain active, and is its canonical=true designation intentional despite its compatibility-copy description and dependency on customer_orders?\\\",\\\"Does a broader uniqueness check support the customer_id uniqueness test for legacy_customer_orders?\\\"]}\",\"type\":\"final\"}",
+        "type": "assistant"
+      }
+    ],
+    "usage": {
+      "cached_calls": 0,
+      "calls": 3,
+      "cost_usd": 0.001314055,
+      "input_tokens": 17850,
+      "model": "openai/gpt-6-luna",
+      "output_tokens": 1289,
+      "seconds": 18.187849044799805
+    },
+    "verification": [
+      {
+        "action_class": "propose",
+        "asset": "legacy_customer_orders",
+        "finding_key": "79162aefc0fea5f7",
+        "issue_type": "lifecycle_drift",
+        "patch_path": null,
+        "status": "proposed",
+        "verification": {
+          "checks": [
+            "action allowed by issue contract",
+            "all cited evidence IDs resolved"
+          ],
+          "passed": true
+        }
+      },
+      {
+        "action_class": "report",
+        "asset": "legacy_customer_orders",
+        "finding_key": "82b46959f1a7ca1b",
+        "issue_type": "grain_or_join_drift",
+        "patch_path": null,
+        "status": "reported",
+        "verification": {
+          "checks": [
+            "action allowed by issue contract",
+            "all cited evidence IDs resolved"
+          ],
+          "passed": true
+        }
+      }
+    ]
+  },
+  "run_settings": {
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "reasoning_effort": "low",
+    "temperature": 0.0
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "steward",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.001314055,
+    "episode_id": "rem_legacy_model_lifecycle",
+    "episode_success": false,
+    "escalation_count": 2,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 1,
+    "patch_count": 0,
+    "precision": 0.5,
+    "recall": 1.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 1,
+    "turns": 3,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 18.253476858139038
+  }
+}

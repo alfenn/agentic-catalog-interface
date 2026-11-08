@@ -1,0 +1,48 @@
+$ dbt seed --project-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_c1276390f2b3/project --profiles-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_c1276390f2b3/project
+[0m21:10:35  Running with dbt=1.12.6
+[0m21:10:35  Registered adapter: duckdb=1.11.1
+[0m21:10:35  Unable to do partial parsing because saved manifest not found. Starting full parse.
+[0m21:10:35  [[33mWARNING[0m]: Did not find matching node for patch with name 'daily_revenue' in the 'models' section of file 'models/schema.yml'
+[0m21:10:36  [[33mWARNING[0m]: Test 'test.catalog_steward_fixture.not_null_daily_revenue_order_date.3c69a0ce71' (models/schema.yml) depends on a node named 'daily_revenue' in package '' which was not found
+[0m21:10:36  [[33mWARNING[0m]: Test 'test.catalog_steward_fixture.unique_daily_revenue_order_date.059107fd56' (models/schema.yml) depends on a node named 'daily_revenue' in package '' which was not found
+[0m21:10:36  Found 3 models, 3 seeds, 7 data tests, 511 macros
+[0m21:10:36  
+[0m21:10:36  Concurrency: 1 threads (target='dev')
+[0m21:10:36  
+[0m21:10:36  1 of 3 START seed file main.raw_customers ...................................... [RUN]
+[0m21:10:36  1 of 3 OK loaded seed file main.raw_customers .................................. [[32mINSERT 5[0m in 0.03s]
+[0m21:10:36  2 of 3 START seed file main.raw_order_items .................................... [RUN]
+[0m21:10:36  2 of 3 OK loaded seed file main.raw_order_items ................................ [[32mINSERT 10[0m in 0.01s]
+[0m21:10:36  3 of 3 START seed file main.raw_orders ......................................... [RUN]
+[0m21:10:36  3 of 3 OK loaded seed file main.raw_orders ..................................... [[32mINSERT 8[0m in 0.01s]
+[0m21:10:36  
+[0m21:10:36  Finished running 3 seeds in 0 hours 0 minutes and 0.10 seconds (0.10s).
+[0m21:10:36  
+[0m21:10:36  [32mCompleted successfully[0m
+[0m21:10:36  
+[0m21:10:36  Done. PASS=3 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=3
+
+$ dbt run --project-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_c1276390f2b3/project --profiles-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_c1276390f2b3/project
+[0m21:10:37  Running with dbt=1.12.6
+[0m21:10:37  Registered adapter: duckdb=1.11.1
+[0m21:10:37  Found 3 models, 3 seeds, 7 data tests, 511 macros
+[0m21:10:37  
+[0m21:10:37  Concurrency: 1 threads (target='dev')
+[0m21:10:37  
+[0m21:10:37  1 of 3 START sql table model main.stg_orders ................................... [RUN]
+[0m21:10:37  1 of 3 OK created sql table model main.stg_orders .............................. [[32mOK[0m in 0.04s]
+[0m21:10:37  2 of 3 START sql table model main.customer_orders .............................. [RUN]
+[0m21:10:37  2 of 3 OK created sql table model main.customer_orders ......................... [[32mOK[0m in 0.01s]
+[0m21:10:37  3 of 3 START sql table model main.revenue_daily ................................ [RUN]
+[0m21:10:37  3 of 3 OK created sql table model main.revenue_daily ........................... [[32mOK[0m in 0.01s]
+[0m21:10:37  
+[0m21:10:37  Finished running 3 table models in 0 hours 0 minutes and 0.10 seconds (0.10s).
+[0m21:10:37  
+[0m21:10:37  [32mCompleted successfully[0m
+[0m21:10:37  
+[0m21:10:37  Done. PASS=3 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=3
+
+$ dbt parse --project-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_c1276390f2b3/project --profiles-dir /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_c1276390f2b3/project
+[0m21:10:38  Running with dbt=1.12.6
+[0m21:10:38  Registered adapter: duckdb=1.11.1
+[0m21:10:38  Performance info: /Users/alfen/workspace/firstmate/projects/agentic-catalog-interface/.runs/evaluation/midpoint_v1_2_pilot/ws_c1276390f2b3/project/target/perf_info.json
