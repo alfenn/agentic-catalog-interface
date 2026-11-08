@@ -1,7 +1,7 @@
 ---
 source: "codex-5.6-sol-xhigh"
 context: [
-  "design/proposal_feedback/agent_ideas_2__codex.md",
+  "designs/proposal_feedback/agent_ideas_2__codex.md",
   "writeups/midway_report/requirements.md"
 ]
 ---

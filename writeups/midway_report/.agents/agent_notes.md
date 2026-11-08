@@ -250,3 +250,20 @@ context: [
   audit and labels 4/10 as fixture-level episode success, not remediation.
 - README links and all referenced local paths were checked after integration.
   A fresh-environment reproduction and the actual recorded video remain open.
+
+## 2026-11-07 — Midway report draft
+
+- A delegated writer produced a 1,594-word Markdown draft with exactly the six
+  required sections. Environment & Data, Methods, and Summary of Progress carry
+  most of the detail; no separate prior-work section was added.
+- The draft cites versioned repository artifacts and the audited static result,
+  states the scorer's limitations, and explicitly labels generic/steward results
+  as pending. It does not turn deterministic scripted tests into empirical agent
+  results.
+- Updated planning-document context links to the repository's current
+  `designs/proposal_feedback/` location; the newer executable contracts live in
+  singular `design/`.
+- Remaining report work is substantive: replace the pending live-result text
+  after a real pilot or keep the limitation, confirm reference formatting with
+  the proposal, render to the submission format, and verify the final output is
+  3–4 pages. The draft is not marked complete until those checks pass.

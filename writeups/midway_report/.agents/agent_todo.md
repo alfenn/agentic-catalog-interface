@@ -3,7 +3,7 @@ source: "codex-5.6-sol-xhigh"
 context: [
   "agent_plan.md",
   "agent_notes.md",
-  "../../../design/proposal_feedback/agent_ideas_2__codex.md",
+  "../../../designs/proposal_feedback/agent_ideas_2__codex.md",
   "../requirements.md"
 ]
 ---
