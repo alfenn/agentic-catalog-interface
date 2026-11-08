@@ -169,3 +169,36 @@ context: [
 - Completion validation: 56 deterministic tests pass and one live test remains
   deselected. Tests cover both triggers, tool use during planning, patching,
   proposals, evidence enforcement, policy rejection, rollback, and idempotence.
+
+## 2026-11-07 — Fair baselines and scoring
+
+- The static baseline is deliberately limited to required catalog/schema fields
+  and actual dbt test results. It does not reuse parsed SQL or the steward's
+  evidence workflow, so it measures what deterministic checks catch on their
+  own.
+- The generic agent receives the same repository, built warehouse, model,
+  limits, and output schema, but only four raw operations: list files, read a
+  file, read the raw diff, and run bounded read-only SQL. It gets issue labels
+  for normalization but not issue-specific evidence requirements, risk rules,
+  prioritization, or verification orchestration.
+- The frozen `midpoint_v1.yaml` records the ten episodes, three conditions,
+  model, sampling limits, prompt versions, and scoring version. The runner
+  refuses an unfrozen or version-mismatched configuration.
+- Scoring is exact at the `(issue_type, asset)` level and records precision,
+  recall, supported-action rate, unsafe-action rate, evidence validity,
+  regression detection, clean-change pass, verification failures, action mix,
+  cost, turns, and wall time. Episode success requires no missed/extra finding,
+  no disallowed action, no verification failure, and a completed run.
+- The first persistence design placed full generated dbt workspaces under
+  `experiments/results/`. That would have mixed large, disposable state with
+  report evidence. Workspaces now live under ignored `.runs/`; persistent
+  results copy only the raw result, input diff, dbt logs/results, steward plan,
+  ledger, verification log, and patches.
+- A deterministic matched-run test executes static, generic, and steward
+  conditions through the same runner on one clean episode. All three complete
+  and pass scoring, demonstrating the one-command evaluation path without a
+  paid model call.
+- Completion validation: 62 deterministic tests pass in about 2.5 minutes and
+  one paid live test remains deselected. The longer runtime is dominated by
+  intentionally fresh dbt builds for fixture, evidence, static-baseline, and
+  matched-condition integration coverage.

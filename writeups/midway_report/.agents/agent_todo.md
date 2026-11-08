@@ -113,16 +113,16 @@ successful repair.
 
 ### Phase 4: implement fair baselines and scoring
 
-- [ ] **Static baseline:** run schema validation, required-field rules, dbt
+- [x] **Static baseline:** run schema validation, required-field rules, dbt
   parsing/tests, and other deterministic checks that apply to the contract.
-- [ ] **Generic-agent baseline:** give the same model repository access,
+- [x] **Generic-agent baseline:** give the same model repository access,
   catalog/raw metadata access, SQL access, and the same episode prompt, budget,
   timeout, stopping rule, and structured output schema, but no steward workflow
   or specialized evidence interface.
-- [ ] **Specialized steward:** run the complete architecture against the same
+- [x] **Specialized steward:** run the complete architecture against the same
   episode start state.
-- [ ] Freeze prompts and run configurations before the scored pilot.
-- [ ] Save raw tool traces, patches/proposals, ledger entries, verification
+- [x] Freeze prompts and run configurations before the scored pilot.
+- [x] Save raw tool traces, patches/proposals, ledger entries, verification
   results, timing, token/tool usage, and scorer outputs.
 
 For the midpoint, conditions 1, 2, and 3 are sufficient. Defer the

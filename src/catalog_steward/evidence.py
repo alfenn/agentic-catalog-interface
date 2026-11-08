@@ -74,6 +74,18 @@ class EvidenceStore:
     def items(self) -> list[EvidenceItem]:
         return list(self._items.values())
 
+    def external_evidence(
+        self,
+        kind: str,
+        *,
+        source: Path | str,
+        content: Any,
+        asset: str | None = None,
+    ) -> EvidenceItem:
+        """Record bounded evidence produced by a baseline command or checker."""
+
+        return self._record(kind, asset, source, content)
+
     def _record(self, kind: str, asset: str | None, source: Path | str, content: Any) -> EvidenceItem:
         source_text = self._source_pointer(source)
         normalized = _jsonable(content)
@@ -309,6 +321,55 @@ class EvidenceStore:
             path,
             {"path": relative_path, "text": path.read_text(encoding="utf-8")},
         )
+
+    def project_listing(self, *, max_files: int = 250) -> EvidenceItem:
+        files = []
+        for path in sorted(item for item in self.workspace.project_dir.rglob("*") if item.is_file()):
+            if any(part in {"logs", "dbt_packages"} for part in path.parts):
+                continue
+            files.append(
+                {
+                    "path": str(path.relative_to(self.workspace.project_dir)),
+                    "bytes": path.stat().st_size,
+                }
+            )
+            if len(files) >= max_files:
+                break
+        return self._record(
+            "project_listing",
+            None,
+            self.workspace.project_dir,
+            {"files": files, "max_files": max_files, "at_limit": len(files) == max_files},
+        )
+
+    def raw_query(self, sql: str, *, max_rows: int = 200) -> EvidenceItem:
+        if not self.workspace.warehouse_path.exists():
+            raise FileNotFoundError("episode warehouse is missing; reset with build=True")
+        contract_limit = int(self.contract["scope"]["max_probe_rows"])
+        if max_rows <= 0 or max_rows > contract_limit:
+            raise ValueError(f"max_rows must be between 1 and {contract_limit}")
+        try:
+            tree = sqlglot.parse_one(sql, read="duckdb")
+        except sqlglot.errors.ParseError as exc:
+            raise ValueError(f"invalid SQL: {exc}") from exc
+        forbidden = (exp.Insert, exp.Update, exp.Delete, exp.Drop, exp.Create, exp.Command)
+        if isinstance(tree, forbidden) or any(tree.find_all(*forbidden)):
+            raise ValueError("only read-only SELECT queries are allowed")
+        if not isinstance(tree, (exp.Select, exp.Union, exp.Subquery)):
+            raise ValueError("only read-only SELECT queries are allowed")
+        bounded_sql = f"select * from ({tree.sql(dialect='duckdb')}) as raw_query limit {max_rows}"
+        with duckdb.connect(str(self.workspace.warehouse_path), read_only=True) as connection:
+            cursor = connection.execute(bounded_sql)
+            columns = [description[0] for description in cursor.description]
+            rows = cursor.fetchall()
+        content = {
+            "sql": tree.sql(dialect="duckdb"),
+            "columns": columns,
+            "rows": rows,
+            "max_rows": max_rows,
+            "at_limit": len(rows) == max_rows,
+        }
+        return self._record("raw_query", None, self.workspace.warehouse_path, content)
 
     @staticmethod
     def _manifest(path: Path) -> dict[str, Any]:

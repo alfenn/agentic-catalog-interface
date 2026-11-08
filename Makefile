@@ -3,7 +3,7 @@ PYTEST_ARGS ?=
 EPISODE ?= rem_daily_revenue_filter_drift
 ASSET ?= daily_revenue
 
-.PHONY: help setup sync lock doctor doctor-live contract episodes episodes-check fixture evidence steward test test-live test-all costs
+.PHONY: help setup sync lock doctor doctor-live contract episodes episodes-check fixture evidence steward pilot-static pilot test test-live test-all costs
 
 help:
 	@printf '%s\n' \
@@ -18,6 +18,8 @@ help:
 	  'fixture      reset and build EPISODE=<episode_id>' \
 	  'evidence     inspect SQL facts for EPISODE=<id> ASSET=<model>' \
 	  'steward      run the live steward for EPISODE=<episode_id>' \
+	  'pilot-static run the frozen static baseline on all episodes' \
+	  'pilot        run all frozen midpoint conditions (paid)' \
 	  'test         run deterministic tests only' \
 	  'test-live    run paid/external tests explicitly' \
 	  'test-all     run deterministic and live tests' \
@@ -56,6 +58,12 @@ evidence:
 
 steward:
 	$(UV) run python -m catalog_steward.steward $(EPISODE)
+
+pilot-static:
+	$(UV) run python -m catalog_steward.evaluation --conditions static
+
+pilot:
+	$(UV) run python -m catalog_steward.evaluation --conditions static,generic,steward --live
 
 test:
 	$(UV) run pytest $(PYTEST_ARGS)

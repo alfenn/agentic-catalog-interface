@@ -109,3 +109,16 @@ def test_evidence_tools_return_addressable_json(built_store: EvidenceStore) -> N
     assert payload["source"] == "project/models/customer_orders.sql"
     assert len(registry.schemas()) == 9
 
+
+def test_raw_query_is_bounded_and_rejects_mutation(built_store: EvidenceStore) -> None:
+    item = built_store.raw_query(
+        "select customer_id, count(*) as n from customer_orders group by customer_id",
+        max_rows=3,
+    )
+
+    assert item.kind == "raw_query"
+    assert item.content["max_rows"] == 3
+    assert len(item.content["rows"]) <= 3
+    with pytest.raises(ValueError, match="read-only SELECT"):
+        built_store.raw_query("delete from customer_orders")
+

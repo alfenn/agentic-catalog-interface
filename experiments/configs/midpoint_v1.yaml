@@ -1,0 +1,23 @@
+version: "1.0.0"
+frozen: true
+model: openai/gpt-6-luna
+temperature: 0.0
+max_tokens: 4096
+max_turns: 12
+conditions: [static, generic, steward]
+episodes:
+  - rem_daily_revenue_filter_drift
+  - rem_customer_orders_wrong_grain
+  - rem_daily_revenue_missing_owner
+  - rem_legacy_model_lifecycle
+  - change_daily_revenue_filter
+  - change_customer_orders_grain
+  - change_new_model_missing_metadata
+  - change_rename_without_lifecycle
+  - clean_new_model_documented
+  - clean_daily_revenue_metric
+prompt_versions:
+  generic: generic-hygiene-v1
+  steward: specialized-steward-v1
+scoring_version: midpoint-score-v1
+
