@@ -56,3 +56,17 @@ def test_live_validation_requires_api_key(tmp_path: Path) -> None:
     live = Settings.from_mapping({"OPENROUTER_API_KEY": "test-key"}, root=tmp_path)
     live.validate(require_live=True)
 
+
+
+def test_doctor_live_reports_missing_key_in_one_line(monkeypatch, tmp_path: Path, capsys) -> None:
+    from catalog_steward import config
+
+    monkeypatch.setattr(config, "load_settings", lambda: Settings.from_mapping({}, root=tmp_path))
+
+    assert config.main(["--require-live"]) == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    error = captured.err.strip()
+    assert error.count("\n") == 0
+    assert "OPENROUTER_API_KEY is required for live model calls" in error
+    assert "live tests" not in error

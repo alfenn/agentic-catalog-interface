@@ -4,6 +4,7 @@ import re
 
 import pytest
 
+from catalog_steward.config import load_settings
 from catalog_steward.llm import LM, ScriptedLM
 
 
@@ -22,5 +23,8 @@ def scripted():
 
 @pytest.fixture
 def live_lm(request: pytest.FixtureRequest) -> LM:
-    return LM(tag=_tag(request))
+    settings = load_settings()
+    if not settings.openrouter_api_key:
+        pytest.skip("OPENROUTER_API_KEY is not set; live tests need a key")
+    return LM(settings=settings, tag=_tag(request))
 

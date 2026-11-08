@@ -123,3 +123,28 @@ def test_results_dir_setting_controls_default_evaluation_output(tmp_path: Path, 
 
     assert evaluation.main(["--conditions", "static", "--episodes", "clean_daily_revenue_metric"]) == 0
     assert captured["output_dir"].parent == tmp_path / "custom"
+
+
+def test_explicit_reasoning_effort_overrides_environment(tmp_path: Path) -> None:
+    from types import SimpleNamespace
+
+    settings = Settings.from_mapping(
+        {"OPENROUTER_API_KEY": "sk-test", "CATALOG_STEWARD_REASONING_EFFORT": "high"},
+        root=tmp_path,
+    )
+    requests = []
+    response = SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content="ok"), finish_reason="stop")],
+        usage=SimpleNamespace(prompt_tokens=1, completion_tokens=1, cost=0.0),
+    )
+
+    model = LM(settings=settings, reasoning_effort="low", cache_dir=tmp_path / "cache", budget_usd=1.0)
+    model._client = SimpleNamespace(
+        chat=SimpleNamespace(
+            completions=SimpleNamespace(create=lambda **kwargs: requests.append(kwargs) or response)
+        )
+    )
+    model(MESSAGES)
+
+    assert requests[0]["extra_body"]["reasoning"] == {"effort": "low"}
+    assert LM(settings=settings, cache_dir=tmp_path / "cache").reasoning_effort == "high"

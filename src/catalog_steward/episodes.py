@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import hashlib
 import json
 import os
 import shutil
@@ -27,6 +28,30 @@ MARKER = ".catalog_steward_episode"
 
 class FixtureBuildError(RuntimeError):
     pass
+
+
+def workspace_token(episode_id: str, condition: str = "") -> str:
+    """Return an opaque, deterministic directory name for one episode run.
+
+    Episode IDs name the expected finding, and dbt writes workspace paths into
+    artifacts a model can read, so run directories must not embed them.
+    """
+
+    digest = hashlib.sha256(f"{episode_id}\0{condition}".encode("utf-8")).hexdigest()
+    return f"ws_{digest[:12]}"
+
+
+def dbt_env(workspace: "EpisodeWorkspace") -> dict[str, str]:
+    """Environment for dbt commands against one episode workspace.
+
+    Anonymous usage tracking is disabled so dbt makes no network calls and does
+    not write a random per-run user ID into the project and its artifacts.
+    """
+
+    env = os.environ.copy()
+    env["CATALOG_STEWARD_WAREHOUSE_PATH"] = str(workspace.warehouse_path.resolve())
+    env["DBT_SEND_ANONYMOUS_USAGE_STATS"] = "false"
+    return env
 
 
 @dataclass(frozen=True)
@@ -184,8 +209,7 @@ def reset_episode(
 
 
 def build_fixture(workspace: EpisodeWorkspace) -> None:
-    env = os.environ.copy()
-    env["CATALOG_STEWARD_WAREHOUSE_PATH"] = str(workspace.warehouse_path.resolve())
+    env = dbt_env(workspace)
     commands = [
         ["dbt", "seed", "--project-dir", str(workspace.project_dir), "--profiles-dir", str(workspace.project_dir)],
         ["dbt", "run", "--project-dir", str(workspace.project_dir), "--profiles-dir", str(workspace.project_dir)],

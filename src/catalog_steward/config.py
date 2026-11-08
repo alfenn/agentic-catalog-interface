@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Mapping
@@ -94,7 +95,7 @@ class Settings:
             raise ValueError("CATALOG_STEWARD_REASONING_EFFORT cannot be empty")
         if require_live and not self.openrouter_api_key:
             raise ValueError(
-                "OPENROUTER_API_KEY is required for live tests; copy .env.example to .env and set it"
+                "OPENROUTER_API_KEY is required for live model calls; copy .env.example to .env and set it"
             )
 
     def report(self) -> dict[str, object]:
@@ -127,8 +128,12 @@ def main(argv: list[str] | None = None) -> int:
         help="also require credentials used by paid/external tests",
     )
     args = parser.parse_args(argv)
-    settings = load_settings()
-    settings.validate(require_live=args.require_live)
+    try:
+        settings = load_settings()
+        settings.validate(require_live=args.require_live)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
     print(json.dumps(settings.report(), indent=2, sort_keys=True))
     return 0
 

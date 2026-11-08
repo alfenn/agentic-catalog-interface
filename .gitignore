@@ -7,6 +7,8 @@ htmlcov/
 .lm_cache/
 .artifacts/
 .runs/
+# Timestamped ad-hoc evaluation runs; named result folders stay tracked.
+experiments/results/2*/
 *.pyc
 .DS_Store
 

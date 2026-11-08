@@ -60,7 +60,8 @@ class ToolRegistry:
         try:
             value = tool.handler(**call.arguments)
         except Exception as exc:  # tool failures become evidence for the next model turn
-            return ToolResult(call.name, "error", f"{type(exc).__name__}: {exc}")
+            display_type = getattr(exc, "display_type", type(exc).__name__)
+            return ToolResult(call.name, "error", f"{display_type}: {exc}")
         content = value if isinstance(value, str) else json.dumps(value, sort_keys=True)
         return ToolResult(call.name, "ok", content)
 

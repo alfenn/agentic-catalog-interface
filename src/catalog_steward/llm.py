@@ -131,6 +131,7 @@ class LM:
         settings: Settings | None = None,
         temperature: float = 0.0,
         max_tokens: int = 4096,
+        reasoning_effort: str | None = None,
         tag: str = "",
         cache: bool = True,
         salt: str = "",
@@ -142,6 +143,10 @@ class LM:
         _price(self.model)
         self.temperature = temperature
         self.max_tokens = max_tokens
+        # An explicit value (the frozen evaluation config) wins over the environment.
+        self.reasoning_effort = (
+            reasoning_effort if reasoning_effort is not None else self.settings.reasoning_effort
+        )
         self.tag = tag
         self.cache = cache
         self.salt = salt
@@ -217,7 +222,7 @@ class LM:
                 "model": self.model,
                 "temperature": self.temperature,
                 "max_tokens": self.max_tokens,
-                "reasoning_effort": self.settings.reasoning_effort,
+                "reasoning_effort": self.reasoning_effort,
                 "salt": self.salt,
                 "messages": messages,
             },
@@ -240,8 +245,8 @@ class LM:
                 default_headers={"X-Title": "Catalog Steward"},
             )
         extra_body: dict[str, Any] = {"usage": {"include": True}}
-        if self.settings.reasoning_effort:
-            extra_body["reasoning"] = {"effort": self.settings.reasoning_effort}
+        if self.reasoning_effort:
+            extra_body["reasoning"] = {"effort": self.reasoning_effort}
         response = self._client.chat.completions.create(
             model=self.model,
             messages=messages,

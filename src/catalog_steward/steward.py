@@ -7,8 +7,8 @@ import copy
 import difflib
 import hashlib
 import json
-import os
 import subprocess
+import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -17,15 +17,24 @@ from typing import Any
 import jsonschema
 
 from catalog_steward.agent import AgentConfig, AgentResult, AgentSession
-from catalog_steward.config import REPO_ROOT
+from catalog_steward.config import REPO_ROOT, load_settings
 from catalog_steward.contract import issue_by_id, load_contract
-from catalog_steward.episodes import EpisodeWorkspace, episode_by_id, load_manifest, reset_episode
+from catalog_steward.episodes import (
+    DEFAULT_RUNS,
+    EpisodeWorkspace,
+    dbt_env,
+    episode_by_id,
+    load_manifest,
+    reset_episode,
+    workspace_token,
+)
 from catalog_steward.evidence import EvidenceItem, EvidenceStore, evidence_tools
 from catalog_steward.llm import ChatModel, LM
 
 PLAN_SCHEMA_PATH = REPO_ROOT / "design/steward_plan.schema.json"
 LEDGER_NAME = "steward_ledger.jsonl"
 ALLOWED_PATCH_FIELDS = {"description", "owner", "lifecycle", "grain", "canonical"}
+STEWARD_PROMPT_VERSION = "specialized-steward-v2"
 
 
 @dataclass(frozen=True)
@@ -97,7 +106,7 @@ class StewardRun:
         try:
             operation()
         except (FileNotFoundError, KeyError, ValueError) as exc:
-            self.bundle_errors.append(str(exc))
+            self.bundle_errors.append(self.store.redact(str(exc)))
 
     def run(self, model: ChatModel, *, max_turns: int = 12) -> StewardResult:
         evidence = self.collect_evidence()
@@ -157,8 +166,8 @@ class StewardRun:
         )
 
     def _prompt(self, evidence: list[EvidenceItem]) -> str:
+        # Only legitimate task inputs: never the episode ID or other manifest labels.
         task = {
-            "episode_id": self.workspace.episode_id,
             "trigger": self.episode["mode"],
             "asset_scope": self.episode["asset_scope"],
             "evidence": [item.to_dict() for item in evidence],
@@ -296,8 +305,7 @@ class StewardRun:
         )
 
     def _dbt_parse(self) -> bool:
-        env = os.environ.copy()
-        env["CATALOG_STEWARD_WAREHOUSE_PATH"] = str(self.workspace.warehouse_path.resolve())
+        env = dbt_env(self.workspace)
         result = subprocess.run(
             [
                 "dbt",
@@ -385,7 +393,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("episode_id")
     parser.add_argument("--salt", default="")
     args = parser.parse_args(argv)
-    workspace = reset_episode(args.episode_id, build=True)
+    if not load_settings().openrouter_api_key:
+        print(
+            "error: OPENROUTER_API_KEY is required for the live steward; set it in .env",
+            file=sys.stderr,
+        )
+        return 2
+    workspace = reset_episode(
+        args.episode_id,
+        destination=DEFAULT_RUNS / "steward" / workspace_token(args.episode_id, "steward"),
+        build=True,
+    )
+    print(f"workspace: {workspace.root}", file=sys.stderr)
     result = StewardRun(workspace).run(LM(tag=f"steward/{args.episode_id}", salt=args.salt))
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0 if result.status == "complete" else 1

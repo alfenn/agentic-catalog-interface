@@ -343,3 +343,37 @@ context: [
   uses the rubric outline in the ICLR template and maps the six required
   sections into it, so both graders find what they look for. Page limits
   exclude references, and the video limit is 3 minutes.
+
+## 2026-11-08 — Label isolation and cache-stable model inputs
+
+- The label-leak hunt found more than the steward prompt. Workspace paths
+  named the episode and dbt copied them into `manifest.json`,
+  `run_results.json`, compiled seed SQL, and logs. Worse, the generic agent's
+  bounded SQL tool could call DuckDB file readers such as
+  `read_text('data/episodes/manifest.yaml')` relative to the repository root,
+  which would have exposed every label. Workspaces now use an opaque,
+  deterministic token, evidence and tool errors rewrite real paths to
+  `/workspace` and `/repo`, and DuckDB opens with external access disabled.
+  A test renders both conditions' first model inputs through the real runner
+  and asserts that no episode ID, description, action set, postcondition,
+  overlay path, or real path appears.
+- The reset marker and `episode.json` still hold labels, but they sit outside
+  the agent-readable `project/` directory and the marker is the reset safety
+  check, so they stay.
+- Per-run dbt fields (timestamps, invocation IDs, elapsed times) are
+  normalized in everything a model can read, binary artifact sizes are hidden,
+  and dbt telemetry is off, which also removes a random-ID `.user.yml`. A test
+  shows two fresh runs under different roots give byte-identical first
+  inputs, so the response cache now works for resuming and demo replay.
+- Reasoning effort is pinned in the frozen config, and all run settings are
+  recorded in the summary and in every result. Config is now 1.1.0, with
+  `generic-hygiene-v2` and `specialized-steward-v2`; prompt wording, contract,
+  manifest, and scoring are unchanged. The loader refuses a config missing
+  any run setting.
+- Paid entry points now check for the key before building anything, so a
+  missing key costs seconds rather than a 3-minute run and an error-filled
+  results folder.
+- Consequence: the committed `midpoint_v1_static/` results were produced
+  under config 1.0.0 with the old path handling. The full pilot regenerates
+  the static condition under 1.1.0, and the report will cite that run as the
+  single source for all three conditions. 79 deterministic tests pass.

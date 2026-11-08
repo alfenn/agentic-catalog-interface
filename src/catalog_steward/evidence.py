@@ -5,8 +5,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -15,6 +16,7 @@ import sqlglot
 from sqlglot import exp
 import yaml
 
+from catalog_steward.config import REPO_ROOT
 from catalog_steward.contract import load_contract
 from catalog_steward.episodes import EpisodeWorkspace, reset_episode
 from catalog_steward.tools import ToolSpec
@@ -23,6 +25,55 @@ _REF = re.compile(r"\{\{\s*ref\(['\"]([^'\"]+)['\"]\)\s*\}\}")
 _SOURCE = re.compile(
     r"\{\{\s*source\(['\"]([^'\"]+)['\"]\s*,\s*['\"]([^'\"]+)['\"]\)\s*\}\}"
 )
+
+
+# Stable stand-ins for run-specific absolute paths. dbt writes the workspace path
+# into its artifacts; the real path varies per run and must never reach a model.
+WORKSPACE_PLACEHOLDER = "/workspace"
+REPO_PLACEHOLDER = "/repo"
+VOLATILE_PLACEHOLDER = "<normalized>"
+# dbt artifact fields that change on every invocation without carrying hygiene
+# information (timestamps, timings, invocation and anonymous-user IDs).
+VOLATILE_DBT_KEYS = frozenset(
+    {
+        "_invocation_id",
+        "completed_at",
+        "created_at",
+        "elapsed",
+        "elapsed_time",
+        "execution_time",
+        "generated_at",
+        "invocation_id",
+        "invocation_started_at",
+        "load_all_elapsed",
+        "read_files_elapsed",
+        "run_started_at",
+        "started_at",
+        "user_id",
+    }
+)
+DUCKDB_CONFIG = {"enable_external_access": False}
+
+
+def stabilize_dbt_artifact(value: Any) -> Any:
+    """Replace per-invocation dbt fields with a constant, keeping structure."""
+
+    if isinstance(value, dict):
+        return {
+            key: VOLATILE_PLACEHOLDER if key in VOLATILE_DBT_KEYS else stabilize_dbt_artifact(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [stabilize_dbt_artifact(item) for item in value]
+    return value
+
+
+class RedactedError(Exception):
+    """A tool failure whose message had run-specific paths removed."""
+
+    def __init__(self, display_type: str, message: str) -> None:
+        super().__init__(message)
+        self.display_type = display_type
 
 
 @dataclass(frozen=True)
@@ -69,6 +120,49 @@ class EvidenceStore:
         self.workspace = workspace
         self.contract = contract or load_contract()
         self._items: dict[str, EvidenceItem] = {}
+        replacements: dict[str, str] = {}
+        for path, placeholder in ((REPO_ROOT, REPO_PLACEHOLDER), (workspace.root, WORKSPACE_PLACEHOLDER)):
+            for variant in {str(path), os.path.abspath(path), str(Path(path).resolve())}:
+                replacements[variant.rstrip(os.sep)] = placeholder
+        # Longest first, so a workspace inside the repository maps to the workspace placeholder.
+        self._replacements = sorted(replacements.items(), key=lambda item: len(item[0]), reverse=True)
+
+    def redact(self, value: Any) -> Any:
+        """Replace run-specific absolute paths in strings, lists, and dict values."""
+
+        if isinstance(value, str):
+            for original, placeholder in self._replacements:
+                value = value.replace(original, placeholder)
+            return value
+        if isinstance(value, dict):
+            return {key: self.redact(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [self.redact(item) for item in value]
+        return value
+
+    def guarded(self, handler):
+        """Wrap a tool handler so failure messages cannot expose workspace paths."""
+
+        def run(**arguments: Any) -> Any:
+            try:
+                return handler(**arguments)
+            except Exception as exc:
+                raise RedactedError(type(exc).__name__, self.redact(str(exc))) from exc
+
+        return run
+
+    def _project_text(self, path: Path) -> str:
+        """Read a project file as the model sees it: stable paths and dbt fields."""
+
+        text = self.redact(path.read_text(encoding="utf-8"))
+        relative = path.resolve().relative_to(self.workspace.project_dir.resolve())
+        if relative.parts and relative.parts[0] == "target" and path.suffix == ".json":
+            try:
+                document = json.loads(text)
+            except json.JSONDecodeError:
+                return text
+            text = json.dumps(stabilize_dbt_artifact(document), indent=2) + "\n"
+        return text
 
     @property
     def items(self) -> list[EvidenceItem]:
@@ -87,8 +181,8 @@ class EvidenceStore:
         return self._record(kind, asset, source, content)
 
     def _record(self, kind: str, asset: str | None, source: Path | str, content: Any) -> EvidenceItem:
-        source_text = self._source_pointer(source)
-        normalized = _jsonable(content)
+        source_text = self.redact(self._source_pointer(source))
+        normalized = self.redact(_jsonable(content))
         item = EvidenceItem(
             id=_evidence_id(kind, asset, source_text, normalized),
             kind=kind,
@@ -197,7 +291,7 @@ class EvidenceStore:
     def manifest_node(self, asset: str) -> EvidenceItem:
         manifest_path = self.workspace.project_dir / "target/manifest.json"
         manifest = self._manifest(manifest_path)
-        node = self._node_by_name(manifest, asset)
+        node = stabilize_dbt_artifact(self._node_by_name(manifest, asset))
         return self._record("dbt_manifest", asset, manifest_path, node)
 
     def lineage(self, asset: str, *, direction: str = "both", max_hops: int = 1) -> EvidenceItem:
@@ -255,7 +349,9 @@ class EvidenceStore:
             raise FileNotFoundError("episode warehouse is missing; reset with build=True")
         relation = f'"main"."{asset.replace(chr(34), chr(34) * 2)}"'
         limit = int(self.contract["scope"]["max_probe_rows"])
-        with duckdb.connect(str(self.workspace.warehouse_path), read_only=True) as connection:
+        with duckdb.connect(
+            str(self.workspace.warehouse_path), read_only=True, config=DUCKDB_CONFIG
+        ) as connection:
             described = connection.execute(f"describe select * from {relation}").fetchall()
             types = {str(row[0]): str(row[1]) for row in described}
             selected = columns or list(types)
@@ -312,14 +408,16 @@ class EvidenceStore:
             raise ValueError("project file path escapes the episode project")
         if not path.is_file():
             raise FileNotFoundError(relative_path)
-        size = path.stat().st_size
-        if size > max_bytes:
+        if path.stat().st_size > max_bytes:
+            raise ValueError(f"project file exceeds {max_bytes} bytes")
+        text = self._project_text(path)
+        if len(text.encode("utf-8")) > max_bytes:
             raise ValueError(f"project file exceeds {max_bytes} bytes")
         return self._record(
             "project_file",
             None,
             path,
-            {"path": relative_path, "text": path.read_text(encoding="utf-8")},
+            {"path": relative_path, "text": text},
         )
 
     def project_listing(self, *, max_files: int = 250) -> EvidenceItem:
@@ -330,7 +428,7 @@ class EvidenceStore:
             files.append(
                 {
                     "path": str(path.relative_to(self.workspace.project_dir)),
-                    "bytes": path.stat().st_size,
+                    "bytes": self._listed_size(path),
                 }
             )
             if len(files) >= max_files:
@@ -341,6 +439,18 @@ class EvidenceStore:
             self.workspace.project_dir,
             {"files": files, "max_files": max_files, "at_limit": len(files) == max_files},
         )
+
+    def _listed_size(self, path: Path) -> int | None:
+        """Size of a file as read_file would return it; None for binary files.
+
+        Generated dbt files embed paths, timestamps, and IDs, so their raw sizes
+        change between otherwise identical runs.
+        """
+
+        try:
+            return len(self._project_text(path).encode("utf-8"))
+        except UnicodeDecodeError:
+            return None
 
     def raw_query(self, sql: str, *, max_rows: int = 200) -> EvidenceItem:
         if not self.workspace.warehouse_path.exists():
@@ -358,7 +468,11 @@ class EvidenceStore:
         if not isinstance(tree, (exp.Select, exp.Union, exp.Subquery)):
             raise ValueError("only read-only SELECT queries are allowed")
         bounded_sql = f"select * from ({tree.sql(dialect='duckdb')}) as raw_query limit {max_rows}"
-        with duckdb.connect(str(self.workspace.warehouse_path), read_only=True) as connection:
+        # External access is off so SQL cannot read files (for example the episode
+        # manifest or workspace labels) through DuckDB's file readers.
+        with duckdb.connect(
+            str(self.workspace.warehouse_path), read_only=True, config=DUCKDB_CONFIG
+        ) as connection:
             cursor = connection.execute(bounded_sql)
             columns = [description[0] for description in cursor.description]
             rows = cursor.fetchall()
@@ -391,9 +505,15 @@ class EvidenceStore:
         return cls._node_entry_by_name(manifest, asset)[1]
 
 
+def guard_tools(store: EvidenceStore, tools: list[ToolSpec]) -> list[ToolSpec]:
+    """Route every tool failure message through the store's path redaction."""
+
+    return [replace(tool, handler=store.guarded(tool.handler)) for tool in tools]
+
+
 def evidence_tools(store: EvidenceStore) -> list[ToolSpec]:
     asset = {"type": "string", "minLength": 1}
-    return [
+    return guard_tools(store, [
         ToolSpec(
             "get_catalog_metadata",
             "Get merged catalog metadata for one asset.",
@@ -465,7 +585,7 @@ def evidence_tools(store: EvidenceStore) -> list[ToolSpec]:
             _object_schema({"relative_path": {"type": "string", "minLength": 1}}, ["relative_path"]),
             lambda relative_path: store.project_file(relative_path).to_dict(),
         ),
-    ]
+    ])
 
 
 def main(argv: list[str] | None = None) -> int:

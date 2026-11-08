@@ -261,3 +261,88 @@ def test_steward_condition_uses_configured_max_turns(tmp_path: Path) -> None:
     for record in records:
         assert "max_turns: stopped after 2 model turns" in record["result"]["error"]
         assert record["score"]["turns"] == 2
+
+
+def test_config_must_match_version_and_pin_reasoning_effort(tmp_path: Path) -> None:
+    import yaml
+
+    from catalog_steward.evaluation import DEFAULT_CONFIG
+
+    frozen = yaml.safe_load(DEFAULT_CONFIG.read_text(encoding="utf-8"))
+    assert frozen["version"] == "1.1.0"
+    assert frozen["reasoning_effort"] == "low"
+    assert frozen["prompt_versions"] == {
+        "generic": "generic-hygiene-v2",
+        "steward": "specialized-steward-v2",
+    }
+    for change in (
+        {"version": "1.0.0"},
+        {"reasoning_effort": None},
+        {"prompt_versions": {"generic": "generic-hygiene-v1", "steward": "specialized-steward-v1"}},
+        {"frozen": False},
+    ):
+        path = tmp_path / "config.yaml"
+        path.write_text(yaml.safe_dump({**frozen, **change}), encoding="utf-8")
+        with pytest.raises(ValueError):
+            load_config(path)
+
+
+def test_run_settings_are_recorded_in_summary_and_results(tmp_path: Path) -> None:
+    config = load_config()
+    output = tmp_path / "results"
+
+    records = run_evaluation(
+        config=config,
+        output_dir=output,
+        conditions=["static"],
+        episode_ids=["clean_daily_revenue_metric"],
+        workspace_root=tmp_path / "workspaces",
+    )
+
+    expected = {
+        "model": config["model"],
+        "temperature": config["temperature"],
+        "max_tokens": config["max_tokens"],
+        "max_turns": config["max_turns"],
+        "reasoning_effort": "low",
+    }
+    assert records[0]["run_settings"] == expected
+    summary = json.loads((output / "summary.json").read_text(encoding="utf-8"))
+    assert summary["run_settings"] == expected
+    stored = json.loads((output / "clean_daily_revenue_metric/static.json").read_text(encoding="utf-8"))
+    assert stored["run_settings"] == expected
+
+
+def test_live_evaluation_without_key_exits_before_any_reset(monkeypatch, tmp_path: Path, capsys) -> None:
+    from catalog_steward import evaluation
+    from catalog_steward.config import Settings
+
+    monkeypatch.setattr(evaluation, "load_settings", lambda: Settings.from_mapping({}, root=tmp_path))
+
+    def fail(*args, **kwargs):
+        raise AssertionError("reset must not run without a key")
+
+    monkeypatch.setattr(evaluation, "reset_episode", fail)
+
+    code = evaluation.main(["--conditions", "static,generic,steward", "--live", "--output", str(tmp_path / "out")])
+
+    assert code != 0
+    error = capsys.readouterr().err.strip()
+    assert error.count("\n") == 0 and "OPENROUTER_API_KEY" in error
+    assert not (tmp_path / "out").exists()
+
+
+def test_live_steward_without_key_exits_before_any_reset(monkeypatch, tmp_path: Path, capsys) -> None:
+    from catalog_steward import steward
+    from catalog_steward.config import Settings
+
+    monkeypatch.setattr(steward, "load_settings", lambda: Settings.from_mapping({}, root=tmp_path))
+
+    def fail(*args, **kwargs):
+        raise AssertionError("reset must not run without a key")
+
+    monkeypatch.setattr(steward, "reset_episode", fail)
+
+    assert steward.main(["clean_daily_revenue_metric"]) != 0
+    error = capsys.readouterr().err.strip()
+    assert error.count("\n") == 0 and "OPENROUTER_API_KEY" in error

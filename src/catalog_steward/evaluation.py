@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import shutil
 import subprocess
+import sys
 import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -19,15 +19,24 @@ import yaml
 from catalog_steward.agent import AgentConfig, AgentSession
 from catalog_steward.config import REPO_ROOT, load_settings
 from catalog_steward.contract import issue_by_id, load_contract
-from catalog_steward.episodes import EpisodeWorkspace, episode_by_id, load_manifest, reset_episode
-from catalog_steward.evidence import EvidenceStore
+from catalog_steward.episodes import (
+    EpisodeWorkspace,
+    dbt_env,
+    episode_by_id,
+    load_manifest,
+    reset_episode,
+    workspace_token,
+)
+from catalog_steward.evidence import EvidenceStore, guard_tools
 from catalog_steward.llm import ChatModel, LM
-from catalog_steward.steward import PLAN_SCHEMA_PATH, StewardRun
+from catalog_steward.steward import PLAN_SCHEMA_PATH, STEWARD_PROMPT_VERSION, StewardRun
 from catalog_steward.tools import ToolSpec
 
 DEFAULT_CONFIG = REPO_ROOT / "experiments/configs/midpoint_v1.yaml"
-GENERIC_PROMPT_VERSION = "generic-hygiene-v1"
+CONFIG_VERSION = "1.1.0"
+GENERIC_PROMPT_VERSION = "generic-hygiene-v2"
 SCORING_VERSION = "midpoint-score-v1"
+RUN_SETTING_KEYS = ("model", "temperature", "max_tokens", "max_turns", "reasoning_effort")
 
 
 @dataclass(frozen=True)
@@ -165,8 +174,7 @@ def _run_dbt_tests(
     selected_assets: list[str],
     store: EvidenceStore,
 ) -> tuple[Any, list[str]]:
-    env = os.environ.copy()
-    env["CATALOG_STEWARD_WAREHOUSE_PATH"] = str(workspace.warehouse_path.resolve())
+    env = dbt_env(workspace)
     command = [
         "dbt",
         "test",
@@ -220,7 +228,7 @@ def _run_dbt_tests(
 
 
 def generic_tools(store: EvidenceStore) -> list[ToolSpec]:
-    return [
+    return guard_tools(store, [
         ToolSpec(
             "list_files",
             "List raw files in the project.",
@@ -251,7 +259,7 @@ def generic_tools(store: EvidenceStore) -> list[ToolSpec]:
             ),
             lambda sql, max_rows: store.raw_query(sql, max_rows=max_rows).to_dict(),
         ),
-    ]
+    ])
 
 
 def run_generic(
@@ -445,14 +453,27 @@ def load_config(path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     config = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not config.get("frozen"):
         raise ValueError("evaluation config must be explicitly frozen")
+    if config.get("version") != CONFIG_VERSION:
+        raise ValueError(
+            f"evaluation config version {config.get('version')!r} does not match implementation {CONFIG_VERSION!r}"
+        )
+    missing = [key for key in RUN_SETTING_KEYS if config.get(key) in (None, "")]
+    if missing:
+        raise ValueError(f"evaluation config must pin {', '.join(missing)}")
     if config["prompt_versions"] != {
         "generic": GENERIC_PROMPT_VERSION,
-        "steward": "specialized-steward-v1",
+        "steward": STEWARD_PROMPT_VERSION,
     }:
         raise ValueError("evaluation prompt versions do not match implementation")
     if config["scoring_version"] != SCORING_VERSION:
         raise ValueError("evaluation scoring version does not match implementation")
     return config
+
+
+def run_settings(config: dict[str, Any]) -> dict[str, Any]:
+    """Model and loop settings recorded with every result."""
+
+    return {key: config.get(key) for key in RUN_SETTING_KEYS}
 
 
 def run_evaluation(
@@ -469,6 +490,7 @@ def run_evaluation(
     output_dir.mkdir(parents=True, exist_ok=True)
     workspace_root = workspace_root or REPO_ROOT / ".runs/evaluation" / output_dir.name
     records: list[dict[str, Any]] = []
+    settings = run_settings(config)
     for episode_id in episode_ids:
         episode = episode_by_id(manifest, episode_id)
         for condition in conditions:
@@ -477,7 +499,7 @@ def run_evaluation(
             try:
                 workspace = reset_episode(
                     episode_id,
-                    destination=workspace_root / episode_id / condition,
+                    destination=workspace_root / workspace_token(episode_id, condition),
                     build=True,
                 )
                 if condition == "static":
@@ -492,7 +514,7 @@ def run_evaluation(
                         else run_steward(workspace, episode, model, max_turns=int(config["max_turns"]))
                     )
                 score = score_result(result, episode, contract)
-                payload = {"result": result.to_dict(), "score": score}
+                payload = {"result": result.to_dict(), "score": score, "run_settings": settings}
             except Exception as exc:
                 # Keep whatever a failed agent run produced: paid transcripts and cost must
                 # remain auditable even when the run cannot be scored.
@@ -516,6 +538,7 @@ def run_evaluation(
                         "cost_usd": float(usage.get("cost_usd", 0.0)),
                         "turns": int(usage.get("calls", 0)),
                     },
+                    "run_settings": settings,
                 }
             result_path = output_dir / episode_id / f"{condition}.json"
             result_path.parent.mkdir(parents=True, exist_ok=True)
@@ -528,6 +551,7 @@ def run_evaluation(
             records.append(payload)
     summary = {
         "config": config,
+        "run_settings": settings,
         "records": records,
         "episode_successes": sum(record["score"].get("episode_success", False) for record in records),
         "run_count": len(records),
@@ -572,6 +596,10 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"unknown conditions: {sorted(invalid)}")
     if any(condition != "static" for condition in conditions) and not args.live:
         parser.error("agent conditions require --live because they make paid model calls")
+    if args.live and not load_settings().openrouter_api_key:
+        # Check before any workspace reset or dbt build so a missing key costs nothing.
+        print("error: OPENROUTER_API_KEY is required for --live evaluation; set it in .env", file=sys.stderr)
+        return 2
     episode_ids = (
         [item.strip() for item in args.episodes.split(",") if item.strip()]
         if args.episodes
@@ -584,6 +612,7 @@ def main(argv: list[str] | None = None) -> int:
             model=config["model"],
             temperature=float(config["temperature"]),
             max_tokens=int(config["max_tokens"]),
+            reasoning_effort=str(config["reasoning_effort"]),
             tag=f"midpoint/{condition}/{episode_id}",
             salt=f"{args.salt}:{condition}:{episode_id}",
         )
