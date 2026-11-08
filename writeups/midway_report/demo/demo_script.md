@@ -4,6 +4,21 @@ Target length **2:45** (hard limit 3:00, per `../video__requirements.md`). One s
 
 All numbers on screen come from `experiments/results/midpoint_v1_2_pilot/` (frozen config 1.2.0, 10 episodes × 3 conditions). The charts are generated from its `summary.json` by `../make_figures.py`. Nothing is typed by hand.
 
+## Video description (paste when uploading)
+
+Paste this as the YouTube or Google Drive description:
+
+```text
+CS329Z midway demo (Alex Feng). A catalog steward: an LLM agent that repairs stale data-catalog metadata with evidence, then reviews later dbt changes so the drift does not come back. It is compared with static checks and a generic coding agent on ten constructed maintenance episodes.
+
+GitHub repository (code, fixtures, episode labels, frozen config and prompts, raw pilot results, and the manual audit):
+https://github.com/alfenn/agentic-catalog-interface
+
+The README covers setup and reproducing the pilot. The demo's script and commands are in writeups/midway_report/demo/.
+
+Note: the steward runs shown are replays of the recorded pilot from the response cache (identical inputs, no new model calls). In the pilot itself, the generic-agent and steward records for these two demo episodes are cache replays of the final smoke run under the same frozen configuration.
+```
+
 ## Before recording
 
 1. **Setup (about 25 s, off camera):** from the repository root, run
@@ -81,4 +96,4 @@ Command time totals about 10 s, all covered by narration. Narration is about 405
 - **Segment 5:** action `propose / request_review`, status `proposed`, `patch_path` null, two unresolved questions. Episode success: true.
 - **Segment 6:** remediation: static missed, generic success (patch), steward success (patch). Change: static missed. Generic missed: one rejected reply that put several tool calls in one message, then a final answer with no findings, saying it could not assess the change. Steward success (propose), also after one rejected reply.
 - **Segment 7:** episode successes are static 4/10, generic 5/10 and steward 5/10. Found/false alarms are static 4/0, generic 5/4 and steward 9/6. The steward's false alarms include one on each clean control. The manual audit (`experiments/results/midpoint_v1_2_pilot/analysis.md`) classifies three of the steward's six extra findings, including both clean-control flags, as real fixture gaps the manifest did not anticipate; one is genuinely spurious and two are mislabels or duplicates of expected issues.
-- **Disclosure (for the video description, if there is room):** the four model records for these two demo episodes in the pilot (generic and steward) are exact cache replays of the config-1.2.0 smoke rerun, served by design because inputs and config were identical. Nothing was tuned in between. The total recorded model spend for the project is $0.0244.
+- **Disclosure (included in the video description above):** the four model records for these two demo episodes in the pilot (generic and steward) are exact cache replays of the config-1.2.0 smoke rerun, served by design because inputs and config were identical. Nothing was tuned in between. The total recorded model spend for the project is $0.0244.

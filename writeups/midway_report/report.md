@@ -94,6 +94,12 @@ Table: Episode successes by condition and category (remediation, flawed change, 
 \appendix
 ```
 
+# Code Repository {#sec:code}
+
+**GitHub:** `\url{https://github.com/alfenn/agentic-catalog-interface}`{=latex}
+
+This public repository holds all code and artifacts behind this report: the dbt/DuckDB fixture, the ten episodes and their labels, the hygiene contract, the frozen run configuration and prompts, the steward and baseline code, the raw pilot outputs with their manual audit (`experiments/results/midpoint_v1_2_pilot/`), and the demo script (`writeups/midway_report/demo/`). The `README.md` explains installation, API-key configuration, running both steward modes, and reproducing the pilot.
+
 # AI-Use Disclosure Statement {#sec:ai}
 
 Generative AI agents did most of the implementation and writing at this stage. OpenAI Codex agents implemented the prototype (environment setup, agent harness, hygiene contract, evidence tools, steward workflow, and baseline runners), built the dbt/DuckDB fixtures and the ten evaluation episodes and their labels, wrote the evaluation and scoring code, ran and audited the static pilot, and drafted the README and an initial version of this report. Claude (Anthropic) agents then audited, tested, fixed, and finished the work, including the preflight audit of the paid-run pipeline and its fixes, running the paid smoke runs and the three-condition pilot, the manual audit of every pilot trace, typesetting this report in the ICLR template, the references, the script that generates the charts and results table from saved results, and the revision of this report around the audit. Because AI agents constructed the episodes and labels as well as the system under test, the ground truth reflects their design choices and needs independent human review. **[AUTHOR TO COMPLETE: describe the human verification actually performed, e.g., which code, episode labels, results, and report claims the author reviewed.]** AI tools are not authors; the author takes full responsibility for the content of this work.

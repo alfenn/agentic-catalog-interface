@@ -562,3 +562,15 @@ context: [
   together with seed documentation and truly clean controls, an issue-type
   precedence rule, postcondition-based success, real per-issue patch
   verification, and a batching-robust protocol.
+
+## 2026-11-08 — Repository link section and video description
+
+- At the author's request, the report has a dedicated "Code Repository"
+  section with the GitHub URL, placed in the appendix immediately before the
+  AI-Use Disclosure, so it does not count toward the 4-page body. The Assets
+  section keeps its link as well, because the rubric asks for links there.
+- The URL sits on its own line: inline, the unbreakable URL stretched the
+  justified spacing of its sentence.
+- `demo/demo_script.md` now opens with a ready-to-paste video description
+  containing the repository link and the cache-replay disclosure, so the
+  disclosure travels with the video rather than depending on narration time.

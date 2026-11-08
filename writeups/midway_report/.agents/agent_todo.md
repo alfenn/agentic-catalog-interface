@@ -277,3 +277,6 @@ the repository can reproduce the shown path.
   signed/expiring URL query strings removed.
 - [x] The README is sufficient to run the prototype and evaluation.
 - [ ] The recorded demo shows both modes and states limitations honestly.
+- [x] The GitHub repository link appears in its own report section, placed
+  immediately before the AI-Use Disclosure and outside the page-counted body,
+  and in a ready-to-paste video description in `demo/demo_script.md`.
