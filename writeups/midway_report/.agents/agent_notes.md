@@ -233,3 +233,20 @@ context: [
 - Regenerated the full static pilot with the corrected evaluator. It remains
   4/10, and all seven targeted evaluation tests pass. The paid conditions remain
   pending the credential decision.
+
+## 2026-11-07 — Reproducibility and demo handoff
+
+- Expanded the README around the actual Make targets and frozen evaluation
+  config rather than describing aspirational commands. A delegated worker
+  verified the configuration, contract, episode listing, a change fixture
+  build, SQL evidence for both demo episodes, and whitespace checks.
+- Documented a non-obvious behavior: `make evidence` resets the named episode
+  without building it, so it replaces any prior built workspace for that ID.
+  The demo sequence calls this out to prevent someone from expecting earlier
+  dbt artifacts to remain.
+- Added a connected `daily_revenue` runbook that can demonstrate fixture and
+  evidence behavior without credentials, then conditionally show live steward
+  outputs only if they have actually been run. The baseline section links the
+  audit and labels 4/10 as fixture-level episode success, not remediation.
+- README links and all referenced local paths were checked after integration.
+  A fresh-environment reproduction and the actual recorded video remain open.

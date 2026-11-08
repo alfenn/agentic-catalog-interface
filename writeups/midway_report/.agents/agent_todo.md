@@ -212,7 +212,7 @@ saved result.
 
 ### Phase 7: prepare the README and recorded demo
 
-- [ ] Expand `README.md` with prerequisites, pinned versions, installation,
+- [x] Expand `README.md` with prerequisites, pinned versions, installation,
   fixture creation/reset, both steward entry points, all baseline commands,
   evaluation reproduction, output locations, known limitations, and safety
   behavior.
