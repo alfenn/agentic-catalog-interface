@@ -2,7 +2,7 @@ UV ?= uv
 PYTEST_ARGS ?=
 EPISODE ?= rem_daily_revenue_filter_drift
 ASSET ?= daily_revenue
-REPORT_RESULTS ?= experiments/results/midpoint_v1_static
+REPORT_RESULTS ?= experiments/results/midpoint_v1_2_pilot
 
 .PHONY: help setup sync lock doctor doctor-live contract episodes episodes-check fixture evidence steward pilot-static pilot test test-live test-all costs report
 

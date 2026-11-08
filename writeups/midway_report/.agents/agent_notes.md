@@ -533,3 +533,32 @@ context: [
   steward's extra findings include real gaps the labels missed, so the
   follow-up is better labels and real verification, not only "fewer false
   alarms".
+
+## 2026-11-08 — Report results, README, and handoff state
+
+- The report now reports the three-condition pilot through the audit's
+  framing. The steward matched 9/10 expected issues and every claim was
+  grounded, but it tied the generic agent at 5/10 by over-reporting. The
+  generic agent's score hides a no-inspection pass, an invented-evidence run,
+  and an unread approval. The conditions are not like-for-like. The
+  sensitivity range is given as explicitly not a rescoring. Body is 4 pages;
+  references and the disclosure follow.
+- `make report` failed intermittently because an editor auto-compiles
+  `report.tex` in place, and the build's bibtex step read the editor's
+  half-written `report.aux` from the report folder. The build now copies its
+  sources into the temporary directory and compiles there, and the editor's
+  LaTeX byproducts are gitignored. The default results folder for the report
+  is the 1.2.0 pilot.
+- The README's limitations section now states the pilot's real caveats
+  instead of saying the live pilot is pending.
+- Open by design, for the author: record the video from
+  `writeups/midway_report/demo/demo_script.md`, add its URL to the report's
+  Assets section, write the human-verification sentence in the AI-use
+  disclosure, and decide on the title (the template's "An Agent Tool
+  Interfaces" is ungrammatical and reflects the proposal's framing).
+- Open as honest limitations, not oversights: the conditions are not fully
+  matched, and not every agent claim is traceable to evidence (the
+  fabricated generic run). Both are first-priority fixes for the final study,
+  together with seed documentation and truly clean controls, an issue-type
+  precedence rule, postcondition-based success, real per-issue patch
+  verification, and a batching-robust protocol.

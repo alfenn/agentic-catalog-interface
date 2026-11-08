@@ -29,7 +29,7 @@ sys.dont_write_bytecode = True  # keep __pycache__ out of the report folder
 sys.path.insert(0, str(HERE))
 import make_figures  # noqa: E402
 
-DEFAULT_RESULTS = make_figures.REPO_ROOT / "experiments/results/midpoint_v1_static"
+DEFAULT_RESULTS = make_figures.REPO_ROOT / "experiments/results/midpoint_v1_2_pilot"
 TEX_HEADER = """\
 % GENERATED FILE -- DO NOT EDIT. Edit report.md and run `make report` from the
 % repository root (writeups/midway_report/build_report.py), which regenerates
@@ -68,12 +68,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     (HERE / "report.tex").write_text(TEX_HEADER + tex, encoding="utf-8")
 
-    # Build in a private temporary directory: no byproducts land here, and an editor
-    # that auto-compiles report.tex cannot collide with this build.
+    # Build from a private copy of the sources: no byproducts land here, and an editor
+    # that auto-compiles report.tex in place (writing its own report.aux here) cannot
+    # feed a half-written aux file to this build's bibtex run.
     with tempfile.TemporaryDirectory(prefix="midway_report_") as build_dir:
+        for name in ["report.tex", "references.bib", "iclr2025_conference.sty", "iclr2025_conference.bst"]:
+            shutil.copy2(HERE / name, Path(build_dir) / name)
+        shutil.copytree(HERE / "figures", Path(build_dir) / "figures")
         proc = subprocess.run(
-            ["latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", f"-outdir={build_dir}", "report.tex"],
-            cwd=HERE,
+            ["latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", "report.tex"],
+            cwd=build_dir,
             capture_output=True,
             text=True,
         )

@@ -17,3 +17,14 @@ experiments/results/2*/
 **/logs/
 **/target/
 
+
+# LaTeX byproducts from editor auto-builds of the report.
+writeups/midway_report/*.aux
+writeups/midway_report/*.bbl
+writeups/midway_report/*.blg
+writeups/midway_report/*.fdb_latexmk
+writeups/midway_report/*.fls
+writeups/midway_report/*.log
+writeups/midway_report/*.out
+writeups/midway_report/*.synctex.gz
+writeups/midway_report/*.synctex(busy)
