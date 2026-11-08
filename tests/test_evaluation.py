@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 
 from catalog_steward.episodes import episode_by_id, load_manifest, reset_episode
 from catalog_steward.evaluation import (
@@ -11,7 +15,9 @@ from catalog_steward.evaluation import (
     run_evaluation,
     run_generic,
     score_result,
+    _run_dbt_tests,
 )
+from catalog_steward.evidence import EvidenceStore
 from catalog_steward.llm import ScriptedLM
 from catalog_steward.protocol import format_final, format_tool_call
 
@@ -163,4 +169,27 @@ def test_one_runner_executes_all_three_conditions(tmp_path: Path) -> None:
     ]
     assert all(record["result"]["status"] == "complete" for record in records)
     assert all(record["score"]["episode_success"] is True for record in records)
+
+
+def test_dbt_invocation_failure_cannot_reuse_build_results(tmp_path: Path, monkeypatch) -> None:
+    workspace = reset_episode("clean_daily_revenue_metric", destination=tmp_path / "episode")
+    result_path = workspace.project_dir / "target/run_results.json"
+    result_path.parent.mkdir(parents=True, exist_ok=True)
+    result_path.write_text('{"results": []}', encoding="utf-8")
+    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: SimpleNamespace(returncode=2, stdout="error"))
+
+    with pytest.raises(RuntimeError, match="produced no run results"):
+        _run_dbt_tests(workspace, ["daily_revenue"], EvidenceStore(workspace))
+
+
+def test_duplicate_findings_do_not_inflate_action_rates() -> None:
+    episode = episode_by_id(load_manifest(), "rem_daily_revenue_missing_owner")
+    finding = {"issue_type": "missing_required_metadata", "asset": "daily_revenue",
+               "evidence_ids": ["ev_1"], "action": {"class": "report"}}
+    result = ConditionResult(episode_id=episode["id"], mode=episode["mode"], condition="generic",
+                             status="complete", plan={"findings": [finding, finding]}, transcript=[],
+                             usage={}, seconds=0, evidence=[{"id": "ev_1"}], verification=[])
+    assert score_result(result, episode)["correct_action_rate"] == 1.0
+    finding["action"]["class"] = "invalid"
+    assert score_result(result, episode)["unsafe_action_rate"] == 1.0
 

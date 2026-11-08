@@ -1,0 +1,177 @@
+{
+  "result": {
+    "condition": "static",
+    "episode_id": "change_new_model_missing_metadata",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "asset": "high_value_orders",
+          "present": false
+        },
+        "id": "ev_catalog_metadata_82ae9089f9d2",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": "high_value_orders",
+        "content": {
+          "asset": "high_value_orders",
+          "present": false
+        },
+        "id": "ev_dbt_schema_ada6caa3d7d9",
+        "kind": "dbt_schema",
+        "source": "project/models/**/*.yml"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "canonical": true,
+          "description": "One row per source order, including all lifecycle statuses.",
+          "grain": [
+            "order_id"
+          ],
+          "lifecycle": "active",
+          "name": "stg_orders",
+          "owner": "data-platform",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_6b4510bb2d56",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": "stg_orders",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Source order identifier.",
+              "name": "order_id"
+            },
+            {
+              "data_tests": [
+                "not_null"
+              ],
+              "description": "Customer that placed the order.",
+              "name": "customer_id"
+            },
+            {
+              "data_tests": [
+                {
+                  "accepted_values": {
+                    "arguments": {
+                      "values": [
+                        "completed",
+                        "refunded",
+                        "cancelled"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "description": "Current order lifecycle status.",
+              "name": "status"
+            },
+            {
+              "data_tests": [
+                "not_null"
+              ],
+              "description": "Date the order was placed.",
+              "name": "order_date"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "order_id",
+              "lifecycle": "active",
+              "owner": "data-platform"
+            }
+          },
+          "description": "One row per source order, including all lifecycle statuses.",
+          "name": "stg_orders",
+          "present": true
+        },
+        "id": "ev_dbt_schema_6a7d423b03b5",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": null,
+        "content": {
+          "failed_assets": [],
+          "output_tail": "\u001b[0m00:11:46  Running with dbt=1.12.6\n\u001b[0m00:11:46  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:46  Found 4 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  1 of 5 START test accepted_values_stg_orders_status__completed__refunded__cancelled  [RUN]\n\u001b[0m00:11:46  1 of 5 PASS accepted_values_stg_orders_status__completed__refunded__cancelled .. [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:46  2 of 5 START test not_null_stg_orders_customer_id .............................. [RUN]\n\u001b[0m00:11:46  2 of 5 PASS not_null_stg_orders_customer_id .................................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:46  3 of 5 START test not_null_stg_orders_order_date ............................... [RUN]\n\u001b[0m00:11:46  3 of 5 PASS not_null_stg_orders_order_date ..................................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:46  4 of 5 START test not_null_stg_orders_order_id ................................. [RUN]\n\u001b[0m00:11:46  4 of 5 PASS not_null_stg_orders_order_id ....................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:46  5 of 5 START test unique_stg_orders_order_id ................................... [RUN]\n\u001b[0m00:11:46  5 of 5 PASS unique_stg_orders_order_id ......................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  Finished running 5 data tests in 0 hours 0 minutes and 0.17 seconds (0.17s).\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  Done. PASS=5 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=5\n",
+          "result_count": 5,
+          "returncode": 0
+        },
+        "id": "ev_static_dbt_tests_f6e777db8c5e",
+        "kind": "static_dbt_tests",
+        "source": "project/target/run_results.json"
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "report",
+            "operation": "report_only",
+            "rationale": "Static checks report the condition but do not infer a semantic fix."
+          },
+          "asset": "high_value_orders",
+          "claim": "Missing required metadata: catalog entry, dbt schema entry.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_catalog_metadata_82ae9089f9d2",
+            "ev_dbt_schema_ada6caa3d7d9"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        }
+      ],
+      "summary": "Static required-field and dbt-test results.",
+      "unresolved_questions": []
+    },
+    "seconds": 1.751471757888794,
+    "status": "complete",
+    "transcript": [],
+    "usage": {
+      "calls": 0,
+      "cost_usd": 0.0,
+      "model": null
+    },
+    "verification": [
+      {
+        "dbt_tests_ran": true,
+        "failed_assets": []
+      }
+    ]
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "static",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.0,
+    "episode_id": "change_new_model_missing_metadata",
+    "episode_success": true,
+    "escalation_count": 1,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": 1.0,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 1,
+    "turns": 0,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 1.751471757888794
+  }
+}

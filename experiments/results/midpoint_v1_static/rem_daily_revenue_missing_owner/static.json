@@ -1,0 +1,134 @@
+{
+  "result": {
+    "condition": "static",
+    "episode_id": "rem_daily_revenue_missing_owner",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "grain": [
+            "order_date"
+          ],
+          "lifecycle": "active",
+          "name": "daily_revenue",
+          "owner": null,
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_cd0904885c95",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Order date and model grain.",
+              "name": "order_date"
+            },
+            {
+              "description": "Number of completed orders on the date.",
+              "name": "completed_order_count"
+            },
+            {
+              "description": "Sum of completed order amounts on the date.",
+              "name": "completed_revenue"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "order_date",
+              "lifecycle": "active",
+              "owner": "finance-analytics"
+            }
+          },
+          "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+          "name": "daily_revenue",
+          "present": true
+        },
+        "id": "ev_dbt_schema_01fe3ea3102d",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": null,
+        "content": {
+          "failed_assets": [],
+          "output_tail": "\u001b[0m00:11:16  Running with dbt=1.12.6\n\u001b[0m00:11:16  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:16  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  1 of 2 START test not_null_daily_revenue_order_date ............................ [RUN]\n\u001b[0m00:11:16  1 of 2 PASS not_null_daily_revenue_order_date .................................. [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:16  2 of 2 START test unique_daily_revenue_order_date .............................. [RUN]\n\u001b[0m00:11:16  2 of 2 PASS unique_daily_revenue_order_date .................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  Finished running 2 data tests in 0 hours 0 minutes and 0.09 seconds (0.09s).\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2\n",
+          "result_count": 2,
+          "returncode": 0
+        },
+        "id": "ev_static_dbt_tests_230bd8774fd1",
+        "kind": "static_dbt_tests",
+        "source": "project/target/run_results.json"
+      }
+    ],
+    "mode": "remediation",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "report",
+            "operation": "report_only",
+            "rationale": "Static checks report the condition but do not infer a semantic fix."
+          },
+          "asset": "daily_revenue",
+          "claim": "Missing required metadata: owner.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_catalog_metadata_cd0904885c95",
+            "ev_dbt_schema_01fe3ea3102d"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        }
+      ],
+      "summary": "Static required-field and dbt-test results.",
+      "unresolved_questions": []
+    },
+    "seconds": 1.6912281513214111,
+    "status": "complete",
+    "transcript": [],
+    "usage": {
+      "calls": 0,
+      "cost_usd": 0.0,
+      "model": null
+    },
+    "verification": [
+      {
+        "dbt_tests_ran": true,
+        "failed_assets": []
+      }
+    ]
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "static",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.0,
+    "episode_id": "rem_daily_revenue_missing_owner",
+    "episode_success": true,
+    "escalation_count": 1,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 1,
+    "turns": 0,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 1.6912281513214111
+  }
+}

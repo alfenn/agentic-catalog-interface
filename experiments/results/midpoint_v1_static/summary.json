@@ -1,0 +1,1450 @@
+{
+  "config": {
+    "conditions": [
+      "static",
+      "generic",
+      "steward"
+    ],
+    "episodes": [
+      "rem_daily_revenue_filter_drift",
+      "rem_customer_orders_wrong_grain",
+      "rem_daily_revenue_missing_owner",
+      "rem_legacy_model_lifecycle",
+      "change_daily_revenue_filter",
+      "change_customer_orders_grain",
+      "change_new_model_missing_metadata",
+      "change_rename_without_lifecycle",
+      "clean_new_model_documented",
+      "clean_daily_revenue_metric"
+    ],
+    "frozen": true,
+    "max_tokens": 4096,
+    "max_turns": 12,
+    "model": "openai/gpt-6-luna",
+    "prompt_versions": {
+      "generic": "generic-hygiene-v1",
+      "steward": "specialized-steward-v1"
+    },
+    "scoring_version": "midpoint-score-v1",
+    "temperature": 0.0,
+    "version": "1.0.0"
+  },
+  "episode_successes": 4,
+  "records": [
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "rem_daily_revenue_filter_drift",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "daily_revenue",
+            "content": {
+              "canonical": true,
+              "description": "Revenue from all orders at one row per order date.",
+              "grain": [
+                "order_date"
+              ],
+              "lifecycle": "active",
+              "name": "daily_revenue",
+              "owner": "finance-analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_92b329a79c50",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+          },
+          {
+            "asset": "daily_revenue",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Order date and model grain.",
+                  "name": "order_date"
+                },
+                {
+                  "description": "Number of completed orders on the date.",
+                  "name": "completed_order_count"
+                },
+                {
+                  "description": "Sum of completed order amounts on the date.",
+                  "name": "completed_revenue"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "order_date",
+                  "lifecycle": "active",
+                  "owner": "finance-analytics"
+                }
+              },
+              "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+              "name": "daily_revenue",
+              "present": true
+            },
+            "id": "ev_dbt_schema_01fe3ea3102d",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:11:01  Running with dbt=1.12.6\n\u001b[0m00:11:01  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:01  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:01  \n\u001b[0m00:11:01  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:01  \n\u001b[0m00:11:01  1 of 2 START test not_null_daily_revenue_order_date ............................ [RUN]\n\u001b[0m00:11:01  1 of 2 PASS not_null_daily_revenue_order_date .................................. [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:01  2 of 2 START test unique_daily_revenue_order_date .............................. [RUN]\n\u001b[0m00:11:01  2 of 2 PASS unique_daily_revenue_order_date .................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:01  \n\u001b[0m00:11:01  Finished running 2 data tests in 0 hours 0 minutes and 0.10 seconds (0.10s).\n\u001b[0m00:11:01  \n\u001b[0m00:11:01  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:01  \n\u001b[0m00:11:01  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2\n",
+              "result_count": 2,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_29f561743f2d",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "remediation",
+        "plan": {
+          "findings": [],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.6968419551849365,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "static",
+        "correct_action_rate": 0.0,
+        "cost_usd": 0.0,
+        "episode_id": "rem_daily_revenue_filter_drift",
+        "episode_success": false,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.6968419551849365
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "rem_customer_orders_wrong_grain",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "customer_orders",
+            "content": {
+              "canonical": true,
+              "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+              "grain": [
+                "order_id"
+              ],
+              "lifecycle": "active",
+              "name": "customer_orders",
+              "owner": "analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_d87a2ba4a66c",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+          },
+          {
+            "asset": "customer_orders",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Customer identifier and model grain.",
+                  "name": "customer_id"
+                },
+                {
+                  "description": "Number of completed orders for the customer.",
+                  "name": "completed_order_count"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "customer_id",
+                  "lifecycle": "active",
+                  "owner": "analytics"
+                }
+              },
+              "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+              "name": "customer_orders",
+              "present": true
+            },
+            "id": "ev_dbt_schema_5247fb441133",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:11:08  Running with dbt=1.12.6\n\u001b[0m00:11:08  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:08  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:08  \n\u001b[0m00:11:08  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:08  \n\u001b[0m00:11:08  1 of 2 START test not_null_customer_orders_customer_id ......................... [RUN]\n\u001b[0m00:11:09  1 of 2 PASS not_null_customer_orders_customer_id ............................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:09  2 of 2 START test unique_customer_orders_customer_id ........................... [RUN]\n\u001b[0m00:11:09  2 of 2 PASS unique_customer_orders_customer_id ................................. [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:09  \n\u001b[0m00:11:09  Finished running 2 data tests in 0 hours 0 minutes and 0.09 seconds (0.09s).\n\u001b[0m00:11:09  \n\u001b[0m00:11:09  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:09  \n\u001b[0m00:11:09  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2\n",
+              "result_count": 2,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_6b0d1b5a2022",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "remediation",
+        "plan": {
+          "findings": [],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.6770379543304443,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "static",
+        "correct_action_rate": 0.0,
+        "cost_usd": 0.0,
+        "episode_id": "rem_customer_orders_wrong_grain",
+        "episode_success": false,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.6770379543304443
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "rem_daily_revenue_missing_owner",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "daily_revenue",
+            "content": {
+              "canonical": true,
+              "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+              "grain": [
+                "order_date"
+              ],
+              "lifecycle": "active",
+              "name": "daily_revenue",
+              "owner": null,
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_cd0904885c95",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+          },
+          {
+            "asset": "daily_revenue",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Order date and model grain.",
+                  "name": "order_date"
+                },
+                {
+                  "description": "Number of completed orders on the date.",
+                  "name": "completed_order_count"
+                },
+                {
+                  "description": "Sum of completed order amounts on the date.",
+                  "name": "completed_revenue"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "order_date",
+                  "lifecycle": "active",
+                  "owner": "finance-analytics"
+                }
+              },
+              "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+              "name": "daily_revenue",
+              "present": true
+            },
+            "id": "ev_dbt_schema_01fe3ea3102d",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:11:16  Running with dbt=1.12.6\n\u001b[0m00:11:16  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:16  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  1 of 2 START test not_null_daily_revenue_order_date ............................ [RUN]\n\u001b[0m00:11:16  1 of 2 PASS not_null_daily_revenue_order_date .................................. [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:16  2 of 2 START test unique_daily_revenue_order_date .............................. [RUN]\n\u001b[0m00:11:16  2 of 2 PASS unique_daily_revenue_order_date .................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  Finished running 2 data tests in 0 hours 0 minutes and 0.09 seconds (0.09s).\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:16  \n\u001b[0m00:11:16  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2\n",
+              "result_count": 2,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_230bd8774fd1",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "remediation",
+        "plan": {
+          "findings": [
+            {
+              "action": {
+                "class": "report",
+                "operation": "report_only",
+                "rationale": "Static checks report the condition but do not infer a semantic fix."
+              },
+              "asset": "daily_revenue",
+              "claim": "Missing required metadata: owner.",
+              "confidence": "high",
+              "evidence_ids": [
+                "ev_catalog_metadata_cd0904885c95",
+                "ev_dbt_schema_01fe3ea3102d"
+              ],
+              "impact": "medium",
+              "issue_type": "missing_required_metadata"
+            }
+          ],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.6912281513214111,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "static",
+        "correct_action_rate": 1.0,
+        "cost_usd": 0.0,
+        "episode_id": "rem_daily_revenue_missing_owner",
+        "episode_success": true,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.6912281513214111
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "rem_legacy_model_lifecycle",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "legacy_customer_orders",
+            "content": {
+              "canonical": true,
+              "description": "Older compatibility copy of customer order metrics.",
+              "grain": [
+                "customer_id"
+              ],
+              "lifecycle": "active",
+              "name": "legacy_customer_orders",
+              "owner": "analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_d87da0e8c982",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+          },
+          {
+            "asset": "legacy_customer_orders",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Customer identifier.",
+                  "name": "customer_id"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "customer_id",
+                  "lifecycle": "active",
+                  "owner": "analytics"
+                }
+              },
+              "description": "Older compatibility copy of customer order metrics.",
+              "name": "legacy_customer_orders",
+              "present": true
+            },
+            "id": "ev_dbt_schema_cee228c6e857",
+            "kind": "dbt_schema",
+            "source": "project/models/legacy_schema.yml"
+          },
+          {
+            "asset": "customer_orders",
+            "content": {
+              "canonical": true,
+              "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+              "grain": [
+                "customer_id"
+              ],
+              "lifecycle": "active",
+              "name": "customer_orders",
+              "owner": "analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_6db00984ab2a",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+          },
+          {
+            "asset": "customer_orders",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Customer identifier and model grain.",
+                  "name": "customer_id"
+                },
+                {
+                  "description": "Number of completed orders for the customer.",
+                  "name": "completed_order_count"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "customer_id",
+                  "lifecycle": "active",
+                  "owner": "analytics"
+                }
+              },
+              "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+              "name": "customer_orders",
+              "present": true
+            },
+            "id": "ev_dbt_schema_5247fb441133",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:11:23  Running with dbt=1.12.6\n\u001b[0m00:11:23  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:23  Found 4 models, 3 seeds, 11 data tests, 511 macros\n\u001b[0m00:11:23  \n\u001b[0m00:11:23  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:23  \n\u001b[0m00:11:24  1 of 4 START test not_null_customer_orders_customer_id ......................... [RUN]\n\u001b[0m00:11:24  1 of 4 PASS not_null_customer_orders_customer_id ............................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:24  2 of 4 START test not_null_legacy_customer_orders_customer_id .................. [RUN]\n\u001b[0m00:11:24  2 of 4 PASS not_null_legacy_customer_orders_customer_id ........................ [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:24  3 of 4 START test unique_customer_orders_customer_id ........................... [RUN]\n\u001b[0m00:11:24  3 of 4 PASS unique_customer_orders_customer_id ................................. [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:24  4 of 4 START test unique_legacy_customer_orders_customer_id .................... [RUN]\n\u001b[0m00:11:24  4 of 4 PASS unique_legacy_customer_orders_customer_id .......................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:24  \n\u001b[0m00:11:24  Finished running 4 data tests in 0 hours 0 minutes and 0.11 seconds (0.11s).\n\u001b[0m00:11:24  \n\u001b[0m00:11:24  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:24  \n\u001b[0m00:11:24  Done. PASS=4 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=4\n",
+              "result_count": 4,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_b800b0b1ba57",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "remediation",
+        "plan": {
+          "findings": [],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.7572860717773438,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "static",
+        "correct_action_rate": 0.0,
+        "cost_usd": 0.0,
+        "episode_id": "rem_legacy_model_lifecycle",
+        "episode_success": false,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.7572860717773438
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "change_daily_revenue_filter",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "daily_revenue",
+            "content": {
+              "canonical": true,
+              "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+              "grain": [
+                "order_date"
+              ],
+              "lifecycle": "active",
+              "name": "daily_revenue",
+              "owner": "finance-analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_e0daefba9a2c",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json"
+          },
+          {
+            "asset": "daily_revenue",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Order date and model grain.",
+                  "name": "order_date"
+                },
+                {
+                  "description": "Number of completed orders on the date.",
+                  "name": "completed_order_count"
+                },
+                {
+                  "description": "Sum of completed order amounts on the date.",
+                  "name": "completed_revenue"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "order_date",
+                  "lifecycle": "active",
+                  "owner": "finance-analytics"
+                }
+              },
+              "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+              "name": "daily_revenue",
+              "present": true
+            },
+            "id": "ev_dbt_schema_01fe3ea3102d",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:11:31  Running with dbt=1.12.6\n\u001b[0m00:11:31  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:31  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:31  \n\u001b[0m00:11:31  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:31  \n\u001b[0m00:11:31  1 of 2 START test not_null_daily_revenue_order_date ............................ [RUN]\n\u001b[0m00:11:31  1 of 2 PASS not_null_daily_revenue_order_date .................................. [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:31  2 of 2 START test unique_daily_revenue_order_date .............................. [RUN]\n\u001b[0m00:11:31  2 of 2 PASS unique_daily_revenue_order_date .................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:31  \n\u001b[0m00:11:31  Finished running 2 data tests in 0 hours 0 minutes and 0.09 seconds (0.09s).\n\u001b[0m00:11:31  \n\u001b[0m00:11:31  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:31  \n\u001b[0m00:11:31  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2\n",
+              "result_count": 2,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_5c2f83e6d04b",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "change_review",
+        "plan": {
+          "findings": [],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.6661791801452637,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "static",
+        "correct_action_rate": 0.0,
+        "cost_usd": 0.0,
+        "episode_id": "change_daily_revenue_filter",
+        "episode_success": false,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "regression_detection_rate": 0.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.6661791801452637
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "change_customer_orders_grain",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "customer_orders",
+            "content": {
+              "canonical": true,
+              "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+              "grain": [
+                "customer_id"
+              ],
+              "lifecycle": "active",
+              "name": "customer_orders",
+              "owner": "analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_11213a09f68d",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json"
+          },
+          {
+            "asset": "customer_orders",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Customer identifier and model grain.",
+                  "name": "customer_id"
+                },
+                {
+                  "description": "Number of completed orders for the customer.",
+                  "name": "completed_order_count"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "customer_id",
+                  "lifecycle": "active",
+                  "owner": "analytics"
+                }
+              },
+              "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+              "name": "customer_orders",
+              "present": true
+            },
+            "id": "ev_dbt_schema_5247fb441133",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": "stg_orders",
+            "content": {
+              "canonical": true,
+              "description": "One row per source order, including all lifecycle statuses.",
+              "grain": [
+                "order_id"
+              ],
+              "lifecycle": "active",
+              "name": "stg_orders",
+              "owner": "data-platform",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_6b4510bb2d56",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json"
+          },
+          {
+            "asset": "stg_orders",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Source order identifier.",
+                  "name": "order_id"
+                },
+                {
+                  "data_tests": [
+                    "not_null"
+                  ],
+                  "description": "Customer that placed the order.",
+                  "name": "customer_id"
+                },
+                {
+                  "data_tests": [
+                    {
+                      "accepted_values": {
+                        "arguments": {
+                          "values": [
+                            "completed",
+                            "refunded",
+                            "cancelled"
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "description": "Current order lifecycle status.",
+                  "name": "status"
+                },
+                {
+                  "data_tests": [
+                    "not_null"
+                  ],
+                  "description": "Date the order was placed.",
+                  "name": "order_date"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "order_id",
+                  "lifecycle": "active",
+                  "owner": "data-platform"
+                }
+              },
+              "description": "One row per source order, including all lifecycle statuses.",
+              "name": "stg_orders",
+              "present": true
+            },
+            "id": "ev_dbt_schema_6a7d423b03b5",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [
+                "customer_orders"
+              ],
+              "output_tail": "\u001b[0m00:11:38  Running with dbt=1.12.6\n\u001b[0m00:11:38  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:39  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:39  \n\u001b[0m00:11:39  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:39  \n\u001b[0m00:11:39  1 of 7 START test accepted_values_stg_orders_status__completed__refunded__cancelled  [RUN]\n\u001b[0m00:11:39  1 of 7 PASS accepted_values_stg_orders_status__completed__refunded__cancelled .. [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:39  2 of 7 START test not_null_customer_orders_customer_id ......................... [RUN]\n\u001b[0m00:11:39  2 of 7 PASS not_null_customer_orders_customer_id ............................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:39  3 of 7 START test not_null_stg_orders_customer_id .............................. [RUN]\n\u001b[0m00:11:39  3 of 7 PASS not_null_stg_orders_customer_id .................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:39  4 of 7 START test not_null_stg_orders_order_date ............................... [RUN]\n\u001b[0m00:11:39  4 of 7 PASS not_null_stg_orders_order_date ..................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:39  5 of 7 START test not_null_stg_orders_order_id ................................. [RUN]\n\u001b[0m00:11:39  5 of 7 PASS not_null_stg_orders_order_id ....................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:39  6 of 7 START test unique_customer_orders_customer_id ........................... [RUN]\n\u001b[0m00:11:39  6 of 7 FAIL 3 unique_customer_orders_customer_id ............................... [\u001b[31mFAIL 3\u001b[0m in 0.01s]\n\u001b[0m00:11:39  7 of 7 START test unique_stg_orders_order_id ................................... [RUN]\n\u001b[0m00:11:39  7 of 7 PASS unique_stg_orders_order_id ......................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:39  \n\u001b[0m00:11:39  Finished running 7 data tests in 0 hours 0 minutes and 0.16 seconds (0.16s).\n\u001b[0m00:11:39  \n\u001b[0m00:11:39  \u001b[31mCompleted with 1 error, 0 partial successes, and 0 warnings:\u001b[0m\n\u001b[0m00:11:39  \n\u001b[0m00:11:39  [\u001b[31mERROR\u001b[0m]: in test unique_customer_orders_customer_id (models/schema.yml)\n\u001b[0m00:11:39    Got 3 results, configured to fail if != 0\n\u001b[0m00:11:39  \n\u001b[0m00:11:39    compiled code at target/compiled/catalog_steward_fixture/models/schema.yml/unique_customer_orders_customer_id.sql\n\u001b[0m00:11:39  \n\u001b[0m00:11:39  Done. PASS=6 WARN=0 ERROR=1 SKIP=0 NO-OP=0 REUSED=0 TOTAL=7\n",
+              "result_count": 7,
+              "returncode": 1
+            },
+            "id": "ev_static_dbt_tests_756b590565fb",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "change_review",
+        "plan": {
+          "findings": [
+            {
+              "action": {
+                "class": "report",
+                "operation": "report_only",
+                "rationale": "Static checks report the condition but do not infer a semantic fix."
+              },
+              "asset": "customer_orders",
+              "claim": "At least one declared dbt test failed.",
+              "confidence": "high",
+              "evidence_ids": [
+                "ev_static_dbt_tests_756b590565fb"
+              ],
+              "impact": "high",
+              "issue_type": "unsupported_reliability_claim"
+            }
+          ],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.7404391765594482,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": [
+              "customer_orders"
+            ]
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "static",
+        "correct_action_rate": 1.0,
+        "cost_usd": 0.0,
+        "episode_id": "change_customer_orders_grain",
+        "episode_success": false,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "regression_detection_rate": 0.5,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.7404391765594482
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "change_new_model_missing_metadata",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "high_value_orders",
+            "content": {
+              "asset": "high_value_orders",
+              "present": false
+            },
+            "id": "ev_catalog_metadata_82ae9089f9d2",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json"
+          },
+          {
+            "asset": "high_value_orders",
+            "content": {
+              "asset": "high_value_orders",
+              "present": false
+            },
+            "id": "ev_dbt_schema_ada6caa3d7d9",
+            "kind": "dbt_schema",
+            "source": "project/models/**/*.yml"
+          },
+          {
+            "asset": "stg_orders",
+            "content": {
+              "canonical": true,
+              "description": "One row per source order, including all lifecycle statuses.",
+              "grain": [
+                "order_id"
+              ],
+              "lifecycle": "active",
+              "name": "stg_orders",
+              "owner": "data-platform",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_6b4510bb2d56",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json"
+          },
+          {
+            "asset": "stg_orders",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Source order identifier.",
+                  "name": "order_id"
+                },
+                {
+                  "data_tests": [
+                    "not_null"
+                  ],
+                  "description": "Customer that placed the order.",
+                  "name": "customer_id"
+                },
+                {
+                  "data_tests": [
+                    {
+                      "accepted_values": {
+                        "arguments": {
+                          "values": [
+                            "completed",
+                            "refunded",
+                            "cancelled"
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "description": "Current order lifecycle status.",
+                  "name": "status"
+                },
+                {
+                  "data_tests": [
+                    "not_null"
+                  ],
+                  "description": "Date the order was placed.",
+                  "name": "order_date"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "order_id",
+                  "lifecycle": "active",
+                  "owner": "data-platform"
+                }
+              },
+              "description": "One row per source order, including all lifecycle statuses.",
+              "name": "stg_orders",
+              "present": true
+            },
+            "id": "ev_dbt_schema_6a7d423b03b5",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:11:46  Running with dbt=1.12.6\n\u001b[0m00:11:46  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:46  Found 4 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  1 of 5 START test accepted_values_stg_orders_status__completed__refunded__cancelled  [RUN]\n\u001b[0m00:11:46  1 of 5 PASS accepted_values_stg_orders_status__completed__refunded__cancelled .. [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:46  2 of 5 START test not_null_stg_orders_customer_id .............................. [RUN]\n\u001b[0m00:11:46  2 of 5 PASS not_null_stg_orders_customer_id .................................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:46  3 of 5 START test not_null_stg_orders_order_date ............................... [RUN]\n\u001b[0m00:11:46  3 of 5 PASS not_null_stg_orders_order_date ..................................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:46  4 of 5 START test not_null_stg_orders_order_id ................................. [RUN]\n\u001b[0m00:11:46  4 of 5 PASS not_null_stg_orders_order_id ....................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:46  5 of 5 START test unique_stg_orders_order_id ................................... [RUN]\n\u001b[0m00:11:46  5 of 5 PASS unique_stg_orders_order_id ......................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  Finished running 5 data tests in 0 hours 0 minutes and 0.17 seconds (0.17s).\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:46  \n\u001b[0m00:11:46  Done. PASS=5 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=5\n",
+              "result_count": 5,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_f6e777db8c5e",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "change_review",
+        "plan": {
+          "findings": [
+            {
+              "action": {
+                "class": "report",
+                "operation": "report_only",
+                "rationale": "Static checks report the condition but do not infer a semantic fix."
+              },
+              "asset": "high_value_orders",
+              "claim": "Missing required metadata: catalog entry, dbt schema entry.",
+              "confidence": "high",
+              "evidence_ids": [
+                "ev_catalog_metadata_82ae9089f9d2",
+                "ev_dbt_schema_ada6caa3d7d9"
+              ],
+              "impact": "medium",
+              "issue_type": "missing_required_metadata"
+            }
+          ],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.751471757888794,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "static",
+        "correct_action_rate": 1.0,
+        "cost_usd": 0.0,
+        "episode_id": "change_new_model_missing_metadata",
+        "episode_success": true,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.751471757888794
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "change_rename_without_lifecycle",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "revenue_daily",
+            "content": {
+              "asset": "revenue_daily",
+              "present": false
+            },
+            "id": "ev_catalog_metadata_cda5ae68a561",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json"
+          },
+          {
+            "asset": "revenue_daily",
+            "content": {
+              "asset": "revenue_daily",
+              "present": false
+            },
+            "id": "ev_dbt_schema_e8af7146fdf3",
+            "kind": "dbt_schema",
+            "source": "project/models/**/*.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:11:53  Running with dbt=1.12.6\n\u001b[0m00:11:53  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:53  Found 3 models, 3 seeds, 7 data tests, 511 macros\n\u001b[0m00:11:53  [\u001b[33mWARNING\u001b[0m]: Nothing to do. Try checking your model configs and model specification args\n",
+              "result_count": 0,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_c53bae425123",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "change_review",
+        "plan": {
+          "findings": [
+            {
+              "action": {
+                "class": "report",
+                "operation": "report_only",
+                "rationale": "Static checks report the condition but do not infer a semantic fix."
+              },
+              "asset": "revenue_daily",
+              "claim": "Missing required metadata: catalog entry, dbt schema entry.",
+              "confidence": "high",
+              "evidence_ids": [
+                "ev_catalog_metadata_cda5ae68a561",
+                "ev_dbt_schema_e8af7146fdf3"
+              ],
+              "impact": "medium",
+              "issue_type": "missing_required_metadata"
+            }
+          ],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.6862199306488037,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "static",
+        "correct_action_rate": 1.0,
+        "cost_usd": 0.0,
+        "episode_id": "change_rename_without_lifecycle",
+        "episode_success": false,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "regression_detection_rate": 0.5,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.6862199306488037
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "clean_new_model_documented",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "customer_regions",
+            "content": {
+              "canonical": true,
+              "description": "Completed-order metrics enriched with region at one row per customer.",
+              "grain": [
+                "customer_id"
+              ],
+              "lifecycle": "active",
+              "name": "customer_regions",
+              "owner": "analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_83c02e70e122",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+          },
+          {
+            "asset": "customer_regions",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Customer identifier and model grain.",
+                  "name": "customer_id"
+                },
+                {
+                  "data_tests": [
+                    "not_null"
+                  ],
+                  "description": "Customer region from the source customer record.",
+                  "name": "region"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "customer_id",
+                  "lifecycle": "active",
+                  "owner": "analytics"
+                }
+              },
+              "description": "Completed-order metrics enriched with region at one row per customer.",
+              "name": "customer_regions",
+              "present": true
+            },
+            "id": "ev_dbt_schema_f742f115c6a7",
+            "kind": "dbt_schema",
+            "source": "project/models/customer_regions.yml"
+          },
+          {
+            "asset": "customer_orders",
+            "content": {
+              "canonical": true,
+              "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+              "grain": [
+                "customer_id"
+              ],
+              "lifecycle": "active",
+              "name": "customer_orders",
+              "owner": "analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_6db00984ab2a",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+          },
+          {
+            "asset": "customer_orders",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Customer identifier and model grain.",
+                  "name": "customer_id"
+                },
+                {
+                  "description": "Number of completed orders for the customer.",
+                  "name": "completed_order_count"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "customer_id",
+                  "lifecycle": "active",
+                  "owner": "analytics"
+                }
+              },
+              "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+              "name": "customer_orders",
+              "present": true
+            },
+            "id": "ev_dbt_schema_5247fb441133",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:12:01  Running with dbt=1.12.6\n\u001b[0m00:12:01  Registered adapter: duckdb=1.11.1\n\u001b[0m00:12:01  Found 4 models, 3 seeds, 12 data tests, 511 macros\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  Concurrency: 1 threads (target='dev')\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  1 of 5 START test not_null_customer_orders_customer_id ......................... [RUN]\n\u001b[0m00:12:01  1 of 5 PASS not_null_customer_orders_customer_id ............................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:12:01  2 of 5 START test not_null_customer_regions_customer_id ........................ [RUN]\n\u001b[0m00:12:01  2 of 5 PASS not_null_customer_regions_customer_id .............................. [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:01  3 of 5 START test not_null_customer_regions_region ............................. [RUN]\n\u001b[0m00:12:01  3 of 5 PASS not_null_customer_regions_region ................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:01  4 of 5 START test unique_customer_orders_customer_id ........................... [RUN]\n\u001b[0m00:12:01  4 of 5 PASS unique_customer_orders_customer_id ................................. [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:01  5 of 5 START test unique_customer_regions_customer_id .......................... [RUN]\n\u001b[0m00:12:01  5 of 5 PASS unique_customer_regions_customer_id ................................ [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  Finished running 5 data tests in 0 hours 0 minutes and 0.13 seconds (0.13s).\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  Done. PASS=5 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=5\n",
+              "result_count": 5,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_69069b17fb91",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "change_review",
+        "plan": {
+          "findings": [],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.6781229972839355,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": true,
+        "condition": "static",
+        "correct_action_rate": 1.0,
+        "cost_usd": 0.0,
+        "episode_id": "clean_new_model_documented",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.6781229972839355
+      }
+    },
+    {
+      "result": {
+        "condition": "static",
+        "episode_id": "clean_daily_revenue_metric",
+        "error": null,
+        "evidence": [
+          {
+            "asset": "daily_revenue",
+            "content": {
+              "canonical": true,
+              "description": "Completed-order revenue and maximum order amount at one row per order date; refunded and cancelled orders are excluded.",
+              "grain": [
+                "order_date"
+              ],
+              "lifecycle": "active",
+              "name": "daily_revenue",
+              "owner": "finance-analytics",
+              "present": true,
+              "type": "model"
+            },
+            "id": "ev_catalog_metadata_e90bccb15abc",
+            "kind": "catalog_metadata",
+            "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+          },
+          {
+            "asset": "daily_revenue",
+            "content": {
+              "columns": [
+                {
+                  "data_tests": [
+                    "not_null",
+                    "unique"
+                  ],
+                  "description": "Order date and model grain.",
+                  "name": "order_date"
+                },
+                {
+                  "description": "Number of completed orders on the date.",
+                  "name": "completed_order_count"
+                },
+                {
+                  "description": "Sum of completed order amounts on the date.",
+                  "name": "completed_revenue"
+                },
+                {
+                  "description": "Largest completed order amount on the date.",
+                  "name": "max_completed_order_amount"
+                }
+              ],
+              "config": {
+                "meta": {
+                  "grain": "order_date",
+                  "lifecycle": "active",
+                  "owner": "finance-analytics"
+                }
+              },
+              "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+              "name": "daily_revenue",
+              "present": true
+            },
+            "id": "ev_dbt_schema_17d7581f683e",
+            "kind": "dbt_schema",
+            "source": "project/models/schema.yml"
+          },
+          {
+            "asset": null,
+            "content": {
+              "failed_assets": [],
+              "output_tail": "\u001b[0m00:12:08  Running with dbt=1.12.6\n\u001b[0m00:12:08  Registered adapter: duckdb=1.11.1\n\u001b[0m00:12:08  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:12:08  \n\u001b[0m00:12:08  Concurrency: 1 threads (target='dev')\n\u001b[0m00:12:08  \n\u001b[0m00:12:08  1 of 2 START test not_null_daily_revenue_order_date ............................ [RUN]\n\u001b[0m00:12:08  1 of 2 PASS not_null_daily_revenue_order_date .................................. [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:12:08  2 of 2 START test unique_daily_revenue_order_date .............................. [RUN]\n\u001b[0m00:12:08  2 of 2 PASS unique_daily_revenue_order_date .................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:08  \n\u001b[0m00:12:08  Finished running 2 data tests in 0 hours 0 minutes and 0.09 seconds (0.09s).\n\u001b[0m00:12:08  \n\u001b[0m00:12:08  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:12:08  \n\u001b[0m00:12:08  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2\n",
+              "result_count": 2,
+              "returncode": 0
+            },
+            "id": "ev_static_dbt_tests_b067a67b1fb5",
+            "kind": "static_dbt_tests",
+            "source": "project/target/run_results.json"
+          }
+        ],
+        "mode": "change_review",
+        "plan": {
+          "findings": [],
+          "summary": "Static required-field and dbt-test results.",
+          "unresolved_questions": []
+        },
+        "seconds": 1.6665899753570557,
+        "status": "complete",
+        "transcript": [],
+        "usage": {
+          "calls": 0,
+          "cost_usd": 0.0,
+          "model": null
+        },
+        "verification": [
+          {
+            "dbt_tests_ran": true,
+            "failed_assets": []
+          }
+        ]
+      },
+      "score": {
+        "clean_change_pass": true,
+        "condition": "static",
+        "correct_action_rate": 1.0,
+        "cost_usd": 0.0,
+        "episode_id": "clean_daily_revenue_metric",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 0,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 1.6665899753570557
+      }
+    }
+  ],
+  "run_count": 10
+}

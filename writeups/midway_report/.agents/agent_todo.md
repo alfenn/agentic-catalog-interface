@@ -152,7 +152,7 @@ human-readable result summary.
 
 - [ ] Dry-run two episodes to find broken fixtures, ambiguous ground truth, and
   schema/scorer failures.
-- [ ] Audit every manifest entry and expected action before the scored run.
+- [x] Audit every manifest entry and expected action before the scored run.
 - [ ] Run all 8-12 episodes in the three midpoint conditions.
 - [ ] Manually inspect evidence validity and every action marked unsafe,
   unsupported, or unverifiable.

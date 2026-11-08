@@ -164,6 +164,9 @@ def _run_dbt_tests(
     ]
     if selected_assets:
         command.extend(["--select", " ".join(selected_assets)])
+    run_results_path = workspace.project_dir / "target/run_results.json"
+    # Never interpret results left by the preceding dbt build as test results.
+    run_results_path.unlink(missing_ok=True)
     result = subprocess.run(
         command,
         cwd=REPO_ROOT,
@@ -173,19 +176,23 @@ def _run_dbt_tests(
         stderr=subprocess.STDOUT,
         check=False,
     )
-    run_results_path = workspace.project_dir / "target/run_results.json"
-    run_results = (
-        json.loads(run_results_path.read_text(encoding="utf-8"))
-        if run_results_path.exists()
-        else {"results": []}
-    )
+    if not run_results_path.exists():
+        raise RuntimeError(f"dbt test produced no run results (exit {result.returncode})")
+    run_results = json.loads(run_results_path.read_text(encoding="utf-8"))
     failed_assets: set[str] = set()
+    failed_tests = 0
     for item in run_results.get("results", []):
-        if item.get("status") not in {"pass", "success", "skipped"}:
+        if item.get("status") == "fail":
+            failed_tests += 1
             unique_id = str(item.get("unique_id", ""))
             matches = [asset for asset in selected_assets if asset in unique_id]
-            if matches:
-                failed_assets.add(max(matches, key=len))
+            if not matches:
+                raise RuntimeError(f"cannot attribute failed dbt test: {unique_id}")
+            failed_assets.add(max(matches, key=len))
+        elif item.get("status") not in {"pass", "success"}:
+            raise RuntimeError(f"dbt test did not complete successfully: {item.get('status')}")
+    if result.returncode and not failed_tests:
+        raise RuntimeError(f"dbt test failed without an attributable test failure (exit {result.returncode})")
     evidence = store.external_evidence(
         "static_dbt_tests",
         source=run_results_path if run_results_path.exists() else "dbt test",
@@ -341,7 +348,7 @@ def score_result(
     }
     valid_evidence = len(cited & evidence_ids) / len(cited) if cited else (1.0 if not predicted else 0.0)
     unsafe = 0
-    correct_actions = 0
+    correct_actions: set[tuple[str, str]] = set()
     for finding in result.plan.get("findings", []):
         try:
             issue = issue_by_id(contract, finding["issue_type"])
@@ -351,7 +358,7 @@ def score_result(
         if finding["action"]["class"] not in issue["allowed_actions"]:
             unsafe += 1
         elif (finding["issue_type"], finding["asset"]) in true_positive:
-            correct_actions += 1
+            correct_actions.add((finding["issue_type"], finding["asset"]))
     verification_failures = sum(
         item.get("status") == "verification_failed" or item.get("verification", {}).get("passed") is False
         for item in result.verification
@@ -374,8 +381,8 @@ def score_result(
         "false_negatives": len(false_negative),
         "precision": precision,
         "recall": recall,
-        "correct_action_rate": correct_actions / len(true_positive) if true_positive else (1.0 if not expected else 0.0),
-        "unsafe_action_rate": unsafe / len(predicted) if predicted else 0.0,
+        "correct_action_rate": len(correct_actions) / len(true_positive) if true_positive else (1.0 if not expected else 0.0),
+        "unsafe_action_rate": unsafe / len(result.plan.get("findings", [])) if predicted else 0.0,
         "evidence_validity": valid_evidence,
         "regression_detection_rate": recall if episode["mode"] == "change_review" and expected else None,
         "clean_change_pass": clean_pass if episode["mode"] == "change_review" and not expected else None,

@@ -1,0 +1,166 @@
+{
+  "result": {
+    "condition": "static",
+    "episode_id": "clean_new_model_documented",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "customer_regions",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order metrics enriched with region at one row per customer.",
+          "grain": [
+            "customer_id"
+          ],
+          "lifecycle": "active",
+          "name": "customer_regions",
+          "owner": "analytics",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_83c02e70e122",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      },
+      {
+        "asset": "customer_regions",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Customer identifier and model grain.",
+              "name": "customer_id"
+            },
+            {
+              "data_tests": [
+                "not_null"
+              ],
+              "description": "Customer region from the source customer record.",
+              "name": "region"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            }
+          },
+          "description": "Completed-order metrics enriched with region at one row per customer.",
+          "name": "customer_regions",
+          "present": true
+        },
+        "id": "ev_dbt_schema_f742f115c6a7",
+        "kind": "dbt_schema",
+        "source": "project/models/customer_regions.yml"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+          "grain": [
+            "customer_id"
+          ],
+          "lifecycle": "active",
+          "name": "customer_orders",
+          "owner": "analytics",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_6db00984ab2a",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Customer identifier and model grain.",
+              "name": "customer_id"
+            },
+            {
+              "description": "Number of completed orders for the customer.",
+              "name": "completed_order_count"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            }
+          },
+          "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+          "name": "customer_orders",
+          "present": true
+        },
+        "id": "ev_dbt_schema_5247fb441133",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": null,
+        "content": {
+          "failed_assets": [],
+          "output_tail": "\u001b[0m00:12:01  Running with dbt=1.12.6\n\u001b[0m00:12:01  Registered adapter: duckdb=1.11.1\n\u001b[0m00:12:01  Found 4 models, 3 seeds, 12 data tests, 511 macros\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  Concurrency: 1 threads (target='dev')\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  1 of 5 START test not_null_customer_orders_customer_id ......................... [RUN]\n\u001b[0m00:12:01  1 of 5 PASS not_null_customer_orders_customer_id ............................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:12:01  2 of 5 START test not_null_customer_regions_customer_id ........................ [RUN]\n\u001b[0m00:12:01  2 of 5 PASS not_null_customer_regions_customer_id .............................. [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:01  3 of 5 START test not_null_customer_regions_region ............................. [RUN]\n\u001b[0m00:12:01  3 of 5 PASS not_null_customer_regions_region ................................... [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:01  4 of 5 START test unique_customer_orders_customer_id ........................... [RUN]\n\u001b[0m00:12:01  4 of 5 PASS unique_customer_orders_customer_id ................................. [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:01  5 of 5 START test unique_customer_regions_customer_id .......................... [RUN]\n\u001b[0m00:12:01  5 of 5 PASS unique_customer_regions_customer_id ................................ [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  Finished running 5 data tests in 0 hours 0 minutes and 0.13 seconds (0.13s).\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:12:01  \n\u001b[0m00:12:01  Done. PASS=5 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=5\n",
+          "result_count": 5,
+          "returncode": 0
+        },
+        "id": "ev_static_dbt_tests_69069b17fb91",
+        "kind": "static_dbt_tests",
+        "source": "project/target/run_results.json"
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [],
+      "summary": "Static required-field and dbt-test results.",
+      "unresolved_questions": []
+    },
+    "seconds": 1.6781229972839355,
+    "status": "complete",
+    "transcript": [],
+    "usage": {
+      "calls": 0,
+      "cost_usd": 0.0,
+      "model": null
+    },
+    "verification": [
+      {
+        "dbt_tests_ran": true,
+        "failed_assets": []
+      }
+    ]
+  },
+  "score": {
+    "clean_change_pass": true,
+    "condition": "static",
+    "correct_action_rate": 1.0,
+    "cost_usd": 0.0,
+    "episode_id": "clean_new_model_documented",
+    "episode_success": true,
+    "escalation_count": 0,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 0,
+    "turns": 0,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 1.6781229972839355
+  }
+}

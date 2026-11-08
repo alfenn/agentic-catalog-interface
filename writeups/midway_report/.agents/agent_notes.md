@@ -202,3 +202,34 @@ context: [
   one paid live test remains deselected. The longer runtime is dominated by
   intentionally fresh dbt builds for fixture, evidence, static-baseline, and
   matched-condition integration coverage.
+
+## 2026-11-07 — Pilot execution status
+
+- `make doctor-live` confirms that this project's local `.env` has no
+  `OPENROUTER_API_KEY`. The assignment harness has its own private environment,
+  but its credential was not copied or read into this project because credential
+  reuse was not explicitly authorized. No paid model call has been made.
+- Proceeded with the independently valid static pilot rather than weakening the
+  comparison or substituting an unrecorded model. All ten episodes ran from
+  fresh fixtures and persisted under `experiments/results/midpoint_v1_static/`;
+  disposable workspaces remained in ignored `.runs/` state.
+- The initial aggregate is 4/10 successful episodes. Static checks catch the
+  missing-owner and missing-new-model cases, partially catch grain/rename cases
+  through tests or required fields, miss cross-source SQL/metadata and lifecycle
+  inconsistencies, and pass both clean controls. A separate audit is reviewing
+  the saved artifacts and scorer before these numbers are treated as report
+  evidence.
+- An independent artifact audit confirmed every episode's exact-match score:
+  four true positives, zero false positives, and six false negatives (micro
+  precision 1.00, micro recall 0.40). The 4/10 number is fixture-level episode
+  success under the implemented scorer, not a remediation rate or population
+  estimate.
+- The audit found two evaluator defects that did not alter the recorded finding
+  sets: a failed `dbt test` invocation could reuse an older `run_results.json`,
+  and duplicate findings could inflate action rates. The runner now deletes old
+  test results before invocation and rejects missing/unattributable failures;
+  action scoring deduplicates matched pairs and divides unsafe actions by
+  submitted findings.
+- Regenerated the full static pilot with the corrected evaluator. It remains
+  4/10, and all seven targeted evaluation tests pass. The paid conditions remain
+  pending the credential decision.

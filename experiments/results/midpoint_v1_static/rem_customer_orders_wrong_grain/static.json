@@ -1,0 +1,113 @@
+{
+  "result": {
+    "condition": "static",
+    "episode_id": "rem_customer_orders_wrong_grain",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "customer_orders",
+        "content": {
+          "canonical": true,
+          "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+          "grain": [
+            "order_id"
+          ],
+          "lifecycle": "active",
+          "name": "customer_orders",
+          "owner": "analytics",
+          "present": true,
+          "type": "model"
+        },
+        "id": "ev_catalog_metadata_d87a2ba4a66c",
+        "kind": "catalog_metadata",
+        "source": "project/catalog/catalog.json+project/catalog/overrides.json"
+      },
+      {
+        "asset": "customer_orders",
+        "content": {
+          "columns": [
+            {
+              "data_tests": [
+                "not_null",
+                "unique"
+              ],
+              "description": "Customer identifier and model grain.",
+              "name": "customer_id"
+            },
+            {
+              "description": "Number of completed orders for the customer.",
+              "name": "completed_order_count"
+            }
+          ],
+          "config": {
+            "meta": {
+              "grain": "customer_id",
+              "lifecycle": "active",
+              "owner": "analytics"
+            }
+          },
+          "description": "Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+          "name": "customer_orders",
+          "present": true
+        },
+        "id": "ev_dbt_schema_5247fb441133",
+        "kind": "dbt_schema",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": null,
+        "content": {
+          "failed_assets": [],
+          "output_tail": "\u001b[0m00:11:08  Running with dbt=1.12.6\n\u001b[0m00:11:08  Registered adapter: duckdb=1.11.1\n\u001b[0m00:11:08  Found 3 models, 3 seeds, 9 data tests, 511 macros\n\u001b[0m00:11:08  \n\u001b[0m00:11:08  Concurrency: 1 threads (target='dev')\n\u001b[0m00:11:08  \n\u001b[0m00:11:08  1 of 2 START test not_null_customer_orders_customer_id ......................... [RUN]\n\u001b[0m00:11:09  1 of 2 PASS not_null_customer_orders_customer_id ............................... [\u001b[32mPASS\u001b[0m in 0.03s]\n\u001b[0m00:11:09  2 of 2 START test unique_customer_orders_customer_id ........................... [RUN]\n\u001b[0m00:11:09  2 of 2 PASS unique_customer_orders_customer_id ................................. [\u001b[32mPASS\u001b[0m in 0.01s]\n\u001b[0m00:11:09  \n\u001b[0m00:11:09  Finished running 2 data tests in 0 hours 0 minutes and 0.09 seconds (0.09s).\n\u001b[0m00:11:09  \n\u001b[0m00:11:09  \u001b[32mCompleted successfully\u001b[0m\n\u001b[0m00:11:09  \n\u001b[0m00:11:09  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2\n",
+          "result_count": 2,
+          "returncode": 0
+        },
+        "id": "ev_static_dbt_tests_6b0d1b5a2022",
+        "kind": "static_dbt_tests",
+        "source": "project/target/run_results.json"
+      }
+    ],
+    "mode": "remediation",
+    "plan": {
+      "findings": [],
+      "summary": "Static required-field and dbt-test results.",
+      "unresolved_questions": []
+    },
+    "seconds": 1.6770379543304443,
+    "status": "complete",
+    "transcript": [],
+    "usage": {
+      "calls": 0,
+      "cost_usd": 0.0,
+      "model": null
+    },
+    "verification": [
+      {
+        "dbt_tests_ran": true,
+        "failed_assets": []
+      }
+    ]
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "static",
+    "correct_action_rate": 0.0,
+    "cost_usd": 0.0,
+    "episode_id": "rem_customer_orders_wrong_grain",
+    "episode_success": false,
+    "escalation_count": 0,
+    "evidence_validity": 1.0,
+    "false_negatives": 1,
+    "false_positives": 0,
+    "patch_count": 0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "regression_detection_rate": null,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 0,
+    "turns": 0,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 1.6770379543304443
+  }
+}

@@ -1,0 +1,21 @@
+--- a/models/customer_orders.sql
++++ b/models/customer_orders.sql
+@@ -1,10 +1,10 @@
+ select
+-    customer_id,
+-    count(*) as completed_order_count,
+-    sum(amount) as completed_revenue,
+-    min(order_date) as first_completed_order_date,
+-    max(order_date) as latest_completed_order_date
+-from {{ ref('stg_orders') }}
+-where status = 'completed'
+-group by customer_id
++    orders.customer_id,
++    orders.order_id,
++    items.order_item_id,
++    orders.amount
++from {{ ref('stg_orders') }} as orders
++inner join {{ ref('raw_order_items') }} as items
++    on orders.order_id = items.order_id
++where orders.status = 'completed'
+ 

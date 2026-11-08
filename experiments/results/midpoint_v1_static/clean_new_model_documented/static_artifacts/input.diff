@@ -1,0 +1,49 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -0,0 +1,13 @@
++{
++  "assets": {
++    "customer_regions": {
++      "type": "model",
++      "description": "Completed-order metrics enriched with region at one row per customer.",
++      "owner": "analytics",
++      "lifecycle": "active",
++      "grain": ["customer_id"],
++      "canonical": true
++    }
++  }
++}
++
+--- a/models/customer_regions.sql
++++ b/models/customer_regions.sql
+@@ -0,0 +1,9 @@
++select
++    customers.customer_id,
++    customers.region,
++    orders.completed_order_count,
++    orders.completed_revenue
++from {{ ref('customer_orders') }} as orders
++inner join {{ ref('raw_customers') }} as customers
++    on orders.customer_id = customers.customer_id
++
+--- a/models/customer_regions.yml
++++ b/models/customer_regions.yml
+@@ -0,0 +1,18 @@
++version: 2
++
++models:
++  - name: customer_regions
++    description: Completed-order metrics enriched with region at one row per customer.
++    config:
++      meta:
++        owner: analytics
++        lifecycle: active
++        grain: customer_id
++    columns:
++      - name: customer_id
++        description: Customer identifier and model grain.
++        data_tests: [not_null, unique]
++      - name: region
++        description: Customer region from the source customer record.
++        data_tests: [not_null]
++
