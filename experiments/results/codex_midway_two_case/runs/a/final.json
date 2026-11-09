@@ -1,0 +1,36 @@
+{
+  "findings": [
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "daily_revenue",
+      "claim": "The catalog override described revenue from all orders, while the model includes only completed orders.",
+      "evidence": [
+        {
+          "path": "catalog/overrides.json",
+          "fact": "The original description said revenue from all orders."
+        },
+        {
+          "path": "models/daily_revenue.sql",
+          "fact": "The model filters status to completed and groups by order_date."
+        },
+        {
+          "path": "models/schema.yml and catalog/catalog.json",
+          "fact": "Both describe completed-order revenue and exclude refunded and cancelled orders."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "explanation": "Updated the override description to match the existing model and primary catalog. SQL and the underlying business definition were unchanged."
+      }
+    }
+  ],
+  "changes_made": [
+    "Updated the daily_revenue description in catalog/overrides.json."
+  ],
+  "verification": [
+    "Parsed both catalog JSON files and confirmed the daily_revenue descriptions match.",
+    "Reviewed the model SQL and metadata: the stated order_date grain matches the GROUP BY, and owner and lifecycle are present.",
+    "The existing target/run_results.json records a successful model run, but does not record test results. No dbt tests were run for this metadata-only change.",
+    "Git diff and status were unavailable because the workspace is not a Git repository."
+  ]
+}

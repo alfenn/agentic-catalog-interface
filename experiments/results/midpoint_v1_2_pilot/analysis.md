@@ -7,7 +7,7 @@
 3. One generic run (`change_daily_revenue_filter`) **approved a regression without reading anything**. That is a manifest-listed unsafe action, but it scores `unsafe_action_rate` 0.0.
 4. The steward's two clean-control "false alarms" are **factually true** statements about the fixtures. The fixtures are less clean than their labels say.
 
-All 15 steward findings cite real, relevant evidence, and none is fabricated. Its failures come from labelling and over-reporting, not from bad evidence.
+Editorial clarification (2026-11-08; pilot records and labels unchanged): all 15 steward findings cite real evidence IDs, but one is only partially grounded and draws an unsupported conclusion (see grounding totals below). Label choices and over-reporting also affect its score.
 
 Method: I read every plan, transcript, and cited evidence item, plus the fixture base, the overlays, each diff, and each steward patch and ledger. No model calls were made and no result files were changed. The driver spot-checked three claims against the raw records before saving this file: the vacuous clean pass made 1 model call with only the project listing as evidence; the approved regression produced 0 findings with only the listing; and `raw_customers` has no entry in the base catalog or `schema.yml`.
 
@@ -112,7 +112,7 @@ Steward wrong_grain also has a secondary bad risk decision: the label it chose l
   - 7/10 generic runs hit a rejection, against 2/10 for the steward. Two generic failures are directly protocol failures.
   - In four generic runs, the rejection *rescued* a premature "no findings" final answer that had been bundled with tool calls.
   - In clean_new, the premature final was well formed and was accepted. The generic outcomes depend heavily on parser behaviour.
-- **Cache replay.** Four records (both demo episodes × both model conditions) replay the 1.2.0 smoke rerun byte for byte. That run informed the go/no-go gate, and these demo episodes were the ones already examined during development.
+- **Cache replay.** Four records (both demo episodes × both model conditions) replay the 1.2.0 preliminary rerun byte for byte. That run informed the go/no-go gate, and these demo episodes were the ones already examined during development.
 - **One sample per episode** at temperature 0 (likely ignored by the provider for this reasoning model). There are 10 episodes (8 positive, 2 clean) and no variance estimate. A 5 vs 5 vs 4 split carries no statistical weight.
 - **Author-built everything.** The same authors built the fixtures, labels, contract, and steward. `asset_scope` comes from the manifest and is given to every condition. It hints where to look (the rename episode lists both assets) and sets traps (seeds in scope).
 - **Scorer blind spots.**

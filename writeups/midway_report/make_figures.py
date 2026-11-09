@@ -339,7 +339,7 @@ def condition_stats(conditions: list[str], cells: list[Cell]) -> dict[str, dict[
 
 
 def results_table(conditions: list[str], stats: dict[str, dict[str, Any]], source: str) -> str:
-    header = ["Condition", "Remed.", "Flawed", "Clean", "All", "TP/FP/FN", "Micro P/R", "Errors", "Cost (\\$)"]
+    header = ["Condition", "Remed.", "Flawed", "Clean", "All", "TP/FP/FN", "Micro P/R", "Errors"]
     lines = ["| " + " | ".join(header) + " |", "|" + "|".join([":--"] + ["--:"] * (len(header) - 1)) + "|"]
     for condition in conditions:
         s = stats[condition]
@@ -352,7 +352,6 @@ def results_table(conditions: list[str], stats: dict[str, dict[str, Any]], sourc
             row.append(f"{s['tp']}/{s['fp']}/{s['fn']}")
             row.append(f"{fmt_ratio(s['tp'], s['tp'] + s['fp'])}/{fmt_ratio(s['tp'], s['tp'] + s['fn'])}")
             row.append(str(s["errors"]))
-            row.append(f"{s['cost']:.2f}")
         lines.append("| " + " | ".join(row) + " |")
     caption = (
         "Table: Episode successes by condition and category (remediation, flawed change, clean control), "

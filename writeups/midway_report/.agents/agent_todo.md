@@ -161,7 +161,7 @@ human-readable result summary.
   - [x] Remove the steward-only episode-label leak (episode ID in the prompt
     and in workspace paths), make prompts cache-stable, pin and record
     reasoning effort, and bump the frozen prompt/config versions.
-  - [x] Paid smoke run: one remediation and one change episode, generic and
+  - [x] Paid preliminary run: one remediation and one change episode, generic and
     steward, to a scratch output; measure protocol/plan error rates.
 - [x] Audit every manifest entry and expected action before the scored run.
 - [x] Run all 8-12 episodes in the three midpoint conditions.

@@ -59,7 +59,7 @@ context: [
   now use a plain status header plus verbatim content, and the counter resets
   only after a validly executed/denied tool call. This keeps evidence readable
   to the next turn and correctly stops repeated bad calls.
-- Completion validation: 34 deterministic tests pass, one paid live smoke test
+- Completion validation: 34 deterministic tests pass, one paid live preliminary test
   is correctly deselected by default, `make costs` reports an empty ledger, and
   the tree passes whitespace checks. No model call was made during this work.
 
@@ -85,7 +85,7 @@ context: [
   setting. Expanding models is explicitly deferred until the episode design and
   baseline fairness are stable.
 - Completion validation: the versioned contract summarizes successfully and 37
-  deterministic tests pass; the live smoke test remains deselected.
+  deterministic tests pass; the live preliminary test remains deselected.
 
 ## 2026-11-07 — Reproducible fixture and episode suite
 
@@ -327,7 +327,7 @@ context: [
   the steward, so it cannot inflate the steward's advantage. Steward patch
   verification checks that the intended value was written, not that the value
   is semantically right.
-- Deferred to the paid smoke run: the protocol is strict (a final answer
+- Deferred to the paid preliminary run: the protocol is strict (a final answer
   whose `content` is an object, an out-of-scope asset name, or one invented
   ID makes the whole episode an error for either condition). Whether this
   needs a repair turn depends on how often a real model trips it.
@@ -406,7 +406,7 @@ context: [
   after that date, so the date was flagged to the author rather than assumed
   to be covered by an extension.
 
-## 2026-11-08 — Paid smoke run and protocol repair
+## 2026-11-08 — Paid preliminary run and protocol repair
 
 - First paid calls: 2 episodes × generic/steward under config 1.1.0 cost
   $0.0039 in 18 model calls. The model ID and transport worked. Three of the
@@ -428,10 +428,10 @@ context: [
   validation. Rejected replies and repair use are recorded per result, so the
   report can show how much the scaffolding mattered. Versions go to 1.2.0 with
   v3 prompts.
-- The smoke run showed zero plan-validation failures, so the repair turn is
+- The preliminary run showed zero plan-validation failures, so the repair turn is
   symmetric insurance, not a response to an observed failure. It is cheap,
   identical across conditions, and visible in the results.
-- Gate: the full pilot runs only if a smoke rerun under 1.2.0 completes all
+- Gate: the full pilot runs only if a preliminary rerun under 1.2.0 completes all
   four runs with at most one rejected reply each. There will be no further
   prompt iteration after that, to avoid tuning on the evaluation set.
 - Still a scorer limitation, handled by manual audit: the manifest's
@@ -440,7 +440,7 @@ context: [
 
 ## 2026-11-08 — Full three-condition pilot (config 1.2.0)
 
-- The protocol fix removed wrapper copying entirely. The 1.2.0 smoke rerun
+- The protocol fix removed wrapper copying entirely. The 1.2.0 preliminary rerun
   completed all four runs with at most one rejection each, so the gate
   passed and the full pilot ran once: 30 runs, 0 errors, 8.5 minutes,
   $0.0172 (total project spend $0.0244). Raw results are in
@@ -453,7 +453,7 @@ context: [
   pilot result on ten author-built fixtures, not evidence of a general
   advantage.
 - Disclosure: four of the twenty model records (both demo episodes × both
-  model conditions) are exact cache replays of the 1.2.0 smoke rerun. The
+  model conditions) are exact cache replays of the 1.2.0 preliminary rerun. The
   inputs and config were identical, so the cache served them by design. The
   go/no-go decision used those runs only to check pipeline health; nothing
   was tuned in between. The report must state this.
@@ -574,3 +574,44 @@ context: [
 - `demo/demo_script.md` now opens with a ready-to-paste video description
   containing the repository link and the cache-replay disclosure, so the
   disclosure travels with the video rather than depending on narration time.
+
+## 2026-11-08 — Human feedback: scope and evidence
+
+- The previous generic condition is a custom raw-tool workflow, not Pi or Codex. It cannot be relabeled as a coding-agent result; a separately recorded real-agent baseline is required before making that comparison. Existing results remain frozen.
+- Prioritize a reusable evaluation walkthrough and trace-linked examples, with explicit limits on verification and label-dependent scoring. Broaden the motivation to lakehouses while keeping dbt/DuckDB as the actual experimental fixture.
+- The report table generator emits a cost column, so removing report cost data requires updating the generator as well as prose; the recorded source data remain intact for provenance.
+
+## 2026-11-08 — Evaluation narrative revision
+
+- Replaced the aggregate comparison with a trace-linked steward-only description pending a real coding-agent baseline. The two selected cases demonstrate a successful exact match and a failed episode with complete recall and disputed extra findings. This avoids treating an exploratory harness as a named coding agent.
+- Explained reset, execution, matching and episode scoring in one sequence. Removed report cost prose and the generated table's cost column; the underlying recorded fields remain unchanged.
+
+## 2026-11-08 — Terminology and evidence preservation
+
+- Updated editable explanations and the live integration test filename to use plain language. The original feedback and frozen raw records remain unchanged as provenance; generated report output will be rebuilt from the revised source.
+- The requested named coding-agent comparison requires new, separately recorded runs. The earlier custom workflow cannot supply that evidence; only matched cases with their limitations can be compared.
+
+## 2026-11-08 — Publication boundary
+
+- The working report and supporting documents already contain uncommitted changes predating this feedback. A commit against the repository's current base would include those changes as well as this revision. Keep the implementation local and list the exact intended publication scope for review before pushing.
+
+## 2026-11-08 — Coding-agent source
+
+- Added the official OpenAI Codex repository as the software citation for the planned comparison; its public README describes the CLI as a local coding agent. The actual invocation version and results must come from the run record, not from that citation.
+
+## 2026-11-08 — Delivery scope
+
+- The delivery scope includes this report revision and the related earlier report, demo, README and audit improvements, plus the requested response, notes, test rename and any genuine comparative evidence. Unrelated existing file moves and the modified raw dbt result remain outside the change. An isolated branch and explicit staging will make the cumulative report changes reviewable before publication.
+
+## 2026-11-08 — Two-case coding-agent comparison
+
+- Added the independently recorded Codex results for the two preselected cases. Both conditions matched one issue without extras in the revenue case and both matched two with two extras in the grain case; episode success was one of two each. This is a descriptive comparison, not evidence of equivalence or advantage.
+- Codex used a different model, tools, prompt, limits and executor; its grain-case cardinalities came from CSV rather than dbt tests. Retain those differences and the unlabelled-seed ambiguity in the report and packaged evidence.
+
+## 2026-11-08 — Paired-run provenance
+
+- Preserved the actual two-run prompts, isolated pre-run snapshots, event streams, final answers, and a scoring/action audit under `experiments/results/codex_midway_two_case/`. The interrupted ambiguous setup attempt is excluded. The README explains that mapping the coding-agent findings to manifest labels was manual and that the coding agent used path-based evidence rather than the steward's evidence-ID schema.
+
+## 2026-11-08 — Feedback response reconciliation
+
+- The response acquired a fuller seven-step plan while implementation was underway. Kept that text as a historical review and added a dated implementation update; the report now presents seven steps. The preselected changed-grain case was retained because it has an actual separately recorded coding-agent run and illustrates the requested scoring limits. The earlier suggestion of a filter-change walkthrough does not justify substituting an unrecorded comparison.

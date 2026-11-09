@@ -1,0 +1,99 @@
+{
+  "findings": [
+    {
+      "issue_type": "grain_or_join_drift",
+      "asset": "customer_orders",
+      "claim": "The contribution changes the model from one row per customer to joined order-item rows. The inner join also excludes completed orders with no matching item, and repeats order-level amounts when an order has multiple items.",
+      "evidence": [
+        {
+          "path": "input.diff",
+          "facts": "The previous query grouped completed orders by customer_id; the new query joins raw_order_items on order_id and removes the aggregation."
+        },
+        {
+          "path": "seeds/raw_order_items.csv",
+          "facts": "Orders 1001 and 1007 each have two item rows."
+        },
+        {
+          "path": "seeds/raw_orders.csv",
+          "facts": "For the fixture, completed order amounts total 640, while the joined rows total 910. The current fixture does not demonstrate an unmatched completed order."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "explanation": "Ask the model owner to decide whether to retain the customer-level metrics or intentionally introduce item-level output. If item-level output is intended, decide how unmatched orders and order-level amounts should be represented before updating the contract."
+      }
+    },
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "customer_orders",
+      "claim": "The documented customer-level metrics and columns no longer match the SQL output.",
+      "evidence": [
+        {
+          "path": "models/schema.yml",
+          "facts": "The description and grain specify customer-level completed-order metrics; completed_order_count is documented and customer_id is tested as unique."
+        },
+        {
+          "path": "catalog/catalog.json",
+          "facts": "The catalog also describes customer-level metrics with customer_id grain."
+        },
+        {
+          "path": "models/customer_orders.sql",
+          "facts": "The query emits customer_id, order_id, order_item_id and amount; it does not emit completed_order_count or the other previous aggregate metrics."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "explanation": "After the intended contract is decided, align the SQL, dbt descriptions and tests, and catalog entry. Do not remove the uniqueness test or rewrite the grain solely to make the change pass."
+      }
+    },
+    {
+      "issue_type": "unsupported_reliability_claim",
+      "asset": "customer_orders",
+      "claim": "The customer_id uniqueness expectation is contradicted by the current SQL and fixture. The catalog's canonical designation should be reviewed in light of the changed contract.",
+      "evidence": [
+        {
+          "path": "models/schema.yml",
+          "facts": "customer_id has a unique test."
+        },
+        {
+          "path": "seeds/raw_orders.csv and seeds/raw_order_items.csv",
+          "facts": "The joined fixture produces multiple rows for customers 1, 3 and 4."
+        },
+        {
+          "path": "catalog/catalog.json",
+          "facts": "The asset is marked canonical while its recorded customer-level contract differs from the query."
+        }
+      ],
+      "action": {
+        "class": "report",
+        "explanation": "Treat the existing uniqueness expectation and canonical designation as unresolved review issues; evidence does not establish the intended replacement contract or who may approve it."
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "raw_order_items",
+      "claim": "The newly referenced seed has no corresponding entry in the available dbt schema or catalog metadata, so ownership, lifecycle, description and grain are not recorded there.",
+      "evidence": [
+        {
+          "path": "models/customer_orders.sql",
+          "facts": "The changed model references raw_order_items."
+        },
+        {
+          "path": "seeds/raw_order_items.csv",
+          "facts": "The seed contains order_item_id, order_id, product_id and quantity."
+        },
+        {
+          "path": "models/schema.yml and catalog/catalog.json",
+          "facts": "Neither file contains a raw_order_items entry."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "explanation": "Add seed and catalog documentation after an owner confirms ownership, lifecycle and intended grain; the sample alone cannot establish those commitments."
+      }
+    }
+  ],
+  "changes_made": "None. The appropriate SQL and metadata contract depends on a business-semantic decision.",
+  "verification": "Inspected the diff, scoped SQL, seed data, schema, catalog and available dbt artifacts. Calculated the fixture join cardinality and amount totals directly from the CSV files. No dbt tests were run; the existing logs describe a prior run and do not verify this contribution.",
+  "scope_notes": "The inspected stg_orders SQL and its recorded order-level description and grain are consistent with each other. No lifecycle drift was established from the available evidence."
+}

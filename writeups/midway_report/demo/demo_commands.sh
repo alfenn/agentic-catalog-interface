@@ -1,23 +1,14 @@
 #!/usr/bin/env bash
 # Command sequence for the 3-minute midway demo video (see demo_script.md).
 #
-#   ./demo_commands.sh prep     # run BEFORE recording (slow: dbt builds, figures, $0 replay check)
+#   ./demo_commands.sh prep     # run BEFORE recording (slow: dbt builds and figures)
 #   ./demo_commands.sh 1 .. 7   # one segment each, run on camera (each finishes in a few seconds)
 #   ./demo_commands.sh time     # rehearsal: run segments 1-7 and print each one's wall time
 #   ./demo_commands.sh clean    # remove the scratch replay folders this script creates
 #
-# Model runs are never paid on camera. Segments 3 and 5 replay the recorded pilot
-# steward runs from the on-disk response cache (.lm_cache) with a spend cap far
-# below the recorded spend, so a cache miss raises BudgetExceeded instead of
-# calling the provider. If a replay fails or the recorded spend changes, the
-# segment says so and shows the saved pilot result instead.
-#
-# Environment:
-#   DEMO_SAVED=1     skip the replays in segments 3 and 5; show saved pilot artifacts only
-#   DEMO_NO_OPEN=1   segment 7 prints the numbers but does not open the chart PNGs
-#
-# Read-only with respect to the repository: writes only under .runs/ (gitignored scratch)
-# and, in prep, writeups/midway_report/demo/figures/.
+# Segments 3 and 5 display saved pilot artifacts; they never invoke a model.
+# DEMO_NO_OPEN=1 prevents segment 7 from opening chart PNGs.
+# Prep writes fixtures under .runs/ and regenerates demo figures.
 
 set -uo pipefail
 
@@ -30,9 +21,6 @@ CHG=change_daily_revenue_filter
 REPLAY_REM=.runs/demo-video-rem
 REPLAY_CHG=.runs/demo-video-change
 FIGS=writeups/midway_report/demo/figures
-# Any positive value below the recorded spend blocks every cache miss.
-GUARD_BUDGET=0.000001
-
 if [ "${DEMO_NO_JQ:-0}" != 1 ] && command -v jq >/dev/null 2>&1; then HAVE_JQ=1; else HAVE_JQ=0; fi
 if command -v python3 >/dev/null 2>&1; then PY=(python3); else PY=(uv run --quiet python); fi
 
@@ -49,32 +37,8 @@ py() { "${PY[@]}" -c 'import json,sys
 d=json.load(open(sys.argv[1]))
 exec(sys.argv[2])' "$1" "$2"; }
 
-spend() { uv run --quiet python -m catalog_steward.llm 2>/dev/null | tail -1; }
-
-# replay EPISODE OUTDIR : $0 cached steward replay; prints the result path to use.
-replay() {
-  local episode=$1 out=$2 before after
-  if [ "${DEMO_SAVED:-0}" = 1 ]; then
-    note "DEMO_SAVED=1: showing the saved pilot run" >&2
-    echo "$PILOT/$episode"; return
-  fi
-  before=$(spend)
-  label "spend before" "$before" >&2
-  rm -rf "$out" ".runs/evaluation/$(basename "$out")"
-  step "uv run python -m catalog_steward.evaluation --live --conditions steward --episodes $episode --output $out" >&2
-  if CATALOG_STEWARD_BUDGET_USD=$GUARD_BUDGET uv run --quiet python -m catalog_steward.evaluation \
-       --live --conditions steward --episodes "$episode" --output "$out" >/dev/null 2>&1; then
-    after=$(spend)
-    label "spend after" "$after" >&2
-    if [ "$before" = "$after" ]; then
-      echo "$out/$episode"; return
-    fi
-    note "recorded spend changed; showing the saved pilot run instead" >&2
-  else
-    note "replay did not complete from cache; showing the saved pilot run instead" >&2
-  fi
-  echo "$PILOT/$episode"
-}
+# Saved artifacts are the only source for model results in this demo.
+replay() { echo "$PILOT/$1"; }
 
 seg1() {
   banner "1  Problem: catalog metadata drifts away from the SQL"
@@ -148,7 +112,7 @@ for line in open(sys.argv[1]):
 }
 
 seg4() {
-  banner "4  A later change makes the metadata stale again  ($CHG)"
+  banner "4  Independent change fixture: metadata is stale  ($CHG)"
   local w=.runs/$CHG
   step "cat $w/input.diff"
   sed -n '/^[-+][^-+]/p' "$w/input.diff" | sed "s/^-/${Y}-/; s/^+/${G}+/; s/\$/${R}/"
@@ -247,38 +211,15 @@ prep() {
   banner "prep (run before recording)"
   for tool in uv make; do command -v $tool >/dev/null || { echo "missing $tool"; return 1; }; done
   [ $HAVE_JQ = 1 ] && echo "jq: found" || echo "jq: not found, using python fallbacks"
-  if grep -qE '^OPENROUTER_API_KEY=.+' .env 2>/dev/null || [ -n "${OPENROUTER_API_KEY:-}" ]; then
-    echo "API key: present (needed only to pass the --live gate; replays make no call)"
-  else
-    note "API key: absent. The --live replays will refuse; record with DEMO_SAVED=1."
-  fi
   step "make sync"; make sync >/dev/null 2>&1 || { echo "make sync failed"; return 1; }
   step "make fixture EPISODE=$REM"; make fixture EPISODE=$REM >/dev/null 2>&1 || { echo "fixture $REM failed"; return 1; }
   step "make fixture EPISODE=$CHG"; make fixture EPISODE=$CHG >/dev/null 2>&1 || { echo "fixture $CHG failed"; return 1; }
   step "make_figures.py $PILOT --out $FIGS --findings-chart --dpi 300"
   uv run --quiet --group report python writeups/midway_report/make_figures.py "$PILOT" --out "$FIGS" \
     --findings-chart --dpi 300 && rm -f "$FIGS"/*.pdf
-  banner "replay check: both steward runs from cache, spend must not change"
-  local before after ep ok=1
-  before=$(spend); label "spend before" "$before"
-  for ep in $REM $CHG; do
-    rm -rf ".runs/demo-prep-$ep" ".runs/evaluation/demo-prep-$ep"
-    CATALOG_STEWARD_BUDGET_USD=$GUARD_BUDGET uv run --quiet python -m catalog_steward.evaluation \
-      --live --conditions steward --episodes "$ep" --output ".runs/demo-prep-$ep" >/dev/null 2>&1 || ok=0
-    if [ -f ".runs/demo-prep-$ep/$ep/steward.json" ] && \
-       diff <("${PY[@]}" -c 'import json,sys; print(json.dumps(json.load(open(sys.argv[1]))["result"]["plan"],sort_keys=True))' ".runs/demo-prep-$ep/$ep/steward.json") \
-            <("${PY[@]}" -c 'import json,sys; print(json.dumps(json.load(open(sys.argv[1]))["result"]["plan"],sort_keys=True))' "$PILOT/$ep/steward.json") >/dev/null; then
-      echo "$ep: replayed plan identical to the pilot"
-    else ok=0; note "$ep: replay failed or differs from the pilot"; fi
-    rm -rf ".runs/demo-prep-$ep" ".runs/evaluation/demo-prep-$ep"
-  done
-  after=$(spend); label "spend after" "$after"
-  [ "$before" = "$after" ] || { ok=0; note "spend changed"; }
-  rm -rf "$REPLAY_REM" "$REPLAY_CHG" ".runs/evaluation/$(basename $REPLAY_REM)" ".runs/evaluation/$(basename $REPLAY_CHG)"
-  # Warm uv and the evidence path so the first on-camera command is fast.
   uv run --quiet python -m catalog_steward.contract >/dev/null
-  if [ $ok = 1 ]; then echo "${G}ready: segments 3 and 5 will replay at \$0${R}"
-  else note "not ready for live replay: record with DEMO_SAVED=1 ./demo_commands.sh <n>"; fi
+  echo "ready: segments 3 and 5 show saved pilot artifacts"
+
 }
 
 clean() {

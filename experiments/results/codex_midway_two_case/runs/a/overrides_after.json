@@ -1,0 +1,8 @@
+{
+  "assets": {
+    "daily_revenue": {
+      "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded."
+    }
+  }
+}
+
