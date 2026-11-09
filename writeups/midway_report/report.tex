@@ -137,7 +137,7 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 \begin{itemize}
 \tightlist
 \item
-  \emph{By November 13:} a new frozen example version: documented seeds, truly clean controls, an issue-type precedence rule checked independently of the model's label, and human review of the AI-built labels.
+  \emph{By November 13:} a revised example set, locked before any new run: documented seeds, truly clean controls, an issue-type precedence rule checked independently of the model's label, and human review of the AI-built labels.
 \item
   \emph{By November 20:} postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
 \item
@@ -146,9 +146,9 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
   \emph{December 9 and 11:} live demo of both modes; final report.
 \end{itemize}
 
-\textbf{Obstacles and concerns.} No credential or pipeline blocker remains. The main concern is validity: label choices and protocol behaviour move results as much as the workflow, so fixes go into a new frozen version, not a rescoring.
+\textbf{Obstacles and concerns.} No credential or pipeline blocker remains. The main concern is validity: label choices and protocol behaviour move results as much as the workflow, so fixes go into a new version set before new runs, not into rescoring old ones.
 
-\textbf{Risks and mitigations.} \emph{Scope growth:} a frozen five-type contract with hard limits. \emph{Ambiguous ground truth} (seen in both clean controls): documented seeds, a precedence rule, human label review. \emph{Unsupported claims} (one invented-evidence run passed): claim--evidence support checks and manual audit. \emph{Warning overload} (six steward extras): clean controls, a five-finding cap, flagging only gaps a change introduces. \emph{Small pilot:} per-example reporting, more examples.
+\textbf{Risks and mitigations.} \emph{Scope growth:} a contract held at five issue types, with hard limits. \emph{Ambiguous ground truth} (seen in both clean controls): documented seeds, a precedence rule, human label review. \emph{Unsupported claims} (one invented-evidence run passed): claim--evidence support checks and manual audit. \emph{Warning overload} (six steward extras): clean controls, a five-finding cap, flagging only gaps a change introduces. \emph{Small pilot:} per-example reporting, more examples.
 
 \bibliography{references}
 \label{referencesend}
