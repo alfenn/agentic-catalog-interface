@@ -9,7 +9,7 @@ All numbers on screen come from `experiments/results/midpoint_v1_2_pilot/` (froz
 Paste this as the YouTube or Google Drive description:
 
 ```text
-CS329Z midway demo (Alex Feng). A catalog steward: an LLM agent that repairs stale data-catalog metadata with evidence, then reviews later dbt changes so the drift does not come back. It is compared with static checks and a generic coding agent on ten constructed maintenance episodes.
+CS329Z midway demo (Alex Feng). A catalog steward: an LLM agent that repairs stale data-catalog metadata with evidence, then reviews later dbt changes so the drift does not come back. The demo shows its frozen pilot on ten constructed maintenance episodes, which compared it with static checks and an in-house generic agent; the midway report's main comparison is against OpenAI's Codex CLI.
 
 GitHub repository (code, fixtures, episode labels, frozen config and prompts, raw pilot results, and the manual audit):
 https://github.com/alfenn/agentic-catalog-interface
@@ -43,7 +43,7 @@ Timestamps are for the narration. Start each command at the start of its segment
 | 3 | 0:43–1:12 | Saved pilot artifacts: the steward's finding and cited evidence IDs; the patch diff; verification checks; two ledger lines | `./demo_commands.sh 3` | 5.4 s |
 | 4 | 1:12–1:32 | The change diff (`completed` → `!= 'cancelled'`); dbt tests pass; catalog text = the step-3 patch | `./demo_commands.sh 4` | < 0.1 s |
 | 5 | 1:32–1:55 | Saved pilot artifacts: the finding, the claim, `propose / request_review`, `status=proposed patch=none`, two open questions | `./demo_commands.sh 5` | 4.3 s |
-| 6 | 1:55–2:15 | A six-row table: both episodes × static/generic/steward | `./demo_commands.sh 6` | < 0.1 s |
+| 6 | 1:55–2:15 | A six-row pilot table: both episodes × static/generic/steward | `./demo_commands.sh 6` | < 0.1 s |
 | 7a | 2:15–2:24 | Terminal pilot table, then `outcome_grid.png` full screen | `./demo_commands.sh 7` | < 0.1 s (+ Preview opening) |
 | 7b | 2:24–2:45 | `findings_vs_false_alarms.png` full screen | none | n/a |
 
@@ -67,7 +67,7 @@ Command time totals about 10 s, all covered by narration. Narration is about 405
 > In change-review mode, the steward flags the contradiction, but it does not choose a revenue definition for the business. Whether refunds belong in revenue is a semantic decision, so the contract allows only a proposal: it requests review from the model owner, lists the open questions, and writes no patch. That escalation is the correct outcome here.
 
 **6 · 1:55–2:15: Baselines on the same two episodes** (`./demo_commands.sh 6`)
-> Compare the baselines on the same two episodes. Static required-field and dbt-test checks caught neither problem. A generic agent on the same model also fixed the first one, but on the change it batched several tool calls into one reply, was rejected, and gave up without a finding.
+> Compare the pilot's baselines on the same two episodes. Static required-field and dbt-test checks caught neither problem. A generic agent on the same model also fixed the first one, but on the change it batched several tool calls into one reply, was rejected, and gave up without a finding.
 
 **7a · 2:15–2:24: Pilot outcomes** (`./demo_commands.sh 7`, then switch to `outcome_grid.png`)
 > Across all ten pilot episodes, static checks succeeded on four, the generic agent on five, and the steward on five.
