@@ -41,7 +41,7 @@ entry in `../agent_notes.md`.
 
 ## Report
 
-- [ ] **R1 — Architecture and front matter.** Diagram of the implemented system;
+- [x] **R1 — Architecture and front matter.** Diagram of the implemented system;
   Methods cut to one or two high-level paragraphs around it and Environment &
   Data cut to about half, with the details in a new appendix section;
   implemented versus planned behavior separated.

@@ -632,3 +632,11 @@ context: [
 
 - The course limit is four total pages, references included; an appendix may follow. Methods shrinks to one or two high-level paragraphs around the architecture diagram, Environment & Data to about half, and the details move to an appendix. This supersedes the earlier reading of four body pages.
 - In-session subagents are disabled in this firstmate home, and tracked workers need the home's session lock, which an earlier Codex app session held. With the author's approval that Codex server was stopped. Its last uncommitted edit (removing the page break before the references) was committed rather than discarded. The runner and the architecture work now run as two tracked workers on isolated branches, each fast-forwarded onto main when ready.
+
+## 2026-11-08 — Architecture figure and appendix (worker report, recorded by claude-opus-5.5)
+
+- `make_figures.py` now draws the architecture figure (`figures/architecture.pdf`) in five columns: trigger, inspect, plan, validate, act and verify. It is drawn by hand rather than derived from code, so it must be redrawn if the steward changes. A layout check fails the build if text overflows its box; it does not check content.
+- The only planned element in the figure is a dashed "per-issue checks" box inside Patch. The contract lists per-issue verification steps that no code references yet, so the figure, caption and Appendix B all say these checks are planned.
+- Methods 2.2 is now "What we built" plus "Limits"; Environment & Data 2.1 keeps a short evaluation summary. Appendix A holds the environment, episodes, and the one step-by-step evaluation explanation; Appendix B holds system details; the AI disclosure becomes Appendix C. The references end on page 4 with about half a page of body room left for the Results rewrite.
+- `figures/results_table.md` on main still had a cost column; the rebuild regenerated it without cost data.
+- Every system claim in the new text was checked against source line by line; the worker's checklist is kept in the firstmate task record rather than here.
