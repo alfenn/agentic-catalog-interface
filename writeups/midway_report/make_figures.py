@@ -561,8 +561,8 @@ def results_table(
     missing = any(cell.status == "missing" for cell in cells.values())
     lines = [
         r"\begin{table}[t]",
-        r"\caption{Per-episode outcomes, one run each. TP: a finding whose (issue type, asset) pair matches an "
-        r"expected one exactly; FP: any other finding; FN: an expected finding left unmatched. An episode "
+        r"\caption{Per-example outcomes, one run each. TP: a finding whose (issue type, asset) pair matches an "
+        r"expected one exactly; FP: any other finding; FN: an expected finding left unmatched. An example "
         r"\emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed "
         r"verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). "
         r"The last row counts forbidden action classes, failed patch verifications, and runs that edited a "
@@ -574,7 +574,7 @@ def results_table(
         r"\toprule",
         " & " + " & ".join(rf"\multicolumn{{2}}{{c}}{{{name}}}" for _, name in TABLE_CONDITIONS) + r" \\",
         "".join(rf"\cmidrule(lr){{{2 + 2 * i}-{3 + 2 * i}}}" for i in range(len(TABLE_CONDITIONS))),
-        "Episode & " + " & ".join(["TP/FP/FN & Success"] * len(TABLE_CONDITIONS)) + r" \\",
+        "Example & " + " & ".join(["TP/FP/FN & Success"] * len(TABLE_CONDITIONS)) + r" \\",
     ]
     for category in CATEGORIES:
         group = [e for e in episodes if categorize(e, manifest)[0] == category]
@@ -594,7 +594,7 @@ def results_table(
             lines.append(" & ".join(row) + r" \\")
     lines.append(r"\midrule")
     footer: list[tuple[str, Any]] = [
-        ("Episode successes", lambda run: f"{sum(c.success for c in run)}/{len(episodes)}"),
+        ("Example successes", lambda run: f"{sum(c.success for c in run)}/{len(episodes)}"),
         ("Micro precision / recall", lambda run: (
             fmt_ratio(sum(c.true_positives for c in run), sum(c.true_positives + c.false_positives for c in run))
             + " / "
@@ -615,7 +615,7 @@ def results_table(
                         f"{sum(c.verification_failures for c in run)} / {other}")
             else:
                 text = value(run)
-                if name == "Episode successes" and len(run) < len(episodes):
+                if name == "Example successes" and len(run) < len(episodes):
                     text += f" ({len(run)} run)"
             row.append(rf"\multicolumn{{2}}{{c}}{{{text}}}")
         lines.append(" & ".join(row) + r" \\")

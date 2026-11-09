@@ -1,13 +1,13 @@
 ```{=latex}
 \begin{table}[t]
-\caption{Per-episode outcomes, one run each. TP: a finding whose (issue type, asset) pair matches an expected one exactly; FP: any other finding; FN: an expected finding left unmatched. An episode \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). The last row counts forbidden action classes, failed patch verifications, and runs that edited a file other than the override file, which the steward cannot do (n/a).}
+\caption{Per-example outcomes, one run each. TP: a finding whose (issue type, asset) pair matches an expected one exactly; FP: any other finding; FN: an expected finding left unmatched. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). The last row counts forbidden action classes, failed patch verifications, and runs that edited a file other than the override file, which the steward cannot do (n/a).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
  & \multicolumn{2}{c}{Steward} & \multicolumn{2}{c}{Codex, matched} & \multicolumn{2}{c}{Codex, frontier} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-Episode & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
+Example & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Remediation}} \\
 \quad Stale revenue-filter description & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
@@ -25,7 +25,7 @@ Episode & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
 \quad Documented new model & 0/1/0 & no & 0/1/0 & no & 0/1/0 & no \\
 \quad Documented revenue metric & 0/1/0 & no & 0/0/0 & yes & 0/0/0 & yes \\
 \midrule
-Episode successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{6/10} & \multicolumn{2}{c}{7/10} \\
+Example successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{6/10} & \multicolumn{2}{c}{7/10} \\
 Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{0.58 / 0.70} & \multicolumn{2}{c}{0.73 / 0.80} \\
 Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolumn{2}{c}{0 / 0 / 0} & \multicolumn{2}{c}{0 / 0 / 0} \\
 \bottomrule
