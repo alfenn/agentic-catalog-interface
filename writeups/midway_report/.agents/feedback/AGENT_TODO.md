@@ -19,24 +19,24 @@ or dependency.
 
 ## Experiment
 
-- [x] **E1 — Isolated tool environment.** _(done on the runner's branch; lands on main with E5–E7)_ Create a dbt/DuckDB/Python environment
+- [x] **E1 — Isolated tool environment.** Create a dbt/DuckDB/Python environment
   outside the repository for Codex to use; confirm `dbt parse` and a DuckDB
   query run against an episode workspace with network off.
-- [x] **E2 — Codex runner.** _(done on the runner's branch)_ `codex_baseline.py`: build the fixture into an
+- [x] **E2 — Codex runner.** `codex_baseline.py`: build the fixture into an
   opaque temporary directory, strip label material, write the frozen prompt and
   output schema, invoke `codex exec`, capture the event stream and final answer,
   convert findings to plan form, run the post-run checks, score with
   `midpoint-score-v1`, and persist per-episode artifacts and `summary.json`.
-- [x] **E3 — Deterministic tests.** _(done on the runner's branch; 108 tests pass)_ Stand-in `codex` executable covering a clean
+- [x] **E3 — Deterministic tests.** _(108 tests pass)_ Stand-in `codex` executable covering a clean
   run, a patch that verifies, a claimed patch with no file change, an edit
   outside the override file, malformed output, and a non-zero exit; label
   material absent from the prepared workspace.
-- [x] **E4 — Paired check.** _(done on the runner's branch; all four runs passed the gate)_ Run both Codex conditions on
+- [x] **E4 — Paired check.** _(all four runs passed the gate)_ Run both Codex conditions on
   `rem_daily_revenue_filter_drift` and `change_daily_revenue_filter`; inspect
   traces for isolation, conversion and scoring problems; fix only the adapter.
-- [ ] **E5 — Freeze and run.** _(running now, runner worker)_ Freeze `codex_baseline_v1.yaml`; run both
+- [x] **E5 — Freeze and run.** _(20 runs, 0 errors, 0 isolation flags, nothing repeated)_ Freeze `codex_baseline_v1.yaml`; run both
   conditions on all ten episodes into `experiments/results/codex_baseline_v1/`.
-- [ ] **E6 — Trace audit.** _(in progress, runner worker: steward entries now, Codex entries when E5 finishes)_ `analysis.md`: per episode, what each agent
+- [x] **E6 — Trace audit.** `analysis.md`: per episode, what each agent
   inspected, what it concluded, whether it was right, and how that became the
   score; isolation check results; where the labels are disputable.
 
@@ -48,7 +48,7 @@ or dependency.
   implemented versus planned behavior separated.
 - [ ] **R2 — Methods and evaluation.** _(in progress, results worker)_ Conditions with their exact differences;
   the seven-step evaluation once, updated for the Codex adapter.
-- [ ] **R3 — Results.** _(in progress, results worker: table and structure now, walkthroughs after E5 and E6)_ Per-episode table for steward and both Codex conditions
+- [ ] **R3 — Results.** _(in progress, results worker: table and structure done, walkthroughs now)_ Per-episode table for steward and both Codex conditions
   with metric definitions; one remediation and one change-review walkthrough
   citing saved traces; limitations next to the numbers.
 - [x] **R4 — Pivots.** Each pivot as what the agent did, whether it was right,
@@ -60,6 +60,6 @@ or dependency.
 - [ ] **R6 — Build and check.** _(results worker, after R3)_ Regenerate figures, TeX and PDF; visually check
   that everything before the appendix, references included, fits in four total
   pages, plus legibility, clipping, and table/figure consistency.
-- [ ] **R7 — README.** _(in progress, runner worker, during the E5 run)_ Reproduction steps for the Codex baseline.
+- [x] **R7 — README.** Reproduction steps for the Codex baseline.
 - [ ] **R8 — Close out.** _(coordinator, after everything lands)_ Implementation update in `agent_response_2__codex.md`,
   final notes, follow-ups and their importance.
