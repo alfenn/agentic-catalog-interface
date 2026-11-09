@@ -42,7 +42,9 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 # Results (Summary of Progress) {#sec:results}
 
-**What I compared.** All of Figure\ \ref{fig:arch} and the Codex adapter are implemented. Scored by the same rules as the earlier steward run, unchanged for Codex (exact answer-key matching and the success rule in Section\ \ref{sec:env}), the steward does not win (Table\ \ref{tbl:results}): it succeeds on 5 examples, against 6 for matched-Codex and 7 for frontier-Codex, with the highest recall (0.90, against 0.70 and 0.80) and the most extra findings (6, against 5 and 3). No run used a forbidden action, failed verification or edited another file. The largest difference goes unscored: in change review the steward only proposed, while Codex patched the catalog in 3 (matched) and 4 (frontier) of six runs (audit: `experiments/results/codex_baseline_v1/analysis.md`).
+## Reported Results {#sec:reported}
+
+The steward succeeds on 5 of 10 examples, matched-Codex on 6 and frontier-Codex on 7 (Table\ \ref{tbl:results}). The steward has the highest recall (0.90 vs. 0.70 and 0.80) but the most extras (6 vs. 5 and 3). No run used a forbidden action or failed verification.
 
 <!-- BEGIN GENERATED: results_table (make_figures.py; do not edit by hand) -->
 ```{=latex}
@@ -81,13 +83,19 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 ```
 <!-- END GENERATED: results_table -->
 
-**Two examples up close.** Scores alone do not show why agents fail, so for two examples I describe what happened, why I think it happened, and what I would change.
+## Results Discussion and Observations {#sec:discussion}
 
-**Legacy copy still active** (`rem_legacy_model_lifecycle`, remediation). An old copy of `customer_orders` is still marked active and canonical; the answer key expects lifecycle drift. *What happened:* the steward rightly proposed a lifecycle review but also filed a grain report its own claim calls unestablished (1/1/0). Matched Codex instead flagged and rewrote a vague but correct description (0/1/1). Frontier Codex saw the conflict but filed nothing (0/0/1). *Why:* the contract requires repository history as evidence for lifecycle drift, but remediation examples have none. The steward met the rule by citing the example's empty diff, which the validator accepts because it only checks that the evidence kind is present; frontier Codex followed the rule literally. *What to change:* give these examples real history or drop the rule; have the validator reject empty evidence.
+**Steward vs. matched-Codex.** With the same model, the steward's harness finds more: its bundle covers every table in scope, so only the steward caught the failing uniqueness claim and the stale legacy copy. It also reports more extras, and one borderline extra decides the one-example gap. Both filed the wrong-grain problem as SQL/metadata drift and patched it, so that error is the model's.
 
-**Revenue filter changed** (`change_daily_revenue_filter`, change review). The change now counts refunded orders, while the catalog says they are excluded. All three found the conflict and scored 1/0/0. *What happened:* the steward asked a reviewer whether refunds belong in revenue; both Codex runs rewrote the description to include them. *Why:* I think Codex treats the new SQL as the truth and updates the documentation to match, which quietly approves a business change no one has reviewed. The contract allows a patch here and the scorer checks only that, so all three score the same. *What to change:* a scoring rule, set before the next run, counting such a patch as unsafe.
+**Steward vs. frontier-Codex.** The gap comes mostly from the stronger model, which labelled the wrong-grain problem correctly, proposed instead of patching, and reported half the extras. It still missed both problems only the steward caught. With no steward run on this model, model and harness are confounded.
 
-**Limitations.** Each cell is one run; in an earlier check, matched Codex succeeded on the filter change in two of three tries. AI agents built the examples and labels, and both clean controls contain real gaps the labels miss (crediting them would give 7, 7 and 8 successes). The scorer does not check whether evidence supports a claim or whether an action suits the example. With only ten examples, a gap of one or two supports no ranking; I plan to grow the suite to about 50. Nothing here shows the steward's design improves scores.
+**Why Codex scored higher.** Success is all-or-nothing, so one extra fails an example. The steward shows the model every table in scope, so it comments on more, and half its extras are real gaps the labels miss; Codex reads only what it chooses and reports less. The scorer also misses the largest difference: in change review the steward only proposed, while Codex patched the catalog in 3 (matched) and 4 (frontier) of six runs, e.g., rewriting the revenue description to accept an unreviewed refund change.
+
+**How to improve the steward.** Keep the breadth but filter the report: in change review, flag only gaps the change introduces, and drop findings the model itself calls unestablished. Have the validator check evidence content, not presence (the legacy-copy finding cited an empty diff as history), and fix a precedence between overlapping issue types so a grain problem cannot be patched as drift.
+
+## Limitations and Next Steps {#sec:limits}
+
+Each cell is one run (matched-Codex passed the filter change in two of three earlier tries). AI agents built the examples and labels, and both examples meant to have no hygiene problems contain real gaps the labels miss (crediting them gives 7, 7 and 8 successes). The scorer checks neither evidence support nor action fit, and with ten examples a gap of one or two supports no ranking. *Next* (Section\ \ref{sec:timeline}): about 50 human-reviewed examples, repeated runs, the steward on the frontier model, and scoring change-review patches that accept unreviewed changes as unsafe.
 
 # Assets {#sec:assets}
 
@@ -101,9 +109,7 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 - *By November 20:* postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
 - *By December 4:* repeated samples, ablations and about 50 audited examples.
 
-**Obstacles and concerns.** The main concern is validity: label choices and protocol behaviour move results as much as the workflow, so fixes go into a new version set, not into rescoring.
-
-**Risks and mitigations.** *Scope growth:* a contract held at five issue types, with hard limits. *Ambiguous ground truth* (seen in both clean controls): documented seeds, a precedence rule, human label review. *Unsupported claims* (one invented-evidence run passed): claim--evidence support checks and manual audit. *Warning overload* (six steward extras): flagging only gaps a change introduces.
+**Risks and mitigations.** *Scope growth:* a contract held at five issue types. *Ambiguous ground truth* (seen in both clean controls): documented seeds, a precedence rule, human label review. *Unsupported claims* (one invented-evidence run passed): claim--evidence support checks and manual audit.
 
 ```{=latex}
 \bibliography{references}
