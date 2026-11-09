@@ -4,12 +4,13 @@ Run from anywhere with ``make report`` (or
 ``uv run --group report python writeups/midway_report/build_report.py --results <run>``).
 
 report.md is the only file to edit. This script
-1. regenerates figures/ and the results table/summary from ``<run>/summary.json``
-   (via make_figures.py) and writes them into report.md's generated regions;
+1. regenerates the architecture figure and the results table (via make_figures.py)
+   from the steward pilot ``--results`` and the Codex baseline ``--codex-results``,
+   and writes the table into report.md's generated region;
 2. converts report.md to report.tex with pandoc (pypandoc-binary) and the
    iclr_pandoc.latex template, using natbib citations from references.bib;
 3. builds report.pdf with latexmk in a temporary directory (so no LaTeX byproducts
-   are left here) and prints the body and total page counts.
+   are left here) and prints the page where the references end and the total page count.
 """
 
 from __future__ import annotations
@@ -47,11 +48,14 @@ def page_of(aux: str, label: str) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Build the midway report PDF")
-    parser.add_argument("--results", type=Path, default=DEFAULT_RESULTS, help="results folder with summary.json")
+    parser.add_argument("--results", type=Path, default=DEFAULT_RESULTS, help="steward pilot results folder")
+    parser.add_argument("--codex-results", type=Path, default=make_figures.DEFAULT_CODEX_RESULTS,
+                        help="Codex baseline results folder")
     args = parser.parse_args(argv)
 
     report_md = HERE / "report.md"
-    make_figures.main([str(args.results), "--out", str(HERE / "figures"), "--update-report", str(report_md)])
+    make_figures.main([str(args.results), "--codex-results", str(args.codex_results), "--out", str(HERE / "figures"),
+                       "--update-report", str(report_md)])
 
     tex = pypandoc.convert_file(
         str(report_md),
@@ -87,8 +91,8 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(f"latexmk failed (exit {proc.returncode}); see output above")
         aux = (Path(build_dir) / "report.aux").read_text(encoding="utf-8")
         shutil.copy2(Path(build_dir) / "report.pdf", HERE / "report.pdf")
-    body, total = page_of(aux, "bodyend"), page_of(aux, "reportlastpage")
-    print(f"report.pdf: body (title through Timeline) = {body} pages; total = {total} pages")
+    references, total = page_of(aux, "referencesend"), page_of(aux, "reportlastpage")
+    print(f"report.pdf: title through references = {references} pages; total = {total} pages")
     clean_byproducts()
     return 0
 

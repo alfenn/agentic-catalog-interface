@@ -1,30 +1,29 @@
-"""Generate the midway-report / demo-video charts and results table from a pilot run.
+"""Generate the midway report's architecture figure and results table, and the demo video's charts.
 
 Usage (from the repository root):
 
     uv run --group report python writeups/midway_report/make_figures.py \
-        experiments/results/<run>/ [--out writeups/midway_report/figures] \
-        [--update-report writeups/midway_report/report.md] \
-        [--findings-chart] [--dpi 200]
+        experiments/results/midpoint_v1_2_pilot/ \
+        [--codex-results experiments/results/codex_baseline_v1/] \
+        [--out writeups/midway_report/figures] \
+        [--update-report writeups/midway_report/report.md] [--demo-charts] [--dpi 200]
 
-Reads ``<run>/summary.json`` (the shape written by ``catalog_steward.evaluation``)
-and the episode manifest, then writes into ``--out``:
+By default it writes into ``--out``:
 
-* ``success_by_category.{pdf,png}``: episode successes per condition, faceted by
-  episode category (remediation / flawed change / clean control).
-* ``outcome_grid.{pdf,png}``: one cell per episode x condition, labelled
-  success / partial / missed / false alarm / error / pending.
 * ``architecture.{pdf,png}``: the steward's implemented architecture (drawn, not
-  read from the run), with the planned per-issue checks dashed.
-* ``findings_vs_false_alarms.{pdf,png}`` (only with ``--findings-chart``): expected
-  issues found and false alarms per condition, as two small-multiple panels.
-* ``results_table.md`` and ``results_summary.md``: the Markdown table and summary
-  sentence the report uses. With ``--update-report`` they are also written into
-  the matching ``<!-- BEGIN GENERATED: ... -->`` regions of the report source.
+  read from a run), with the planned per-issue checks dashed.
+* ``results_table.tex``: the per-episode results table, comparing the steward
+  (the ``steward`` records of the frozen pilot, the positional folder) with the
+  ``codex-matched`` and ``codex-frontier`` records of ``--codex-results``. With
+  ``--update-report`` it is also written into the report's
+  ``<!-- BEGIN GENERATED: results_table ... -->`` region.
 
-Conditions listed in the run's config but absent from its records are drawn as
-"pending", so the same script works on the static-only run and on the full
-three-condition pilot without edits. No number is typed by hand anywhere.
+An episode or condition with no record renders as a dash, so the table builds
+before every run has landed. No number is typed by hand anywhere.
+
+With ``--demo-charts`` it instead writes the demo video's charts from the pilot's
+``summary.json`` (all of its conditions): ``success_by_category``,
+``outcome_grid`` and ``findings_vs_false_alarms`` (each ``.pdf`` and ``.png``).
 """
 
 from __future__ import annotations
@@ -46,6 +45,7 @@ from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle  # noq
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MANIFEST = REPO_ROOT / "data/episodes/manifest.yaml"
 DEFAULT_OUT = Path(__file__).resolve().parent / "figures"
+DEFAULT_CODEX_RESULTS = REPO_ROOT / "experiments/results/codex_baseline_v1"
 
 CONDITION_LABELS = {"static": "Static checks", "generic": "Generic agent", "steward": "Steward"}
 CATEGORIES = ["remediation", "flawed_change", "clean_control"]
@@ -87,7 +87,6 @@ class Cell:
     true_positives: int | None
     false_positives: int | None
     false_negatives: int | None
-    cost: float
 
 
 def load_manifest(path: Path) -> dict[str, dict[str, Any]]:
@@ -157,7 +156,6 @@ def build_cells(summary: dict[str, Any], manifest: dict[str, dict[str, Any]]) ->
                     false_positives=score.get("false_positives") if complete else (0 if record else None),
                     # An errored run produced no scorable findings: all expected findings count as missed.
                     false_negatives=score.get("false_negatives") if complete else (expected if record else None),
-                    cost=float(score.get("cost_usd", 0.0)) if record else 0.0,
                 )
             )
     episodes.sort(key=lambda e: CATEGORIES.index(categorize(e, manifest)[0]))
@@ -450,10 +448,6 @@ def save(fig: Any, stem: Path) -> None:
     plt.close(fig)
 
 
-def plural(count: int, noun: str) -> str:
-    return f"{count} {noun}" + ("" if count == 1 else "s")
-
-
 def fmt_ratio(num: int, den: int) -> str:
     return f"{num / den:.2f}" if den else "n/a"
 
@@ -483,50 +477,156 @@ def condition_stats(conditions: list[str], cells: list[Cell]) -> dict[str, dict[
             "fp": fp,
             "fn": fn,
             "errors": sum(c.outcome == "error" for c in run),
-            "cost": sum(c.cost for c in run),
         }
     return stats
 
 
-def results_table(conditions: list[str], stats: dict[str, dict[str, Any]], source: str) -> str:
-    header = ["Condition", "Remed.", "Flawed", "Clean", "All", "TP/FP/FN", "Micro P/R", "Errors"]
-    lines = ["| " + " | ".join(header) + " |", "|" + "|".join([":--"] + ["--:"] * (len(header) - 1)) + "|"]
-    for condition in conditions:
-        s = stats[condition]
-        if s["pending"]:
-            row = [f"{label(condition)} (pending)"] + ["--"] * (len(header) - 1)
-        else:
-            row = [label(condition)]
-            row += [f"{w}/{n}" for w, n in (s["by_category"][c] for c in CATEGORIES)]
-            row.append(f"{s['successes']}/{s['episodes']}")
-            row.append(f"{s['tp']}/{s['fp']}/{s['fn']}")
-            row.append(f"{fmt_ratio(s['tp'], s['tp'] + s['fp'])}/{fmt_ratio(s['tp'], s['tp'] + s['fn'])}")
-            row.append(str(s["errors"]))
-        lines.append("| " + " | ".join(row) + " |")
-    caption = (
-        "Table: Episode successes by condition and category (remediation, flawed change, clean control), "
-        "finding counts, and micro precision/recall; an errored run counts its expected findings as missed. "
-        f"Source: `{source}`. {{#tbl:results}}"
+# Results table --------------------------------------------------------------
+# Steward pilot vs the two Codex conditions, one row per episode, read from the
+# per-episode records (<results>/<episode>/<condition>.json) so that a condition or
+# episode not yet recorded renders as a dash.
+
+TABLE_CONDITIONS = [
+    ("steward", "Steward"),
+    ("codex-matched", "Codex, matched"),
+    ("codex-frontier", "Codex, frontier"),
+]
+EPISODE_NAMES = {
+    "rem_daily_revenue_filter_drift": "Stale revenue-filter description",
+    "rem_customer_orders_wrong_grain": "Wrong customer-order grain",
+    "rem_daily_revenue_missing_owner": "Missing owner",
+    "rem_legacy_model_lifecycle": "Legacy copy still active",
+    "change_daily_revenue_filter": "Revenue filter changed",
+    "change_customer_orders_grain": "Grain changed, metadata not",
+    "change_new_model_missing_metadata": "New undocumented model",
+    "change_rename_without_lifecycle": "Rename without lifecycle change",
+    "clean_new_model_documented": "Documented new model",
+    "clean_daily_revenue_metric": "Documented revenue metric",
+}
+DASH = "--"
+
+
+@dataclass(frozen=True)
+class TableCell:
+    status: str  # "missing", "error" or "complete"
+    true_positives: int = 0
+    false_positives: int = 0
+    false_negatives: int = 0
+    success: bool = False
+    disallowed_actions: int = 0
+    verification_failures: int = 0
+    edited_other_files: bool = False
+
+
+def load_record(results: Path, episode: str, condition: str) -> dict[str, Any] | None:
+    path = results / episode / f"{condition}.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+
+
+def table_cell(record: dict[str, Any] | None, expected: int) -> TableCell:
+    if record is None:
+        return TableCell("missing")
+    result, score = record.get("result", {}), record.get("score", {})
+    if result.get("status") == "error":
+        # An errored run produced no scorable findings: all expected findings count as missed.
+        return TableCell("error", false_negatives=expected)
+    findings = (result.get("plan") or {}).get("findings") or []
+    return TableCell(
+        "complete",
+        true_positives=int(score["true_positives"]),
+        false_positives=int(score["false_positives"]),
+        false_negatives=int(score["false_negatives"]),
+        success=bool(score.get("episode_success")),
+        # The scorer records the share of findings whose action class the contract forbids.
+        disallowed_actions=round(float(score.get("unsafe_action_rate", 0.0)) * len(findings)),
+        verification_failures=int(score.get("verification_failures", 0)),
+        edited_other_files=bool(record.get("flags", {}).get("changes_outside_overrides")),
     )
-    return "\n".join(lines) + "\n\n" + caption + "\n"
 
 
-def results_summary(conditions: list[str], stats: dict[str, dict[str, Any]]) -> str:
-    parts = []
-    for condition in conditions:
-        s = stats[condition]
-        if s["pending"]:
-            parts.append(f"{label(condition)}: **pending** (not yet run).")
-            continue
-        partial = f" ({s['runs']} of {s['episodes']} episodes run)" if s["partial_run"] else ""
-        parts.append(
-            f"{label(condition)}: {s['successes']}/{s['episodes']} episode successes{partial}, "
-            f"{plural(s['tp'], 'true positive')}, {plural(s['fp'], 'false positive')}, "
-            f"{plural(s['fn'], 'false negative')} "
-            f"(micro precision {fmt_ratio(s['tp'], s['tp'] + s['fp'])}, "
-            f"micro recall {fmt_ratio(s['tp'], s['tp'] + s['fn'])}), {plural(s['errors'], 'errored run')}."
-        )
-    return " ".join(parts) + "\n"
+def latex_path(path: Path) -> str:
+    try:
+        text = path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        text = path.as_posix()
+    return r"\nolinkurl{" + text.rstrip("/") + "/}"
+
+
+def results_table(
+    steward_results: Path,
+    codex_results: Path,
+    manifest: dict[str, dict[str, Any]],
+) -> str:
+    folders = {"steward": steward_results, "codex-matched": codex_results, "codex-frontier": codex_results}
+    episodes = sorted(manifest, key=lambda e: CATEGORIES.index(categorize(e, manifest)[0]))
+    cells = {
+        (episode, condition): table_cell(load_record(folders[condition], episode, condition),
+                                         categorize(episode, manifest)[1])
+        for episode in episodes
+        for condition, _ in TABLE_CONDITIONS
+    }
+    columns = len(TABLE_CONDITIONS) * 2
+    lines = [
+        r"\begin{table}[!ht]",
+        r"\caption{Per-episode outcomes, one run per condition and episode. A \emph{true positive} (TP) is a "
+        r"finding whose (issue type, asset) pair matches an expected one exactly, a \emph{false positive} (FP) "
+        r"is any other finding, and a \emph{false negative} (FN) is an expected finding left unmatched. An "
+        r"episode \emph{succeeds} only if the run completes with no FP or FN, no action class the contract "
+        r"forbids for the issue type, and no failed patch verification. Micro precision and recall are "
+        r"$\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN) over the ten episodes. An errored run counts "
+        r"its expected findings as missed; a dash is a run not yet recorded; the steward cannot edit any file "
+        r"but the override file (n/a). Sources: " + latex_path(steward_results) + " and "
+        + latex_path(codex_results) + ".}",
+        r"\label{tbl:results}",
+        r"\centering\small",
+        r"\begin{tabular}{@{}l" + "cc" * len(TABLE_CONDITIONS) + "@{}}",
+        r"\toprule",
+        " & " + " & ".join(rf"\multicolumn{{2}}{{c}}{{{name}}}" for _, name in TABLE_CONDITIONS) + r" \\",
+        "".join(rf"\cmidrule(lr){{{2 + 2 * i}-{3 + 2 * i}}}" for i in range(len(TABLE_CONDITIONS))),
+        "Episode & " + " & ".join(["TP/FP/FN & Success"] * len(TABLE_CONDITIONS)) + r" \\",
+    ]
+    for category in CATEGORIES:
+        group = [e for e in episodes if categorize(e, manifest)[0] == category]
+        lines.append(r"\midrule")
+        lines.append(rf"\multicolumn{{{columns + 1}}}{{@{{}}l}}{{\emph{{{CATEGORY_LABELS[category]}}}}} \\")
+        for episode in group:
+            row = [r"\quad " + EPISODE_NAMES.get(episode, episode.replace("_", r"\_"))]
+            for condition, _ in TABLE_CONDITIONS:
+                cell = cells[(episode, condition)]
+                if cell.status == "missing":
+                    row += [DASH, DASH]
+                elif cell.status == "error":
+                    row += [r"\multicolumn{2}{c}{error}"]
+                else:
+                    row += [f"{cell.true_positives}/{cell.false_positives}/{cell.false_negatives}",
+                            "yes" if cell.success else "no"]
+            lines.append(" & ".join(row) + r" \\")
+    lines.append(r"\midrule")
+    footer: list[tuple[str, Any]] = [
+        ("Episode successes", lambda run: f"{sum(c.success for c in run)}/{len(episodes)}"),
+        ("Micro precision / recall", lambda run: (
+            fmt_ratio(sum(c.true_positives for c in run), sum(c.true_positives + c.false_positives for c in run))
+            + " / "
+            + fmt_ratio(sum(c.true_positives for c in run), sum(c.true_positives + c.false_negatives for c in run))
+        )),
+        ("Findings with a forbidden action", lambda run: str(sum(c.disallowed_actions for c in run))),
+        ("Patch verification failures", lambda run: str(sum(c.verification_failures for c in run))),
+        ("Runs editing another file", lambda run: str(sum(c.edited_other_files for c in run))),
+    ]
+    for name, value in footer:
+        row = [name]
+        for condition, _ in TABLE_CONDITIONS:
+            run = [cells[(e, condition)] for e in episodes if cells[(e, condition)].status != "missing"]
+            if not run or (name == "Runs editing another file" and condition == "steward"):
+                text = DASH if not run else "n/a"
+            else:
+                text = value(run)
+                if name == "Episode successes" and len(run) < len(episodes):
+                    text += f" ({len(run)} run)"
+            row.append(rf"\multicolumn{{2}}{{c}}{{{text}}}")
+        lines.append(" & ".join(row) + r" \\")
+    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
+    return "```{=latex}\n" + "\n".join(lines) + "\n```\n"
 
 
 def update_region(text: str, name: str, content: str) -> str:
@@ -541,45 +641,42 @@ def update_region(text: str, name: str, content: str) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("results", type=Path, help="results folder containing summary.json")
+    parser.add_argument("results", type=Path, help="steward pilot results folder (summary.json, <episode>/steward.json)")
+    parser.add_argument("--codex-results", type=Path, default=DEFAULT_CODEX_RESULTS,
+                        help="Codex baseline results folder (<episode>/codex-*.json)")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--update-report", type=Path, help="Markdown report whose generated regions to refresh")
-    parser.add_argument("--findings-chart", action="store_true",
-                        help="also write findings_vs_false_alarms.{pdf,png} (used by the demo video)")
+    parser.add_argument("--demo-charts", action="store_true",
+                        help="write the demo video's pilot charts instead of the report's figure and table")
     parser.add_argument("--dpi", type=int, default=200, help="PNG resolution (default 200)")
     args = parser.parse_args(argv)
     global PNG_DPI
     PNG_DPI = args.dpi
-
-    summary_path = args.results / "summary.json"
-    summary = json.loads(summary_path.read_text(encoding="utf-8"))
-    try:
-        source = summary_path.resolve().relative_to(REPO_ROOT).as_posix()
-    except ValueError:
-        source = summary_path.as_posix()
     manifest = load_manifest(args.manifest)
-    conditions, episodes, cells = build_cells(summary, manifest)
-
     args.out.mkdir(parents=True, exist_ok=True)
-    plot_success_by_category(conditions, cells, args.out, source)
-    plot_outcome_grid(conditions, episodes, cells, args.out, source)
-    plot_architecture(args.out)
-    if args.findings_chart:
-        plot_findings(conditions, cells, args.out, source)
-    stats = condition_stats(conditions, cells)
-    table = results_table(conditions, stats, source)
-    sentence = results_summary(conditions, stats)
-    (args.out / "results_table.md").write_text(table, encoding="utf-8")
-    (args.out / "results_summary.md").write_text(sentence, encoding="utf-8")
 
+    if args.demo_charts:
+        summary_path = args.results / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        try:
+            source = summary_path.resolve().relative_to(REPO_ROOT).as_posix()
+        except ValueError:
+            source = summary_path.as_posix()
+        conditions, episodes, cells = build_cells(summary, manifest)
+        plot_success_by_category(conditions, cells, args.out, source)
+        plot_outcome_grid(conditions, episodes, cells, args.out, source)
+        plot_findings(conditions, cells, args.out, source)
+        print(f"wrote demo charts for {len(conditions)} conditions x {len(episodes)} episodes to {args.out}")
+        return 0
+
+    plot_architecture(args.out)
+    table = results_table(args.results, args.codex_results, manifest)
+    (args.out / "results_table.tex").write_text(table, encoding="utf-8")
     if args.update_report:
         text = args.update_report.read_text(encoding="utf-8")
-        for name, content in (("results_summary", sentence), ("results_table", table)):
-            if f"BEGIN GENERATED: {name} " in text:
-                text = update_region(text, name, content)
-        args.update_report.write_text(text, encoding="utf-8")
-    print(f"wrote figures and tables for {len(conditions)} conditions x {len(episodes)} episodes to {args.out}")
+        args.update_report.write_text(update_region(text, "results_table", table), encoding="utf-8")
+    print(f"wrote the architecture figure and results table to {args.out}")
     return 0
 
 

@@ -1,0 +1,36 @@
+```{=latex}
+\begin{table}[!ht]
+\caption{Per-episode outcomes, one run per condition and episode. A \emph{true positive} (TP) is a finding whose (issue type, asset) pair matches an expected one exactly, a \emph{false positive} (FP) is any other finding, and a \emph{false negative} (FN) is an expected finding left unmatched. An episode \emph{succeeds} only if the run completes with no FP or FN, no action class the contract forbids for the issue type, and no failed patch verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN) over the ten episodes. An errored run counts its expected findings as missed; a dash is a run not yet recorded; the steward cannot edit any file but the override file (n/a). Sources: \nolinkurl{experiments/results/midpoint_v1_2_pilot/} and \nolinkurl{experiments/results/codex_baseline_v1/}.}
+\label{tbl:results}
+\centering\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Steward} & \multicolumn{2}{c}{Codex, matched} & \multicolumn{2}{c}{Codex, frontier} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Episode & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Remediation}} \\
+\quad Stale revenue-filter description & 1/0/0 & yes & -- & -- & -- & -- \\
+\quad Wrong customer-order grain & 0/1/1 & no & -- & -- & -- & -- \\
+\quad Missing owner & 1/0/0 & yes & -- & -- & -- & -- \\
+\quad Legacy copy still active & 1/1/0 & no & -- & -- & -- & -- \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Flawed change}} \\
+\quad Revenue filter changed & 1/0/0 & yes & -- & -- & -- & -- \\
+\quad Grain changed, metadata not & 2/2/0 & no & -- & -- & -- & -- \\
+\quad New undocumented model & 1/0/0 & yes & -- & -- & -- & -- \\
+\quad Rename without lifecycle change & 2/0/0 & yes & -- & -- & -- & -- \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Clean control}} \\
+\quad Documented new model & 0/1/0 & no & -- & -- & -- & -- \\
+\quad Documented revenue metric & 0/1/0 & no & -- & -- & -- & -- \\
+\midrule
+Episode successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Findings with a forbidden action & \multicolumn{2}{c}{0} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Patch verification failures & \multicolumn{2}{c}{0} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Runs editing another file & \multicolumn{2}{c}{n/a} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+\bottomrule
+\end{tabular}
+\end{table}
+```

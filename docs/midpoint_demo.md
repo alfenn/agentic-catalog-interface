@@ -4,7 +4,7 @@ The recorded demo is now scripted from the completed three-condition pilot (`exp
 
 - [`writeups/midway_report/demo/demo_script.md`](../writeups/midway_report/demo/demo_script.md): a 2:45 run sheet with timestamps, what is on screen, word-for-word narration, measured command times, a pre-recording checklist, and a fallback for each live command.
 - [`writeups/midway_report/demo/demo_commands.sh`](../writeups/midway_report/demo/demo_commands.sh): one function per segment (`./demo_commands.sh prep`, then `1` to `7`; `time` to rehearse).
-- `writeups/midway_report/demo/figures/`: the charts, generated from the pilot's `summary.json` by `writeups/midway_report/make_figures.py --findings-chart`.
+- `writeups/midway_report/demo/figures/`: the charts, generated from the pilot's `summary.json` by `writeups/midway_report/make_figures.py --demo-charts`.
 
 The connected story uses two episodes. Each resets independently from its own fixture, so the second does not carry forward the first's patch.
 

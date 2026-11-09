@@ -214,9 +214,9 @@ prep() {
   step "make sync"; make sync >/dev/null 2>&1 || { echo "make sync failed"; return 1; }
   step "make fixture EPISODE=$REM"; make fixture EPISODE=$REM >/dev/null 2>&1 || { echo "fixture $REM failed"; return 1; }
   step "make fixture EPISODE=$CHG"; make fixture EPISODE=$CHG >/dev/null 2>&1 || { echo "fixture $CHG failed"; return 1; }
-  step "make_figures.py $PILOT --out $FIGS --findings-chart --dpi 300"
+  step "make_figures.py $PILOT --out $FIGS --demo-charts --dpi 300"
   uv run --quiet --group report python writeups/midway_report/make_figures.py "$PILOT" --out "$FIGS" \
-    --findings-chart --dpi 300 && rm -f "$FIGS"/*.pdf
+    --demo-charts --dpi 300 && rm -f "$FIGS"/*.pdf
   uv run --quiet python -m catalog_steward.contract >/dev/null
   echo "ready: segments 3 and 5 show saved pilot artifacts"
 

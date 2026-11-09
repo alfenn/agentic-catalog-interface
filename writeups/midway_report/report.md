@@ -43,20 +43,52 @@ Maintainers of lakehouses need catalog metadata (ownership, grain, filters, life
 
 # Results (Summary of Progress) {#sec:results}
 
-**Completed work and matched cases.** The fixture, evidence tools, steward workflow and evaluator are implemented. Table\ \ref{tbl:paired} compares the two selected cases using exact manifest labels. TP is a matching finding; FP is an extra finding; FN is a missed expected finding. Success requires no extras or misses and the checks described above. Each case has one record per condition; the revenue steward record reuses an earlier response. Codex findings were manually mapped from its path-based output to the same labels and its actions inspected separately; this was an adaptation of the scorer, not a run of the steward executor. Prompts, inputs, traces and scoring are in `experiments/results/codex_midway_two_case/README.md`.
+**What we compared.** Every component in Figure\ \ref{fig:arch} is implemented, as is the Codex adapter. Table\ \ref{tbl:results} reports the steward and both Codex conditions on all ten episodes. **[TODO after the full Codex run: one or two sentences on the totals, read from the table.]**
 
-| Case | Steward TP/FP/FN | Codex TP/FP/FN | Steward / Codex success |
-|:--|:--:|:--:|:--:|
-| Revenue-filter repair | 1/0/0 | 1/0/0 | yes / yes |
-| Changed grain | 2/2/0 | 2/2/0 | no / no |
+<!-- BEGIN GENERATED: results_table (make_figures.py; do not edit by hand) -->
+```{=latex}
+\begin{table}[!ht]
+\caption{Per-episode outcomes, one run per condition and episode. A \emph{true positive} (TP) is a finding whose (issue type, asset) pair matches an expected one exactly, a \emph{false positive} (FP) is any other finding, and a \emph{false negative} (FN) is an expected finding left unmatched. An episode \emph{succeeds} only if the run completes with no FP or FN, no action class the contract forbids for the issue type, and no failed patch verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN) over the ten episodes. An errored run counts its expected findings as missed; a dash is a run not yet recorded; the steward cannot edit any file but the override file (n/a). Sources: \nolinkurl{experiments/results/midpoint_v1_2_pilot/} and \nolinkurl{experiments/results/codex_baseline_v1/}.}
+\label{tbl:results}
+\centering\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Steward} & \multicolumn{2}{c}{Codex, matched} & \multicolumn{2}{c}{Codex, frontier} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Episode & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Remediation}} \\
+\quad Stale revenue-filter description & 1/0/0 & yes & -- & -- & -- & -- \\
+\quad Wrong customer-order grain & 0/1/1 & no & -- & -- & -- & -- \\
+\quad Missing owner & 1/0/0 & yes & -- & -- & -- & -- \\
+\quad Legacy copy still active & 1/1/0 & no & -- & -- & -- & -- \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Flawed change}} \\
+\quad Revenue filter changed & 1/0/0 & yes & -- & -- & -- & -- \\
+\quad Grain changed, metadata not & 2/2/0 & no & -- & -- & -- & -- \\
+\quad New undocumented model & 1/0/0 & yes & -- & -- & -- & -- \\
+\quad Rename without lifecycle change & 2/0/0 & yes & -- & -- & -- & -- \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Clean control}} \\
+\quad Documented new model & 0/1/0 & no & -- & -- & -- & -- \\
+\quad Documented revenue metric & 0/1/0 & no & -- & -- & -- & -- \\
+\midrule
+Episode successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Findings with a forbidden action & \multicolumn{2}{c}{0} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Patch verification failures & \multicolumn{2}{c}{0} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Runs editing another file & \multicolumn{2}{c}{n/a} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+<!-- END GENERATED: results_table -->
 
-Table: Two illustrative episodes, one run per condition; matches and extras are relative to the existing manifest. {#tbl:paired}
+**Remediation walkthrough.** **[TODO after the full Codex run and audit: one remediation episode. What each agent inspected and did, whether it was right, what we expected, how it could have done better, and how that became its score, citing the saved records by path.]**
 
-**Case 1: revenue-filter repair.** In `rem_daily_revenue_filter_drift`, the catalog says all orders while SQL filters to completed orders. The expected finding is SQL/metadata drift on `daily_revenue`. The steward cited evidence and patched the description to completed orders: 1 TP, 0 FP, 0 FN, and episode success. Codex also patched the override and compared the JSON description; it did not run dbt tests. The steward checked written equality and dbt parsing, not semantic correctness. The pilot folder contains the plan and ledger for this episode.
+**Change-review walkthrough.** **[TODO after the full Codex run and audit: one change-review episode, covered the same way.]**
 
-**Case 2: changed grain.** In `change_customer_orders_grain`, the manifest expects grain drift and an unsupported reliability claim on `customer_orders`. The steward found both, but also reported a duplicate SQL-drift issue and an undocumented seed: 2 TP, 2 FP, 0 FN, so the episode fails despite complete recall. Codex also reported both expected issues and the same two extras, requested review, and made no changes. It calculated join cardinalities from CSV rather than running dbt tests. The seed is a real pre-existing gap, illustrating a disagreement between scope/labels and findings rather than an invented problem. The pilot folder contains this episode's plan and the audit.
-
-**Limitations.** This is a small, single-sample, AI-constructed suite; both clean controls contain unlabelled gaps, and four records in the original pilot reuse earlier responses. The validator's issue-type rules can be bypassed by a mislabel: on the wrong-grain case the steward patched a correct value even though that episode accepts only a proposal with uniqueness evidence. Verification does not check that semantic postcondition. These two cases show no observed difference in exact-label scores, not evidence of equivalence or general superiority. Independent label review, more cases, repeated runs and matched ablations remain future work.
+**Limitations.** Each cell is one sample. In the paired check, matched Codex succeeded on the revenue-filter change in two of three samples and added an unsupported reliability finding in the third (`experiments/results/codex_baseline_v1_paired_check/README.md`), so a one-episode difference can be noise. AI agents built the episodes and labels, and both clean controls contain unlabelled gaps, so some extras are disputable. The scorer matches labels exactly; it checks that evidence resolves, not that it supports the claim, and checks action classes, not each episode's acceptable actions or postconditions. Patch verification checks the written value and `dbt parse`, not semantic correctness. **[TODO after the full Codex run: what the observed differences do and do not support; no superiority or equivalence claim beyond ten single-sample episodes.]**
 
 # Assets {#sec:assets}
 
@@ -76,8 +108,8 @@ Table: Two illustrative episodes, one run per condition; matches and extras are 
 **Risks and mitigations.** *Scope growth:* a frozen five-type contract with hard limits. *Ambiguous ground truth* (seen in both clean controls): documented seeds, a precedence rule, human label review. *Unsupported claims* (one invented-evidence run passed): claim--evidence support checks and manual audit. *Unmatched comparison:* align model, prompts and action limits, then test bundle ablations. *Warning overload* (six steward extras): clean controls, a five-finding cap, flagging only gaps a change introduces. *Small pilot:* per-episode reporting, more episodes.
 
 ```{=latex}
-\label{bodyend}
 \bibliography{references}
+\label{referencesend}
 \bibliographystyle{iclr2025_conference}
 \appendix
 ```
