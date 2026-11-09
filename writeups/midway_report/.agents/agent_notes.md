@@ -623,3 +623,7 @@ context: [
 - Codex gets the same task specification as the steward (trigger, scope, hygiene contract, five-finding cap, patch surface) but not the evidence bundle, validator or executor, which are the intervention. Its workspace is built outside the repository with label material removed, and its tools come from a separate environment, so neither the workspace nor `PATH` leads to the labelled repository.
 - The steward side stays the frozen pilot. Re-running it would add a fresh sample but would also blur the claim that nothing was tuned after Codex results were seen.
 - Work is split across subagents: the runner and tests in one, the architecture diagram and section in another. Shared tracking files (`agent_notes.md`, `AGENT_TODO.md`) are edited only by the coordinating agent to avoid concurrent overwrites.
+
+## 2026-11-08 — Total page limit
+
+- Removed the forced page break before references, keeping all text and ICLR typography intact. The regenerated report fits four total pages including references and AI-use disclosure; all four pages were visually inspected for legibility and overflow.
