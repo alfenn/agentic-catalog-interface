@@ -73,6 +73,28 @@ The saved pilot made 30 runs with 0 errors in about 8.5 minutes and cost $0.0172
 
 The model wrapper caches responses and records spend under the cache directory. `make costs` summarizes its ledger. The budget checks recorded spend before a cache miss, so a call can cross the threshold; it is not a provider-side hard cap. Use a small episode selection, inspect the ledger, and set a suitable budget before live runs.
 
+## Codex baseline
+
+The Codex baseline gives OpenAI's Codex CLI the steward's task: the same trigger, asset scope, hygiene contract (issue types, required evidence, allowed and forbidden actions), five-finding cap and patch surface (the five catalog fields in `catalog/overrides.json`). It also gets the same inputs and data access: a freshly built fixture with the dbt project, its `target/` artifacts, the DuckDB warehouse and, for change review, the diff. It does not get the steward's evidence bundle, plan validator, executor or verifier; those are what the comparison tests. The frozen configuration is [experiments/configs/codex_baseline_v1.yaml](experiments/configs/codex_baseline_v1.yaml) (Codex CLI 0.167.0, prompt `codex-hygiene-v1`, output schema [design/codex_plan.schema.json](design/codex_plan.schema.json), sandbox `workspace-write`, scorer `midpoint-score-v1`). It defines two conditions: `codex-matched` (`gpt-6-luna`, low reasoning effort, the steward pilot's model and effort) and `codex-frontier` (`gpt-6.1-sol`, medium effort).
+
+Prerequisites: the Codex CLI 0.167.0 on `PATH`, logged in (`codex login`; runs use that account's quota, not OpenRouter), plus `uv`. dbt, DuckDB and Python for Codex come from a separate tool environment at `~/.cache/catalog-steward/codex-tools`, outside the repository, so nothing on Codex's `PATH` points at the labelled repository. The runner creates it on first use with the dbt-core, dbt-duckdb and duckdb versions pinned in `uv.lock`, and reuses it afterwards. To create it and check it, and to check dbt and DuckDB inside the Codex sandbox (one short Codex call):
+
+```sh
+uv run python -m catalog_steward.codex_baseline --check-tools
+uv run python -m catalog_steward.codex_baseline --check-codex-sandbox
+```
+
+Run one condition at a time into a new, empty output directory:
+
+```sh
+uv run python -m catalog_steward.codex_baseline --condition codex-matched --jobs 3 --output .runs/codex-baseline
+uv run python -m catalog_steward.codex_baseline --condition codex-frontier --jobs 3 --output .runs/codex-baseline
+```
+
+`--episodes a,b` selects a subset, and `--keep-workspaces` keeps the temporary workspaces for inspection. Each run builds its episode in a new temporary directory outside the repository with an opaque name. It removes the episode file, marker, pre-change copy and build log, checks that no episode ID or repository path remains anywhere in the workspace, and invokes `codex exec` with a minimal environment. Codex's personal settings, rules, hooks, connectors, plugins, memories and web search are disabled, and it runs a non-login shell. After Codex exits, the harness diffs the project, re-runs the steward's patch verification (the catalog field equals the declared value and `dbt parse` succeeds) on the final workspace, fails any edit outside the override file or any undeclared override change, flags commands that leave the workspace or touch label material, and scores the converted plan with the unchanged scorer. Evidence validity for Codex means that cited files exist in the workspace and cited commands were actually run. Results land in `<output>/<episode_id>/<condition>.json` (result, score, run settings, flags). Artifacts go in `<output>/<episode_id>/<condition>_artifacts/` (prompt, event stream, stderr, final answer, workspace diff, verification log, CLI version), and `<output>/summary.json` holds per-condition totals. No cost is recorded. A failed or malformed run is saved as an error, not dropped. A new run is a fresh sample and need not reproduce the saved outputs.
+
+The saved runs are the [paired check](experiments/results/codex_baseline_v1_paired_check/README.md) on two episodes, which validated the adapter, and the [frozen ten-episode run](experiments/results/codex_baseline_v1/README.md) of both conditions, with its [trace audit](experiments/results/codex_baseline_v1/analysis.md). The earlier [two-case Codex runs](experiments/results/codex_midway_two_case/README.md) used a different model and a prompt without the contract, and are superseded.
+
 ## Midpoint limitations
 
 The checked-in pilot is one sample per episode on ten author-built fixtures, so it supports per-episode observations, not a general or statistical comparison. Its [audit](experiments/results/midpoint_v1_2_pilot/analysis.md) records the main caveats: only the steward receives the evidence bundle, per-issue action rules and a plan validator, so call counts and unsafe-action rates are not like-for-like; the scorer matches exact issue labels and checks action classes, not episode postconditions or episode-specific unsafe actions; evidence validity only checks that cited IDs resolve, so it missed a generic run built on invented tool output; steward patch verification confirms the written value and `dbt parse`, not semantic correctness; and both clean controls contain real gaps that the labels do not anticipate. The fixture is a small local study, not evidence of production performance. Hosted integrations, broader study coverage, and automatic destructive or business-semantic decisions remain outside the midpoint scope.
