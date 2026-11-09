@@ -71,7 +71,7 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 \caption{Catalog steward architecture as implemented in \protect\texttt{src/catalog\_steward/}. Both triggers feed one workflow. The model reads a bundle of content-hashed evidence, may call read-only tools, and returns a structured plan. A deterministic validator accepts the plan or returns it once for repair, and each accepted finding is then patched, proposed or reported, and logged. The only planned element is dashed: the contract's per-issue verification checks.}\label{fig:arch}
 \end{figure}
 
-\textbf{Conditions.} The \emph{steward} uses \texttt{gpt-6-luna} at low reasoning effort, at most 12 turns, with the evidence bundle, read-only tools, validator and executor. \emph{Codex, matched} is OpenAI Codex CLI 0.167.0 \citep{openai_codex} on the same model and effort, so the harness is what differs; \emph{Codex, frontier} uses \texttt{gpt-6.1-sol} at medium effort. Both get the steward's task specification, including the hygiene contract (Section~\ref{sec:env}), the same dbt project and warehouse, and, for change-review examples, the proposed change's diff. In place of the bundle, validator and executor, they get general shell and file tools, which run in a sandbox that is writable only inside the workspace, with no network access and no turn limit within a 30-minute timeout; they return their answer in a JSON output schema.
+\textbf{Conditions.} I compare three conditions. The \emph{steward} runs on the agentic harness I built (evidence bundle, read-only tools, validator and executor) with \texttt{gpt-6-luna} at low reasoning effort for at most 12 turns. Two Codex comparisons run OpenAI Codex CLI 0.167.0 \citep{openai_codex}: \emph{Codex, matched} on the same model and effort, so only the harness differs, and \emph{Codex, frontier} on \texttt{gpt-6.1-sol} at medium effort. Both Codex comparisons get the steward's task specification, including the hygiene contract (Section~\ref{sec:env}), the same dbt project and warehouse, and, for change-review examples, the proposed change's diff. Instead of the bundle, validator and executor, they get general shell and file tools in a sandbox writable only inside the workspace, with no network and no turn limit within a 30-minute timeout, and answer in a JSON output schema.
 
 \subsection{What Did Not Work, and Pivots}\label{sec:pivots}
 
@@ -132,7 +132,7 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 
 \section{Timeline (Summary of Progress: Next Steps and Risks)}\label{sec:timeline}
 
-\textbf{Milestones.} Course deadlines are Demo Day on December 9 and the final 8-page report on December 11; intermediate dates are our targets.
+\textbf{Milestones.} Course deadlines are Demo Day on December 9 (a live demo of both modes) and the final 8-page report on December 11; intermediate dates are our targets.
 
 \begin{itemize}
 \tightlist
@@ -142,8 +142,6 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
   \emph{By November 20:} postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
 \item
   \emph{By December 4:} repeated samples, tool-versus-workflow ablations against matched Codex, and growth toward 30--50 audited examples.
-\item
-  \emph{December 9 and 11:} live demo of both modes; final report.
 \end{itemize}
 
 \textbf{Obstacles and concerns.} No credential or pipeline blocker remains. The main concern is validity: label choices and protocol behaviour move results as much as the workflow, so fixes go into a new version set before new runs, not into rescoring old ones.

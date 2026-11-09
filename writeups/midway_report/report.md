@@ -30,7 +30,7 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 ![Catalog steward architecture as implemented in `src/catalog_steward/`. Both triggers feed one workflow. The model reads a bundle of content-hashed evidence, may call read-only tools, and returns a structured plan. A deterministic validator accepts the plan or returns it once for repair, and each accepted finding is then patched, proposed or reported, and logged. The only planned element is dashed: the contract's per-issue verification checks.](figures/architecture.pdf){#fig:arch width=100%}
 
-**Conditions.** The *steward* uses `gpt-6-luna` at low reasoning effort, at most 12 turns, with the evidence bundle, read-only tools, validator and executor. *Codex, matched* is OpenAI Codex CLI 0.167.0 [@openai_codex] on the same model and effort, so the harness is what differs; *Codex, frontier* uses `gpt-6.1-sol` at medium effort. Both get the steward's task specification, including the hygiene contract (Section\ \ref{sec:env}), the same dbt project and warehouse, and, for change-review examples, the proposed change's diff. In place of the bundle, validator and executor, they get general shell and file tools, which run in a sandbox that is writable only inside the workspace, with no network access and no turn limit within a 30-minute timeout; they return their answer in a JSON output schema.
+**Conditions.** I compare three conditions. The *steward* runs on the agentic harness I built (evidence bundle, read-only tools, validator and executor) with `gpt-6-luna` at low reasoning effort for at most 12 turns. Two Codex comparisons run OpenAI Codex CLI 0.167.0 [@openai_codex]: *Codex, matched* on the same model and effort, so only the harness differs, and *Codex, frontier* on `gpt-6.1-sol` at medium effort. Both Codex comparisons get the steward's task specification, including the hygiene contract (Section\ \ref{sec:env}), the same dbt project and warehouse, and, for change-review examples, the proposed change's diff. Instead of the bundle, validator and executor, they get general shell and file tools in a sandbox writable only inside the workspace, with no network and no turn limit within a 30-minute timeout, and answer in a JSON output schema.
 
 ## What Did Not Work, and Pivots {#sec:pivots}
 
@@ -95,12 +95,11 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 
 # Timeline (Summary of Progress: Next Steps and Risks) {#sec:timeline}
 
-**Milestones.** Course deadlines are Demo Day on December 9 and the final 8-page report on December 11; intermediate dates are our targets.
+**Milestones.** Course deadlines are Demo Day on December 9 (a live demo of both modes) and the final 8-page report on December 11; intermediate dates are our targets.
 
 - *By November 13:* a revised example set, locked before any new run: documented seeds, truly clean controls, an issue-type precedence rule checked independently of the model's label, and human review of the AI-built labels.
 - *By November 20:* postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
 - *By December 4:* repeated samples, tool-versus-workflow ablations against matched Codex, and growth toward 30--50 audited examples.
-- *December 9 and 11:* live demo of both modes; final report.
 
 **Obstacles and concerns.** No credential or pipeline blocker remains. The main concern is validity: label choices and protocol behaviour move results as much as the workflow, so fixes go into a new version set before new runs, not into rescoring old ones.
 
