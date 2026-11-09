@@ -44,7 +44,7 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 ## Reported Results {#sec:reported}
 
-The steward succeeds on 5 of 10 examples, matched-Codex on 6 and frontier-Codex on 7 (Table\ \ref{tbl:results}). The steward has the highest recall (0.90 vs. 0.70 and 0.80) but the most extras (6 vs. 5 and 3). No run used a forbidden action or failed verification.
+The steward succeeds on 5/10 examples, matched-Codex on 6/10 and frontier-Codex on 7/10 (Table\ \ref{tbl:results}). Precision and recall are 0.60 and 0.90 for the steward, 0.58 and 0.70 for matched-Codex, and 0.73 and 0.80 for frontier-Codex. The steward finds the most answer-key problems but also reports the most *extras*: false positives, reported problems matching no answer-key entry (6 vs. 5 and 3).
 
 <!-- BEGIN GENERATED: results_table (make_figures.py; do not edit by hand) -->
 ```{=latex}
@@ -87,9 +87,9 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 
 **Steward vs. matched-Codex.** With the same model, the steward's harness finds more: its bundle covers every table in scope, so only the steward caught the failing uniqueness claim and the stale legacy copy. It also reports more extras, and one borderline extra decides the one-example gap. Both filed the wrong-grain problem as SQL/metadata drift and patched it, so that error is the model's.
 
-**Steward vs. frontier-Codex.** The gap comes mostly from the stronger model, which labelled the wrong-grain problem correctly, proposed instead of patching, and reported half the extras. It still missed both problems only the steward caught. With no steward run on this model, model and harness are confounded.
+**Steward vs. frontier-Codex.** The gap comes mostly from the stronger model, which labelled the wrong-grain problem correctly and reported half the extras. It still missed both problems only the steward caught. With no steward run on this model, model and harness are confounded.
 
-**Why Codex scored higher.** Success is all-or-nothing, so one extra fails an example. The steward shows the model every table in scope, so it comments on more, and half its extras are real gaps the labels miss; Codex reads only what it chooses and reports less. The scorer also misses the largest difference: in change review the steward only proposed, while Codex patched the catalog in 3 (matched) and 4 (frontier) of six runs, e.g., rewriting the revenue description to accept an unreviewed refund change.
+**Why Codex scored higher.** Success is all-or-nothing, so one extra fails an example. The steward shows the model every table in scope, so it comments on more, and half its extras are real gaps the labels miss; Codex reads only what it chooses and reports less. The scorer misses the largest difference: in change review the steward only proposed, while Codex patched the catalog in 3 and 4 of six runs, e.g., rewriting the revenue description to accept an unreviewed change.
 
 **How to improve the steward.** Keep the breadth but filter the report: in change review, flag only gaps the change introduces, and drop findings the model itself calls unestablished. Have the validator check evidence content, not presence (the legacy-copy finding cited an empty diff as history), and fix a precedence between overlapping issue types so a grain problem cannot be patched as drift.
 
@@ -103,13 +103,13 @@ Each cell is one run (matched-Codex passed the filter change in two of three ear
 
 # Timeline (Summary of Progress: Next Steps and Risks) {#sec:timeline}
 
-**Milestones.** Course deadlines are Demo Day on December 9 (a live demo of both modes) and the final 8-page report on December 11; intermediate dates are our targets.
+**Milestones.** Demo Day is December 9 and the final report December 11; the rest are my targets.
 
 - *By November 13:* a revised example set, locked before new runs: documented seeds, truly clean controls, a label-independent issue-type precedence rule, human label review.
 - *By November 20:* postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
 - *By December 4:* repeated samples, ablations and about 50 audited examples.
 
-**Risks and mitigations.** *Scope growth:* a contract held at five issue types. *Ambiguous ground truth* (seen in both clean controls): documented seeds, a precedence rule, human label review. *Unsupported claims* (one invented-evidence run passed): claim--evidence support checks and manual audit.
+**Risks and mitigations.** *Scope growth:* a contract held at five issue types. *Ambiguous ground truth* (seen in both clean controls): documented seeds, a precedence rule, human label review. *Unsupported claims* (one invented-evidence run passed): claim--evidence checks and manual audit.
 
 ```{=latex}
 \bibliography{references}
