@@ -14,6 +14,8 @@ and the episode manifest, then writes into ``--out``:
   episode category (remediation / flawed change / clean control).
 * ``outcome_grid.{pdf,png}``: one cell per episode x condition, labelled
   success / partial / missed / false alarm / error / pending.
+* ``architecture.{pdf,png}``: the steward's implemented architecture (drawn, not
+  read from the run), with the planned per-issue checks dashed.
 * ``findings_vs_false_alarms.{pdf,png}`` (only with ``--findings-chart``): expected
   issues found and false alarms per condition, as two small-multiple panels.
 * ``results_table.md`` and ``results_summary.md``: the Markdown table and summary
@@ -39,7 +41,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import yaml  # noqa: E402
-from matplotlib.patches import Rectangle  # noqa: E402
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MANIFEST = REPO_ROOT / "data/episodes/manifest.yaml"
@@ -294,6 +296,154 @@ def plot_findings(conditions: list[str], cells: list[Cell], out: Path, source: s
     save(fig, out / "findings_vs_false_alarms")
 
 
+# Architecture diagram tints: one light wash per role.
+ARCH_TRIGGER = "#e9f1fb"  # blue: entry points
+ARCH_CHECK = NEUTRAL  # neutral: deterministic evidence, checks, and records
+ARCH_MODEL = "#fdeee7"  # orange: the language model and its plan
+ARCH_OUTPUT = "#e6f5ee"  # green: action outcomes
+
+
+def plot_architecture(out: Path) -> None:
+    """Steward architecture as implemented in src/catalog_steward/; the one planned part is dashed."""
+    width, height = 5.5, 2.46  # inches; the axes use inch coordinates, so font sizes are true point sizes
+    fig = plt.figure(figsize=(width, height))
+    fig.patch.set_facecolor(SURFACE)
+    ax = fig.add_axes((0, 0, 1, 1))
+    ax.set_xlim(0, width)
+    ax.set_ylim(0, height)
+    ax.axis("off")
+    pad, line_step = 0.05, 0.128
+    boxes: list[tuple[Any, list[Any]]] = []
+
+    def box(x, y, w, h, title, lines=(), fill=ARCH_CHECK, dashed=False):
+        patch = FancyBboxPatch(
+            (x, y), w, h, boxstyle="round,pad=0,rounding_size=0.04", facecolor=fill,
+            edgecolor=MUTED if dashed else BASELINE, linewidth=0.8, linestyle=(0, (3, 2)) if dashed else "-",
+        )
+        ax.add_patch(patch)
+        color = MUTED if dashed else INK
+        texts = [ax.text(x + pad, y + h - pad, title, ha="left", va="top", fontsize=7.5, fontweight="bold",
+                         color=color)]
+        for i, line in enumerate(lines, start=1):
+            texts.append(ax.text(x + pad, y + h - pad - 0.02 - line_step * i, line, ha="left", va="top",
+                                 fontsize=7, color=MUTED if dashed else INK_2))
+        boxes.append((patch, texts))
+
+    def arrow(start, end, both=False):
+        ax.add_patch(FancyArrowPatch(
+            start, end, arrowstyle="<|-|>" if both else "-|>", mutation_scale=7, color=INK_2,
+            linewidth=0.8, shrinkA=0, shrinkB=0,
+        ))
+
+    gap = 0.12
+    widths = {"trigger": 0.98, "inspect": 1.18, "plan": 0.84, "validate": 0.96, "act": 1.06}
+    left, x = {}, 0.0
+    for name, w in widths.items():
+        left[name] = x
+        x += w + gap
+    right = {name: left[name] + widths[name] for name in widths}
+    for name, header in (("trigger", "Trigger"), ("inspect", "1 Inspect"), ("plan", "2 Plan"),
+                         ("validate", "3 Validate"), ("act", "4 Act + verify")):
+        ax.text(left[name], height - 0.03, header.upper(), ha="left", va="top", fontsize=7, color=MUTED,
+                fontweight="bold")
+
+    # Main band: two rows (a over b) under the stage headers; the lower band holds tools and the ledger.
+    top = height - 0.2
+    band = 1.6
+    bottom = top - band
+    row = (band - 0.06) / 2
+    a_y, b_y = top - row, bottom
+    a_mid, b_mid = a_y + row / 2, b_y + row / 2
+    low_top = bottom - 0.1
+
+    # Two entry points feed one shared workflow.
+    box(left["trigger"], a_y, widths["trigger"], row, "Remediation", ["existing hygiene", "debt in scope"],
+        fill=ARCH_TRIGGER)
+    box(left["trigger"], b_y, widths["trigger"], row, "Change review", ["proposed change;", "adds its diff"],
+        fill=ARCH_TRIGGER)
+    join = (left["inspect"], bottom + band / 2)
+    arrow((right["trigger"], a_mid), join)
+    arrow((right["trigger"], b_mid), join)
+
+    # 1 Inspect: the evidence bundle, collected without labels; tools the model may call while planning.
+    box(left["inspect"], bottom, widths["inspect"], band, "Evidence bundle", [
+        "catalog metadata",
+        "dbt schema, manifest",
+        "model SQL",
+        "parsed SQL facts",
+        "1-hop lineage",
+        "bounded profile",
+        "change diff (review)",
+        "content-hashed IDs",
+    ])
+    tools_h = 0.5
+    box(0.0, low_top - tools_h, right["plan"], tools_h, "9 read-only, schema-checked tools for planning", [
+        "catalog, dbt schema, model SQL, SQL facts, manifest node,",
+        "lineage (2 hops), bounded profile, diff, confined file read",
+    ])
+
+    # 2 Plan: the model loop returns a structured plan.
+    box(left["plan"], b_y, widths["plan"], row, "LLM agent", ["calls tools,", "≤12 turns,", "1 repair turn"],
+        fill=ARCH_MODEL)
+    box(left["plan"], a_y, widths["plan"], row, "Plan (JSON)", ["≤5 findings:", "each: claim,", "evidence IDs,",
+                                                               "action"], fill=ARCH_MODEL)
+    arrow((right["inspect"], b_mid), (left["plan"], b_mid))
+    plan_x = left["plan"] + widths["plan"] / 2
+    arrow((plan_x, b_y + row), (plan_x, a_y))
+    arrow((plan_x, low_top), (plan_x, b_y), both=True)
+
+    # 3 Validate: schema and risk-aware action policy; a rejected plan goes back for one repair turn.
+    box(left["validate"], bottom, widths["validate"], band, "Validator", [
+        "plan schema",
+        "asset in scope",
+        "known issue type",
+        "action class",
+        "  allowed for type",
+        "required evidence",
+        "  kinds cited",
+        "cited IDs resolve",
+    ])
+    arrow((right["plan"], a_mid), (left["validate"], a_mid))
+    arrow((left["validate"], b_mid), (right["plan"], b_mid))
+
+    # 4 Act + verify: route each finding by its action class.
+    act_x, act_w = left["act"], widths["act"]
+    small = 0.33
+    patch_h = band - 2 * small - 2 * 0.04
+    box(act_x, top - patch_h, act_w, patch_h, "Patch", ["override file only;", "check value = plan,", "dbt parse"],
+        fill=ARCH_OUTPUT)
+    box(act_x + 0.05, top - patch_h + 0.05, act_w - 0.1, 0.2, "", dashed=True)
+    ax.text(act_x + 0.1, top - patch_h + 0.15, "per-issue checks", ha="left", va="center", fontsize=7,
+            color=MUTED, style="italic")
+    propose_y = top - patch_h - 0.04 - small
+    box(act_x, propose_y, act_w, small, "Propose", ["review request"], fill=ARCH_OUTPUT)
+    box(act_x, bottom, act_w, small, "Report", ["finding only"], fill=ARCH_OUTPUT)
+    for mid in (top - patch_h / 2, propose_y + small / 2, bottom + small / 2):
+        arrow((right["validate"], mid), (act_x, mid))
+
+    # Every executed finding is appended to the ledger.
+    ledger_x = left["validate"]
+    ledger_h = 0.36
+    box(ledger_x, low_top - ledger_h, width - ledger_x, ledger_h, "Append-only ledger",
+        ["findings, evidence IDs, actions, checks"])
+    ax.text(width, 0.0, "dashed: planned, not implemented", ha="right", va="bottom", fontsize=7, color=MUTED,
+            style="italic")
+    arrow((act_x + act_w / 2, bottom), (act_x + act_w / 2, low_top))
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    overflow = []
+    for patch, texts in boxes:
+        frame = patch.get_window_extent(renderer)
+        for text in texts:
+            extent = text.get_window_extent(renderer)
+            if text.get_text() and (extent.x1 > frame.x1 - 2 or extent.y0 < frame.y0 + 2):
+                overflow.append(text.get_text())
+    if overflow:
+        raise RuntimeError(f"architecture text overflows its box: {overflow}")
+    save(fig, out / "architecture")
+
+
 def save(fig: Any, stem: Path) -> None:
     fig.savefig(stem.with_suffix(".pdf"), facecolor=SURFACE)
     fig.savefig(stem.with_suffix(".png"), dpi=PNG_DPI, facecolor=SURFACE)
@@ -414,6 +564,7 @@ def main(argv: list[str] | None = None) -> int:
     args.out.mkdir(parents=True, exist_ok=True)
     plot_success_by_category(conditions, cells, args.out, source)
     plot_outcome_grid(conditions, episodes, cells, args.out, source)
+    plot_architecture(args.out)
     if args.findings_chart:
         plot_findings(conditions, cells, args.out, source)
     stats = condition_stats(conditions, cells)
