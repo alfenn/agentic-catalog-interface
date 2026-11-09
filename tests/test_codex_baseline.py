@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shlex
 import shutil
 import sys
 import textwrap
@@ -20,6 +21,7 @@ from catalog_steward.codex_baseline import (
     load_config,
     prepare_workspace,
     run_baseline,
+    to_steward_plan,
 )
 from catalog_steward.config import REPO_ROOT
 from catalog_steward.contract import load_contract
@@ -384,6 +386,32 @@ def test_isolation_flags_catch_outside_reads_and_label_material(tmp_path: Path) 
     assert flagged["cat /etc/hosts"] == ["path outside workspace /etc/hosts"]
     assert flagged["ls ../"] == ["parent-directory reference"]
     assert flagged["cat notes"] == [f"episode id {EPISODE}"]
+
+
+def test_command_citations_resolve_against_commands_that_ran(tmp_path: Path) -> None:
+    (tmp_path / "project/models").mkdir(parents=True)
+    (tmp_path / "project/models/daily_revenue.sql").write_text("select 1", encoding="utf-8")
+    query = "print(c.execute('select 1 limit 10').fetchall())"
+    ran = f'cat project/models/x.sql && python -c "import duckdb; {query}; print(2)"'
+    cited = f'python -c "import duckdb; {query}"'
+    events = [
+        {"type": "item.completed", "item": {"id": "a", "type": "command_execution", "exit_code": 0,
+                                            "command": "/bin/bash -c " + shlex.quote(ran)}},
+        {"type": "item.completed", "item": {"id": "b", "type": "command_execution", "exit_code": 1,
+                                            "command": "/bin/bash -c 'dbt test'"}},
+    ]
+    finding = codex_finding()
+    finding["evidence"] = [
+        {"kind": "command", "source": cited, "fact": "one statement of a compound command"},
+        {"kind": "command", "source": "dbt test", "fact": "failed command"},
+        {"kind": "command", "source": "dbt build", "fact": "never ran"},
+        {"kind": "file", "source": "models/daily_revenue.sql:3", "fact": "relative to project"},
+        {"kind": "file", "source": "project/models/missing.sql", "fact": "does not exist"},
+    ]
+    plan, evidence = to_steward_plan(codex_final([finding]), tmp_path, events)
+
+    assert len(plan["findings"][0]["evidence_ids"]) == 5
+    assert sorted(item["source"] for item in evidence) == ["models/daily_revenue.sql:3", cited]
 
 
 @pytest.mark.live

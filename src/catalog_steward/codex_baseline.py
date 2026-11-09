@@ -704,6 +704,16 @@ def verify_findings(
 # Conversion ----------------------------------------------------------------
 
 
+def _command_text(command: str) -> str:
+    """Comparable form of a command: whitespace collapsed and shell quoting removed.
+
+    Codex often cites one statement of a compound command it ran, re-quoted to stand
+    alone; quoting differs between the two even though the same command ran.
+    """
+
+    return " ".join(re.sub(r"[\\'\"`]", "", command).split())
+
+
 _LINE_SUFFIX = re.compile(r"(:\d+(-\d+)?|#L\d+(-L?\d+)?)$")
 
 
@@ -724,7 +734,7 @@ def _citation_valid(
             path.resolve().is_relative_to(root) and path.is_file()
             for path in candidates
         )
-    cited = " ".join(source.strip("`").split())
+    cited = _command_text(source)
     # A cited command matches an executed one if either contains the other; very short
     # executed commands (``ls``, ``pwd``) only match exactly.
     return bool(cited) and any(
@@ -744,7 +754,7 @@ def to_steward_plan(
     """
 
     executed = [
-        " ".join(inner_command(str(item.get("command", ""))).split())
+        _command_text(inner_command(str(item.get("command", ""))))
         for item in completed_items(events)
         if item.get("type") == "command_execution" and item.get("exit_code") == 0
     ]
