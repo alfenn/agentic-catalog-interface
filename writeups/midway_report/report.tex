@@ -49,7 +49,7 @@
 
 \section{Problem Statement (Problem Specification)}\label{sec:problem}
 
-Maintainers of lakehouses need catalog metadata (ownership, grain, filters, lifecycle state) that stays trustworthy as models evolve, but it drifts from the code---annotations ``can become outdated or incorrect'' as data models evolve \citep{lakafosis2025meta}---and the evidence for a correction is scattered across catalog metadata, SQL, lineage, tests, and the data. I am building a \emph{catalog steward}, prototyped on dbt and DuckDB, with two triggers over one workflow: \emph{remediation} of existing hygiene debt and \emph{change review} of a proposed contribution. Our question: \textbf{does a specialized evidence-gathering, risk-aware action, and verification workflow produce more complete, grounded, and safe maintenance outcomes than a general-purpose coding agent with access to the same repository and warehouse?}
+Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, filters, lifecycle state). But this metadata drifts from the code: annotations ``can become outdated or incorrect'' as data models evolve \citep{lakafosis2025meta}. The evidence needed to correct it is scattered across catalog metadata, SQL, lineage, tests, and the data. I am building a \emph{catalog steward}, prototyped on dbt and DuckDB, with two triggers over one workflow: \emph{remediation} of existing hygiene debt and \emph{change review} of a proposed contribution. Our question: \textbf{does a specialized evidence-gathering, risk-aware action, and verification workflow produce more complete, grounded, and safe maintenance outcomes than a general-purpose coding agent with access to the same repository and warehouse?}
 
 \section{Methodology}\label{sec:method}
 
