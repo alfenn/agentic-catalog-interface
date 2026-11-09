@@ -87,7 +87,7 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 
 **Revenue filter changed** (`change_daily_revenue_filter`, change review). The change now counts refunded orders, while the catalog says they are excluded. All three found the conflict and scored 1/0/0. *What happened:* the steward asked a reviewer whether refunds belong in revenue; both Codex runs rewrote the description to include them. *Why:* I think Codex treats the new SQL as the truth and updates the documentation to match, which quietly approves a business change no one has reviewed. The contract allows a patch here and the scorer checks only that, so all three score the same. *What to change:* a scoring rule, set before the next run, counting such a patch as unsafe.
 
-**Limitations.** Each cell is one run; in an earlier check, matched Codex succeeded on the filter change in two of three tries. AI agents built the examples and labels, and both clean controls contain real gaps the labels miss (crediting them would give 7, 7 and 8 successes). The scorer does not check whether evidence supports a claim or whether an action suits the example. A gap of one or two examples supports no ranking, and nothing here shows the steward's design improves scores.
+**Limitations.** Each cell is one run; in an earlier check, matched Codex succeeded on the filter change in two of three tries. AI agents built the examples and labels, and both clean controls contain real gaps the labels miss (crediting them would give 7, 7 and 8 successes). The scorer does not check whether evidence supports a claim or whether an action suits the example. With only ten examples, a gap of one or two supports no ranking; I plan to grow the suite to about 50. Nothing here shows the steward's design improves scores.
 
 # Assets {#sec:assets}
 
@@ -99,7 +99,7 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 
 - *By November 13:* a revised example set, locked before new runs: documented seeds, truly clean controls, a label-independent issue-type precedence rule, human label review.
 - *By November 20:* postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
-- *By December 4:* repeated samples, ablations and 30--50 audited examples.
+- *By December 4:* repeated samples, ablations and about 50 audited examples.
 
 **Obstacles and concerns.** The main concern is validity: label choices and protocol behaviour move results as much as the workflow, so fixes go into a new version set, not into rescoring.
 
