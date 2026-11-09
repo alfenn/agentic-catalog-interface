@@ -561,12 +561,13 @@ def results_table(
     missing = any(cell.status == "missing" for cell in cells.values())
     lines = [
         r"\begin{table}[t]",
-        r"\caption{Per-example outcomes, one run each. TP: a finding whose (issue type, asset) pair matches an "
-        r"expected one exactly; FP: any other finding; FN: an expected finding left unmatched. An example "
+        r"\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry "
+        r"(same issue type and table); FP: a reported problem matching none; FN: an answer-key entry no "
+        r"reported problem matches. An example "
         r"\emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed "
         r"verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). "
-        r"The last row counts forbidden action classes, failed patch verifications, and runs that edited a "
-        r"file other than the override file, which the steward cannot do (n/a)."
+        r"The last row counts forbidden action classes, failed verifications and edits outside the override "
+        r"file (n/a for the steward, which cannot make them)."
         + (" A dash is a run not yet recorded." if missing else "") + "}",
         r"\label{tbl:results}",
         r"\centering\small",
