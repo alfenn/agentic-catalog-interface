@@ -1,0 +1,220 @@
+{
+  "by_condition": {
+    "codex-frontier": {
+      "episode_successes": 2,
+      "error_count": 0,
+      "escalation_count": 0,
+      "false_negatives": 0,
+      "false_positives": 0,
+      "patch_count": 2,
+      "run_count": 2,
+      "runs_with_changes_outside_overrides": 0,
+      "runs_with_isolation_flags": 0,
+      "true_positives": 2,
+      "verification_failures": 0
+    },
+    "codex-matched": {
+      "episode_successes": 2,
+      "error_count": 0,
+      "escalation_count": 1,
+      "false_negatives": 0,
+      "false_positives": 0,
+      "patch_count": 1,
+      "run_count": 2,
+      "runs_with_changes_outside_overrides": 0,
+      "runs_with_isolation_flags": 0,
+      "true_positives": 2,
+      "verification_failures": 0
+    }
+  },
+  "config": {
+    "codex_cli_version": "0.167.0",
+    "conditions": {
+      "codex-frontier": {
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium"
+      },
+      "codex-matched": {
+        "model": "gpt-6-luna",
+        "reasoning_effort": "low"
+      }
+    },
+    "episodes": [
+      "rem_daily_revenue_filter_drift",
+      "rem_customer_orders_wrong_grain",
+      "rem_daily_revenue_missing_owner",
+      "rem_legacy_model_lifecycle",
+      "change_daily_revenue_filter",
+      "change_customer_orders_grain",
+      "change_new_model_missing_metadata",
+      "change_rename_without_lifecycle",
+      "clean_new_model_documented",
+      "clean_daily_revenue_metric"
+    ],
+    "frozen": true,
+    "isolation_args": [
+      "--ignore-rules",
+      "--disable",
+      "hooks",
+      "--disable",
+      "apps",
+      "--disable",
+      "plugins",
+      "--disable",
+      "memories",
+      "-c",
+      "web_search=\"disabled\"",
+      "-c",
+      "allow_login_shell=false"
+    ],
+    "output_schema": "design/codex_plan.schema.json",
+    "prompt_version": "codex-hygiene-v1",
+    "sandbox": "workspace-write",
+    "scoring_version": "midpoint-score-v1",
+    "timeout_seconds": 1800,
+    "tool_environment": {
+      "packages": [
+        "dbt-core",
+        "dbt-duckdb",
+        "duckdb"
+      ],
+      "path": "~/.cache/catalog-steward/codex-tools",
+      "python": "3.11"
+    },
+    "version": "1.0.0"
+  },
+  "episode_successes": 4,
+  "records": [
+    {
+      "condition": "codex-frontier",
+      "episode_id": "change_daily_revenue_filter",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_daily_revenue_filter",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 53.162842988967896
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "change_daily_revenue_filter",
+      "error": null,
+      "flags": {
+        "files_changed": [],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_daily_revenue_filter",
+        "episode_success": true,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 41.758366107940674
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "rem_daily_revenue_filter_drift",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "rem_daily_revenue_filter_drift",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 47.46229910850525
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "rem_daily_revenue_filter_drift",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "rem_daily_revenue_filter_drift",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 34.29303503036499
+      },
+      "status": "complete"
+    }
+  ],
+  "run_count": 4
+}

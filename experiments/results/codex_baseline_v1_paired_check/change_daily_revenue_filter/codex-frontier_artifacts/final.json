@@ -1,0 +1,68 @@
+{
+  "summary": "Found and patched one catalog description mismatch caused by the proposed status-filter change.",
+  "findings": [
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "daily_revenue",
+      "claim": "The catalog says refunded orders are excluded, but the proposed SQL includes them in order counts and summed amounts.",
+      "impact": "high",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The original description states that only completed-order revenue is included and refunded orders are excluded."
+        },
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "The filter changes from status = 'completed' to status != 'cancelled'."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/daily_revenue.sql",
+          "fact": "The model counts orders and sums amount by order_date after filtering out cancelled statuses."
+        },
+        {
+          "kind": "command",
+          "source": "python -c \"import duckdb; c=duckdb.connect('warehouse.duckdb', read_only=True); print(c.execute(\\\"EXPLAIN SELECT order_date, count(*) AS completed_order_count, sum(amount) AS completed_revenue FROM main.stg_orders WHERE status != 'cancelled' GROUP BY order_date\\\").fetchall()[0][1])\"",
+          "fact": "DuckDB parsing confirms the non-cancelled filter, grouping by order_date, count aggregation, and amount summation."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "description",
+        "value": "Order counts and summed order amounts at one row per order date for orders whose status is not 'cancelled'; refunded orders are included.",
+        "rationale": "Describe the proposed SQL directly without assigning unsupported financial meaning to refunded amounts.",
+        "verification": {
+          "field": "description",
+          "equals": "Order counts and summed order amounts at one row per order date for orders whose status is not 'cancelled'; refunded orders are included."
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "Is including refunded orders intended? Before approval, reconcile that decision with the completed_* metric names and the completed-only descriptions in project/models/schema.yml."
+  ],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Created an override for daily_revenue.description matching the proposed SQL."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "Read-only DuckDB EXPLAIN of the proposed aggregation",
+      "result": "Confirmed filter, grouping, count, and sum semantics."
+    },
+    {
+      "command": "Read-only Python/DuckDB profiles and daily comparisons, each limited to at most 10000 rows",
+      "result": "Found one refunded order for 30.00. Its inclusion changes October 2's count from 1 to 2 and amount from 200.00 to 230.00; the built model matches."
+    },
+    {
+      "command": "Python JSON validation and effective-catalog merge assertions",
+      "result": "Passed: only daily_revenue.description is overridden, its merged value matches the intended description, and all other fields are preserved."
+    }
+  ]
+}

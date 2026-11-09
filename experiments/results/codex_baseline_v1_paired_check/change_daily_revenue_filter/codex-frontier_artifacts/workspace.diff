@@ -1,0 +1,10 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -0,0 +1,7 @@
++{
++  "assets": {
++    "daily_revenue": {
++      "description": "Order counts and summed order amounts at one row per order date for orders whose status is not 'cancelled'; refunded orders are included."
++    }
++  }
++}

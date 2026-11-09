@@ -1,0 +1,62 @@
+{
+  "summary": "Corrected one description drift issue for daily_revenue.",
+  "findings": [
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "daily_revenue",
+      "claim": "The existing description override incorrectly stated that revenue includes all orders; SQL includes only completed orders.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "Before remediation, the effective description was 'Revenue from all orders at one row per order date.'"
+        },
+        {
+          "kind": "file",
+          "source": "project/models/daily_revenue.sql",
+          "fact": "SQL inspection and pattern assertions confirmed WHERE status = 'completed', GROUP BY order_date, COUNT(*), and SUM(amount)."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "The documented description explicitly excludes refunded and cancelled orders."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "The daily_revenue node contains the same completed-order description and SQL filter."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "description",
+        "value": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+        "rationale": "Restore the description directly supported by SQL, schema documentation, and manifest.",
+        "verification": {
+          "field": "description",
+          "equals": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded."
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Updated daily_revenue.description to accurately describe completed-order revenue."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "SELECT * FROM main.daily_revenue LIMIT 10000",
+      "result": "Executed through a read-only DuckDB connection; returned four dates totaling five completed orders and 640.00 revenue."
+    },
+    {
+      "command": "python - <<'PY'\nimport json\nfrom pathlib import Path\ncatalog=json.loads(Path('project/catalog/catalog.json').read_text())\noverrides=json.loads(Path('project/catalog/overrides.json').read_text())\nmanifest=json.loads(Path('project/target/manifest.json').read_text())\nbase=next(a for a in catalog['assets'] if a['name']=='daily_revenue')\neffective={**base, **overrides['assets']['daily_revenue']}\nexpected='Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.'\nassert effective['description']==expected\nassert effective['description']==manifest['nodes']['model.catalog_steward_fixture.daily_revenue']['description']\nassert overrides=={'assets': {'daily_revenue': {'description': expected}}}\nassert all(effective.get(f) is not None for f in ['canonical','description','grain','lifecycle','owner'])\nprint('PASS: effective description matches expected value and manifest; override contains only the scoped description; all allowed metadata fields are populated.')\nPY",
+      "result": "Passed: merged description matches the expected value and manifest; override contains only the scoped description; required metadata is populated."
+    }
+  ]
+}
