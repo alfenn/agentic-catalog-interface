@@ -61,5 +61,5 @@ or dependency.
   that everything before the appendix, references included, fits in four total
   pages, plus legibility, clipping, and table/figure consistency.
 - [x] **R7 — README.** Reproduction steps for the Codex baseline.
-- [ ] **R8 — Close out.** _(in progress, close-out worker: stale-text and consistency sweep, implementation update; coordinator writes the final notes)_ Implementation update in `agent_response_2__codex.md`,
+- [x] **R8 — Close out.** _(implementation update in `agent_response_2__codex.md`; follow-ups listed there and in `../agent_notes.md`)_ Implementation update in `agent_response_2__codex.md`,
   final notes, follow-ups and their importance.

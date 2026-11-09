@@ -669,3 +669,9 @@ context: [
 - The steward has two cache-replayed records in the pilot (both revenue-filter episodes), not four; the other two replays belong to the in-house generic condition. The report says two.
 - Limitations sit next to the numbers. Each cell is one sample. Crediting the clean controls' real unlabelled gaps would give 7, 7 and 8 successes; that is stated as context, not a re-scoring. Nothing shows that the steward's design improves scored outcomes.
 - The page budget is exhausted: the references end on page 4 with no spare lines, so any later body addition needs an equal cut. `make report` now prints where the references end.
+
+## 2026-11-08 — Close-out (claude-opus-5.5)
+
+- A final sweep fixed stale text: the pivot appendix still said the Codex results were pending, the README framed the comparison as static checks and the in-house generic agent, and the demo script described its pilot comparison as the current one. Every Codex number in the report, README and audit was recomputed from the saved records and agreed. Two demo files nothing regenerated were removed. `make test` passes (109), and the report fits four pages through the references.
+- Prioritized follow-ups are in the implementation update of `feedback/agent_response_2__codex.md`. High: a pre-registered scoring rule for patching versus proposing in change review; label fixes in a new frozen episode version; independent human label review; repeated samples before reading any ranking. Medium: claim-to-evidence support checks. Low: numpy in a new tool-environment version. Still required for submission and owned by the author: the video URL and the human-verification statement.
+- The editor's automatic LaTeX build recompiles `report.pdf` in the primary checkout whenever `report.tex` changes, leaving a timestamp-only diff. It was restored twice before landing. Turning that build off for this folder would stop it.
