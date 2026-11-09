@@ -1,0 +1,49 @@
+version: "1.0.0"
+frozen: true
+codex_cli_version: "0.167.0"
+prompt_version: codex-hygiene-v1
+output_schema: design/codex_plan.schema.json
+sandbox: workspace-write
+timeout_seconds: 1800
+# Flags beyond the base `codex exec` command. They keep the run independent of the
+# operator's personal Codex setup and match the steward's access: no user rules,
+# hooks, connectors, plugins or memories; no web search (network stays off); and a
+# non-login shell, so PATH is exactly the tool environment plus system directories.
+isolation_args:
+  - --ignore-rules
+  - --disable
+  - hooks
+  - --disable
+  - apps
+  - --disable
+  - plugins
+  - --disable
+  - memories
+  - -c
+  - web_search="disabled"
+  - -c
+  - allow_login_shell=false
+conditions:
+  codex-matched:
+    model: gpt-6-luna
+    reasoning_effort: low
+  codex-frontier:
+    model: gpt-6.1-sol
+    reasoning_effort: medium
+# dbt, DuckDB and Python for Codex, outside the repository; versions come from uv.lock.
+tool_environment:
+  path: ~/.cache/catalog-steward/codex-tools
+  python: "3.11"
+  packages: [dbt-core, dbt-duckdb, duckdb]
+episodes:
+  - rem_daily_revenue_filter_drift
+  - rem_customer_orders_wrong_grain
+  - rem_daily_revenue_missing_owner
+  - rem_legacy_model_lifecycle
+  - change_daily_revenue_filter
+  - change_customer_orders_grain
+  - change_new_model_missing_metadata
+  - change_rename_without_lifecycle
+  - clean_new_model_documented
+  - clean_daily_revenue_metric
+scoring_version: midpoint-score-v1

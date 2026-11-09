@@ -1,0 +1,113 @@
+{
+  "title": "Codex baseline hygiene plan",
+  "description": "Final answer for the Codex baseline. Mirrors steward_plan.schema.json, with workspace-path or command evidence in place of evidence IDs, plus the changes made and verification performed. Written for strict structured output: every property is required, optional values are nullable, and no conditional keywords are used.",
+  "type": "object",
+  "required": ["summary", "findings", "unresolved_questions", "changes_made", "verification_performed"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": {"type": "string"},
+    "findings": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["issue_type", "asset", "claim", "impact", "confidence", "evidence", "action"],
+        "additionalProperties": false,
+        "properties": {
+          "issue_type": {"type": "string"},
+          "asset": {"type": "string"},
+          "claim": {"type": "string"},
+          "impact": {"type": "string", "enum": ["high", "medium", "low"]},
+          "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["kind", "source", "fact"],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {"type": "string", "enum": ["file", "command"]},
+                "source": {"type": "string"},
+                "fact": {"type": "string"}
+              }
+            }
+          },
+          "action": {
+            "type": "object",
+            "required": ["class", "operation", "field", "value", "rationale", "verification"],
+            "additionalProperties": false,
+            "properties": {
+              "class": {"type": "string", "enum": ["patch", "propose", "report"]},
+              "operation": {
+                "type": "string",
+                "enum": ["update_catalog_field", "propose_metadata_change", "request_review", "report_only"]
+              },
+              "field": {
+                "anyOf": [
+                  {"type": "string", "enum": ["description", "owner", "lifecycle", "grain", "canonical"]},
+                  {"type": "null"}
+                ]
+              },
+              "value": {
+                "anyOf": [
+                  {"type": "string"},
+                  {"type": "boolean"},
+                  {"type": "array", "items": {"type": "string"}},
+                  {"type": "null"}
+                ]
+              },
+              "rationale": {"type": "string"},
+              "verification": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "required": ["field", "equals"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "field": {"type": "string", "enum": ["description", "owner", "lifecycle", "grain", "canonical"]},
+                      "equals": {
+                        "anyOf": [
+                          {"type": "string"},
+                          {"type": "boolean"},
+                          {"type": "array", "items": {"type": "string"}},
+                          {"type": "null"}
+                        ]
+                      }
+                    }
+                  },
+                  {"type": "null"}
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "unresolved_questions": {"type": "array", "items": {"type": "string"}},
+    "changes_made": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "verification_performed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["command", "result"],
+        "additionalProperties": false,
+        "properties": {
+          "command": {"type": "string"},
+          "result": {"type": "string"}
+        }
+      }
+    }
+  }
+}
