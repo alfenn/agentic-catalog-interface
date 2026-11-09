@@ -57,7 +57,7 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 \textbf{Environment and data.} The prototype environment is a small lakehouse fixture: a repository-local dbt Core project \citep{dbtcore} on DuckDB \citep{raasveldt2019duckdb} with three synthetic seed tables, a staging model, two aggregates, schema documentation, tests, and a JSON catalog snapshot. A versioned hygiene contract (\texttt{design/hygiene\_contract.yaml}) binds the task to five issue types (missing required metadata, SQL/metadata drift, grain or join drift, unsupported reliability claims, lifecycle drift) and three action classes (patch, propose, report). The evaluation suite (\texttt{data/episodes/manifest.yaml}) has ten hand-built examples: four \emph{remediation} cases, four \emph{flawed changes}, and two \emph{clean controls}. Each example comes with an answer key: the problems a careful reviewer should report, each named by its issue type and the table it affects (e.g., SQL/metadata drift on \texttt{daily\_revenue}), plus the actions that are acceptable or unsafe in response.
 
-\textbf{Evaluation.} Each condition runs once on an identical, freshly built copy of each example. Codex's answer is converted to the steward's plan form, and the harness then diffs its workspace and applies the steward's patch verification. A reported problem counts as correct only if both its issue type and its table match an entry in the answer key. Every trace is also audited, with AI assistance, for what the scorer cannot check: whether each claim is true of the fixture, whether each action suits the example, and whether each extra finding is a real gap the labels miss.
+\textbf{Evaluation.} Each condition runs once on an identical, freshly built copy of each example. Codex's answer is converted to the steward's plan form, and the harness then diffs its workspace and applies the steward's patch verification. A reported problem counts as correct only if both its issue type and its table match an entry in the answer key; otherwise it is an \emph{extra} (a false positive), and the number of extras measures how much noise a harness puts in front of a reviewer. Every trace is also audited, with AI assistance, for what the scorer cannot check: whether each claim is true of the fixture, whether each action suits the example, and whether each extra is a real gap the labels miss.
 
 \subsection{Methods}\label{sec:methods}
 
@@ -85,10 +85,10 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 \subsection{Reported Results}\label{sec:reported}
 
-In Table~\ref{tbl:results}, the steward succeeds on 5/10 examples (precision 0.60, recall 0.90), matched-Codex on 6/10 (0.58, 0.70) and frontier-Codex on 7/10 (0.73, 0.80). The steward finds the most answer-key problems but also reports the most \emph{extras}, false positives that match no answer-key entry: 6, against 5 for matched-Codex and 3 for frontier-Codex.
+In Table~\ref{tbl:results}, the steward succeeds on 5/10 examples (precision 0.60, recall 0.90), matched-Codex on 6/10 (0.58, 0.70) and frontier-Codex on 7/10 (0.73, 0.80). The steward finds the most answer-key problems but also reports the most extras: 6, against 5 for matched-Codex and 3 for frontier-Codex.
 
 \begin{table}[t]
-\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged: per-example recall divides by the number of answer-key entries, which is zero for examples that contain no hygiene problems. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
+\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged: per-example recall divides by the number of answer-key entries, which is zero for examples that contain no hygiene problems. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}
@@ -113,6 +113,7 @@ Example & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
 \quad Documented new model & 0/1/0 & no & 0/1/0 & no & 0/1/0 & no \\
 \quad Documented revenue metric & 0/1/0 & no & 0/0/0 & yes & 0/0/0 & yes \\
 \midrule
+Total TP / FP (extras) / FN & \multicolumn{2}{c}{9/6/1} & \multicolumn{2}{c}{7/5/3} & \multicolumn{2}{c}{8/3/2} \\
 Example successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{6/10} & \multicolumn{2}{c}{7/10} \\
 Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{0.58 / 0.70} & \multicolumn{2}{c}{0.73 / 0.80} \\
 Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolumn{2}{c}{0 / 0 / 0} & \multicolumn{2}{c}{0 / 0 / 0} \\

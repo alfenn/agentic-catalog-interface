@@ -562,7 +562,7 @@ def results_table(
     lines = [
         r"\begin{table}[t]",
         r"\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry "
-        r"(same issue type and table); FP: a reported problem matching none; FN: an answer-key entry no "
+        r"(same issue type and table); FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no "
         r"reported problem matches. An example "
         r"\emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed "
         r"verification. Precision and recall are micro-averaged: per-example recall divides by the number of "
@@ -596,6 +596,10 @@ def results_table(
             lines.append(" & ".join(row) + r" \\")
     lines.append(r"\midrule")
     footer: list[tuple[str, Any]] = [
+        ("Total TP / FP (extras) / FN", lambda run: (
+            f"{sum(c.true_positives for c in run)}/{sum(c.false_positives for c in run)}/"
+            f"{sum(c.false_negatives for c in run)}"
+        )),
         ("Example successes", lambda run: f"{sum(c.success for c in run)}/{len(episodes)}"),
         ("Micro precision / recall", lambda run: (
             fmt_ratio(sum(c.true_positives for c in run), sum(c.true_positives + c.false_positives for c in run))

@@ -1,6 +1,6 @@
 ```{=latex}
 \begin{table}[t]
-\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged: per-example recall divides by the number of answer-key entries, which is zero for examples that contain no hygiene problems. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
+\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged: per-example recall divides by the number of answer-key entries, which is zero for examples that contain no hygiene problems. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}
@@ -25,6 +25,7 @@ Example & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
 \quad Documented new model & 0/1/0 & no & 0/1/0 & no & 0/1/0 & no \\
 \quad Documented revenue metric & 0/1/0 & no & 0/0/0 & yes & 0/0/0 & yes \\
 \midrule
+Total TP / FP (extras) / FN & \multicolumn{2}{c}{9/6/1} & \multicolumn{2}{c}{7/5/3} & \multicolumn{2}{c}{8/3/2} \\
 Example successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{6/10} & \multicolumn{2}{c}{7/10} \\
 Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{0.58 / 0.70} & \multicolumn{2}{c}{0.73 / 0.80} \\
 Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolumn{2}{c}{0 / 0 / 0} & \multicolumn{2}{c}{0 / 0 / 0} \\
