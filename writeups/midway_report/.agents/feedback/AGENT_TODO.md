@@ -41,7 +41,9 @@ entry in `../agent_notes.md`.
 
 ## Report
 
-- [ ] **R1 — Architecture.** Section and diagram of the implemented system, with
+- [ ] **R1 — Architecture and front matter.** Diagram of the implemented system;
+  Methods cut to one or two high-level paragraphs around it and Environment &
+  Data cut to about half, with the details in a new appendix section;
   implemented versus planned behavior separated.
 - [ ] **R2 — Methods and evaluation.** Conditions with their exact differences;
   the seven-step evaluation once, updated for the Codex adapter.
@@ -55,7 +57,8 @@ entry in `../agent_notes.md`.
   generally; prohibited jargon absent from editable project files; static and
   custom generic conditions out of the report.
 - [ ] **R6 — Build and check.** Regenerate figures, TeX and PDF; visually check
-  at most four body pages, legibility, clipping, and table/figure consistency.
+  that everything before the appendix, references included, fits in four total
+  pages, plus legibility, clipping, and table/figure consistency.
 - [ ] **R7 — README.** Reproduction steps for the Codex baseline.
 - [ ] **R8 — Close out.** Implementation update in `agent_response_2__codex.md`,
   final notes, follow-ups and their importance.

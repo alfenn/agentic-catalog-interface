@@ -101,7 +101,13 @@ reported as such.
   change-review walkthrough citing steward and Codex traces; pivots told as
   what the agent did, whether it was right, and what changed; limitations next
   to the numbers. No cost data, no static or custom generic condition, no
-  prohibited jargon; at most four body pages.
+  prohibited jargon.
+- Page budget: four total pages for everything before the appendix,
+  references included. Methods (2.2) is at most one or two paragraphs built
+  around the diagram; Environment & Data (2.1) is about half its earlier length.
+  Both give a high-level explanation, and the details (evidence kinds, tools,
+  validator rules, verification limits, the full episode list, contract limits
+  and the step-by-step evaluation) move to an appendix after the references.
 - README section on reproducing the Codex baseline.
 
 ## 4. What the architecture section must say

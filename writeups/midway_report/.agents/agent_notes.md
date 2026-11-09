@@ -627,3 +627,8 @@ context: [
 ## 2026-11-08 — Total page limit
 
 - Removed the forced page break before references, keeping all text and ICLR typography intact. The regenerated report fits four total pages including references and AI-use disclosure; all four pages were visually inspected for legibility and overflow.
+
+## 2026-11-08 — Page limit and delegation (claude-opus-5.5)
+
+- The course limit is four total pages, references included; an appendix may follow. Methods shrinks to one or two high-level paragraphs around the architecture diagram, Environment & Data to about half, and the details move to an appendix. This supersedes the earlier reading of four body pages.
+- In-session subagents are disabled in this firstmate home, and tracked workers need the home's session lock, which an earlier Codex app session held. With the author's approval that Codex server was stopped. Its last uncommitted edit (removing the page break before the references) was committed rather than discarded. The runner and the architecture work now run as two tracked workers on isolated branches, each fast-forwarded onto main when ready.
