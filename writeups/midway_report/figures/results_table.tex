@@ -1,6 +1,6 @@
 ```{=latex}
-\begin{table}[!ht]
-\caption{Per-episode outcomes, one run per condition and episode. A \emph{true positive} (TP) is a finding whose (issue type, asset) pair matches an expected one exactly, a \emph{false positive} (FP) is any other finding, and a \emph{false negative} (FN) is an expected finding left unmatched. An episode \emph{succeeds} only if the run completes with no FP or FN, no action class the contract forbids for the issue type, and no failed patch verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN) over the ten episodes. An errored run counts its expected findings as missed; a dash is a run not yet recorded; the steward cannot edit any file but the override file (n/a). Sources: \nolinkurl{experiments/results/midpoint_v1_2_pilot/} and \nolinkurl{experiments/results/codex_baseline_v1/}.}
+\begin{table}[t]
+\caption{Per-episode outcomes, one run each. TP: a finding whose (issue type, asset) pair matches an expected one exactly; FP: any other finding; FN: an expected finding left unmatched. An episode \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). The last row counts forbidden action classes, failed patch verifications, and runs that edited a file other than the override file, which the steward cannot do (n/a).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}
@@ -10,26 +10,24 @@
 Episode & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Remediation}} \\
-\quad Stale revenue-filter description & 1/0/0 & yes & -- & -- & -- & -- \\
-\quad Wrong customer-order grain & 0/1/1 & no & -- & -- & -- & -- \\
-\quad Missing owner & 1/0/0 & yes & -- & -- & -- & -- \\
-\quad Legacy copy still active & 1/1/0 & no & -- & -- & -- & -- \\
+\quad Stale revenue-filter description & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
+\quad Wrong customer-order grain & 0/1/1 & no & 0/1/1 & no & 1/0/0 & yes \\
+\quad Missing owner & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
+\quad Legacy copy still active & 1/1/0 & no & 0/1/1 & no & 0/0/1 & no \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Flawed change}} \\
-\quad Revenue filter changed & 1/0/0 & yes & -- & -- & -- & -- \\
-\quad Grain changed, metadata not & 2/2/0 & no & -- & -- & -- & -- \\
-\quad New undocumented model & 1/0/0 & yes & -- & -- & -- & -- \\
-\quad Rename without lifecycle change & 2/0/0 & yes & -- & -- & -- & -- \\
+\quad Revenue filter changed & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
+\quad Grain changed, metadata not & 2/2/0 & no & 1/2/1 & no & 1/2/1 & no \\
+\quad New undocumented model & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
+\quad Rename without lifecycle change & 2/0/0 & yes & 2/0/0 & yes & 2/0/0 & yes \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Clean control}} \\
-\quad Documented new model & 0/1/0 & no & -- & -- & -- & -- \\
-\quad Documented revenue metric & 0/1/0 & no & -- & -- & -- & -- \\
+\quad Documented new model & 0/1/0 & no & 0/1/0 & no & 0/1/0 & no \\
+\quad Documented revenue metric & 0/1/0 & no & 0/0/0 & yes & 0/0/0 & yes \\
 \midrule
-Episode successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
-Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
-Findings with a forbidden action & \multicolumn{2}{c}{0} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
-Patch verification failures & \multicolumn{2}{c}{0} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
-Runs editing another file & \multicolumn{2}{c}{n/a} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Episode successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{6/10} & \multicolumn{2}{c}{7/10} \\
+Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{0.58 / 0.70} & \multicolumn{2}{c}{0.73 / 0.80} \\
+Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolumn{2}{c}{0 / 0 / 0} & \multicolumn{2}{c}{0 / 0 / 0} \\
 \bottomrule
 \end{tabular}
 \end{table}

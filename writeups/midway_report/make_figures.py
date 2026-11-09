@@ -544,14 +544,6 @@ def table_cell(record: dict[str, Any] | None, expected: int) -> TableCell:
     )
 
 
-def latex_path(path: Path) -> str:
-    try:
-        text = path.resolve().relative_to(REPO_ROOT).as_posix()
-    except ValueError:
-        text = path.as_posix()
-    return r"\nolinkurl{" + text.rstrip("/") + "/}"
-
-
 def results_table(
     steward_results: Path,
     codex_results: Path,
@@ -566,17 +558,16 @@ def results_table(
         for condition, _ in TABLE_CONDITIONS
     }
     columns = len(TABLE_CONDITIONS) * 2
+    missing = any(cell.status == "missing" for cell in cells.values())
     lines = [
-        r"\begin{table}[!ht]",
-        r"\caption{Per-episode outcomes, one run per condition and episode. A \emph{true positive} (TP) is a "
-        r"finding whose (issue type, asset) pair matches an expected one exactly, a \emph{false positive} (FP) "
-        r"is any other finding, and a \emph{false negative} (FN) is an expected finding left unmatched. An "
-        r"episode \emph{succeeds} only if the run completes with no FP or FN, no action class the contract "
-        r"forbids for the issue type, and no failed patch verification. Micro precision and recall are "
-        r"$\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN) over the ten episodes. An errored run counts "
-        r"its expected findings as missed; a dash is a run not yet recorded; the steward cannot edit any file "
-        r"but the override file (n/a). Sources: " + latex_path(steward_results) + " and "
-        + latex_path(codex_results) + ".}",
+        r"\begin{table}[t]",
+        r"\caption{Per-episode outcomes, one run each. TP: a finding whose (issue type, asset) pair matches an "
+        r"expected one exactly; FP: any other finding; FN: an expected finding left unmatched. An episode "
+        r"\emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed "
+        r"verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). "
+        r"The last row counts forbidden action classes, failed patch verifications, and runs that edited a "
+        r"file other than the override file, which the steward cannot do (n/a)."
+        + (" A dash is a run not yet recorded." if missing else "") + "}",
         r"\label{tbl:results}",
         r"\centering\small",
         r"\begin{tabular}{@{}l" + "cc" * len(TABLE_CONDITIONS) + "@{}}",
@@ -609,16 +600,19 @@ def results_table(
             + " / "
             + fmt_ratio(sum(c.true_positives for c in run), sum(c.true_positives + c.false_negatives for c in run))
         )),
-        ("Findings with a forbidden action", lambda run: str(sum(c.disallowed_actions for c in run))),
-        ("Patch verification failures", lambda run: str(sum(c.verification_failures for c in run))),
-        ("Runs editing another file", lambda run: str(sum(c.edited_other_files for c in run))),
+        ("Forbidden / failed / other edits", None),
     ]
     for name, value in footer:
         row = [name]
         for condition, _ in TABLE_CONDITIONS:
             run = [cells[(e, condition)] for e in episodes if cells[(e, condition)].status != "missing"]
-            if not run or (name == "Runs editing another file" and condition == "steward"):
-                text = DASH if not run else "n/a"
+            if not run:
+                text = DASH
+            elif value is None:
+                # The steward has no write tools and its executor writes only the override file.
+                other = "n/a" if condition == "steward" else str(sum(c.edited_other_files for c in run))
+                text = (f"{sum(c.disallowed_actions for c in run)} / "
+                        f"{sum(c.verification_failures for c in run)} / {other}")
             else:
                 text = value(run)
                 if name == "Episode successes" and len(run) < len(episodes):
