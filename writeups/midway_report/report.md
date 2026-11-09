@@ -44,7 +44,7 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 ## Reported Results {#sec:reported}
 
-The steward succeeds on 5/10 examples, matched-Codex on 6/10 and frontier-Codex on 7/10 (Table\ \ref{tbl:results}). Precision and recall are 0.60 and 0.90 for the steward, 0.58 and 0.70 for matched-Codex, and 0.73 and 0.80 for frontier-Codex. The steward finds the most answer-key problems but also reports the most *extras*: false positives, reported problems matching no answer-key entry (6 vs. 5 and 3).
+In Table\ \ref{tbl:results}, the steward succeeds on 5/10 examples (precision 0.60, recall 0.90), matched-Codex on 6/10 (0.58, 0.70) and frontier-Codex on 7/10 (0.73, 0.80). The steward finds the most answer-key problems but also reports the most *extras*, false positives that match no answer-key entry: 6, against 5 for matched-Codex and 3 for frontier-Codex.
 
 <!-- BEGIN GENERATED: results_table (make_figures.py; do not edit by hand) -->
 ```{=latex}

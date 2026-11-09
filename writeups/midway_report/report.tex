@@ -85,7 +85,7 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 \subsection{Reported Results}\label{sec:reported}
 
-The steward succeeds on 5/10 examples, matched-Codex on 6/10 and frontier-Codex on 7/10 (Table~\ref{tbl:results}). Precision and recall are 0.60 and 0.90 for the steward, 0.58 and 0.70 for matched-Codex, and 0.73 and 0.80 for frontier-Codex. The steward finds the most answer-key problems but also reports the most \emph{extras}: false positives, reported problems matching no answer-key entry (6 vs.~5 and 3).
+In Table~\ref{tbl:results}, the steward succeeds on 5/10 examples (precision 0.60, recall 0.90), matched-Codex on 6/10 (0.58, 0.70) and frontier-Codex on 7/10 (0.73, 0.80). The steward finds the most answer-key problems but also reports the most \emph{extras}, false positives that match no answer-key entry: 6, against 5 for matched-Codex and 3 for frontier-Codex.
 
 \begin{table}[t]
 \caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged: per-example recall divides by the number of answer-key entries, which is zero for examples that contain no hygiene problems. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
