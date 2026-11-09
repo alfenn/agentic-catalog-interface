@@ -19,7 +19,7 @@ Maintainers of lakehouses need catalog metadata (ownership, grain, filters, life
 
 **Environment and data.** The prototype environment is a small lakehouse fixture: a repository-local dbt Core project [@dbtcore] on DuckDB [@raasveldt2019duckdb] with three synthetic seed tables, a staging model, two aggregates, schema documentation, tests, and a JSON catalog snapshot. It is a reproducible test bed, not evidence about production warehouses. A versioned hygiene contract (`design/hygiene_contract.yaml`) bounds the task to five issue types (missing required metadata, SQL/metadata drift, grain or join drift, unsupported reliability claims, lifecycle drift) and three action classes (patch, propose, report) under hard scope limits. The pilot suite (`data/episodes/manifest.yaml`) has ten hand-built episodes: four *remediation* cases, four *flawed changes*, and two *clean controls*. Each records its expected `(issue_type, asset)` findings and its acceptable and unsafe actions.
 
-**Evaluation.** Each condition runs once on an identical, freshly built copy of each episode; Codex's copy sits outside the repository with every file that names the episode removed. Codex's structured answer is converted into the steward's plan form, and after each Codex run the harness diffs the workspace, applies the steward's own patch verification to what Codex wrote, and scans its commands for reads outside the workspace. Findings are reduced to `(issue_type, asset)` pairs and matched exactly against the manifest. An episode succeeds only with no missed or extra findings, no forbidden action class and no failed verification, and every saved trace is then audited. Appendix\ \ref{sec:envdetails} gives the fixture, contract and episodes, the step-by-step procedure with what the scorer does not check, and every difference between the conditions.
+**Evaluation.** Each condition runs once on an identical, freshly built copy of each episode (for Codex, outside the repository with every file that names the episode removed). Codex's answer is converted to the steward's plan form, and the harness then diffs its workspace, applies the steward's patch verification and scans its commands for reads outside the workspace. Findings are matched exactly against the manifest as `(issue_type, asset)` pairs, and every trace is audited. Appendix\ \ref{sec:envdetails} gives the step-by-step procedure, what the scorer does not check, and every difference between the conditions.
 
 ## Methods {#sec:methods}
 
@@ -29,7 +29,7 @@ Maintainers of lakehouses need catalog metadata (ownership, grain, filters, life
 
 ![Catalog steward architecture as implemented in `src/catalog_steward/`. Both triggers feed one workflow. The model reads a bundle of content-hashed evidence, may call read-only tools, and returns a structured plan. A deterministic validator accepts the plan or returns it once for repair, and each accepted finding is then patched, proposed or reported, and logged. The only planned element is dashed: the contract's per-issue verification checks.](figures/architecture.pdf){#fig:arch width=100%}
 
-**Conditions.** We compare three conditions on the ten episodes. The *steward* is the frozen pilot (`experiments/configs/midpoint_v1.yaml` v1.2.0): `gpt-6-luna` at low reasoning effort, at most 12 turns, with the evidence bundle, read-only tools, validator and executor; two of its ten records replay responses from an earlier identical run. *Codex, matched* is OpenAI Codex CLI 0.167.0 [@openai_codex] on the same model and effort, so the harness is what differs; *Codex, frontier* is the same harness on `gpt-6.1-sol` at medium effort. Both Codex conditions receive the steward's task specification, including the hygiene contract's required evidence and allowed actions, and the same project, warehouse and diff, but work with general shell and file tools instead of the bundle, validator and executor: a sandbox that can write only inside the workspace, no network, no turn limit within a 30-minute timeout, and a JSON output schema (`experiments/configs/codex_baseline_v1.yaml`). Appendix\ \ref{sec:envdetails} lists every difference.
+**Conditions.** The *steward* is the frozen pilot (config v1.2.0): `gpt-6-luna` at low reasoning effort, at most 12 turns, with the evidence bundle, read-only tools, validator and executor; two of its ten records replay an earlier identical run. *Codex, matched* is OpenAI Codex CLI 0.167.0 [@openai_codex] on the same model and effort, so the harness is what differs; *Codex, frontier* uses `gpt-6.1-sol` at medium effort. Both get the steward's task specification, including the hygiene contract, and the same project, warehouse and diff, but general shell and file tools instead of the bundle, validator and executor: a sandbox writable only inside the workspace, no network, no turn limit within a 30-minute timeout, and a JSON output schema.
 
 ## What Did Not Work, and Pivots {#sec:pivots}
 
@@ -43,12 +43,12 @@ Maintainers of lakehouses need catalog metadata (ownership, grain, filters, life
 
 # Results (Summary of Progress) {#sec:results}
 
-**What we compared.** Every component in Figure\ \ref{fig:arch} is implemented, as is the Codex adapter. Table\ \ref{tbl:results} reports the steward and both Codex conditions on all ten episodes. **[TODO after the full Codex run: one or two sentences on the totals, read from the table.]**
+**What we compared.** All of Figure\ \ref{fig:arch} and the Codex adapter are implemented. Under the unchanged scorer the steward does not win (Table\ \ref{tbl:results}): it succeeds on 5 episodes, against 6 for matched and 7 for frontier Codex, with the highest recall (0.90, against 0.70 and 0.80) and the most extra findings (6, against 5 and 3). No run used a forbidden action, failed verification or edited another file, and no isolation flag fired. The largest difference goes unscored: in change review the steward only proposed, while Codex patched the catalog in 3 (matched) and 4 (frontier) of six runs (audit: `experiments/results/codex_baseline_v1/analysis.md`; records by episode there and in the pilot folder).
 
 <!-- BEGIN GENERATED: results_table (make_figures.py; do not edit by hand) -->
 ```{=latex}
-\begin{table}[!ht]
-\caption{Per-episode outcomes, one run per condition and episode. A \emph{true positive} (TP) is a finding whose (issue type, asset) pair matches an expected one exactly, a \emph{false positive} (FP) is any other finding, and a \emph{false negative} (FN) is an expected finding left unmatched. An episode \emph{succeeds} only if the run completes with no FP or FN, no action class the contract forbids for the issue type, and no failed patch verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN) over the ten episodes. An errored run counts its expected findings as missed; a dash is a run not yet recorded; the steward cannot edit any file but the override file (n/a). Sources: \nolinkurl{experiments/results/midpoint_v1_2_pilot/} and \nolinkurl{experiments/results/codex_baseline_v1/}.}
+\begin{table}[t]
+\caption{Per-episode outcomes, one run each. TP: a finding whose (issue type, asset) pair matches an expected one exactly; FP: any other finding; FN: an expected finding left unmatched. An episode \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). The last row counts forbidden action classes, failed patch verifications, and runs that edited a file other than the override file, which the steward cannot do (n/a).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}
@@ -58,54 +58,52 @@ Maintainers of lakehouses need catalog metadata (ownership, grain, filters, life
 Episode & TP/FP/FN & Success & TP/FP/FN & Success & TP/FP/FN & Success \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Remediation}} \\
-\quad Stale revenue-filter description & 1/0/0 & yes & -- & -- & -- & -- \\
-\quad Wrong customer-order grain & 0/1/1 & no & -- & -- & -- & -- \\
-\quad Missing owner & 1/0/0 & yes & -- & -- & -- & -- \\
-\quad Legacy copy still active & 1/1/0 & no & -- & -- & -- & -- \\
+\quad Stale revenue-filter description & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
+\quad Wrong customer-order grain & 0/1/1 & no & 0/1/1 & no & 1/0/0 & yes \\
+\quad Missing owner & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
+\quad Legacy copy still active & 1/1/0 & no & 0/1/1 & no & 0/0/1 & no \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Flawed change}} \\
-\quad Revenue filter changed & 1/0/0 & yes & -- & -- & -- & -- \\
-\quad Grain changed, metadata not & 2/2/0 & no & -- & -- & -- & -- \\
-\quad New undocumented model & 1/0/0 & yes & -- & -- & -- & -- \\
-\quad Rename without lifecycle change & 2/0/0 & yes & -- & -- & -- & -- \\
+\quad Revenue filter changed & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
+\quad Grain changed, metadata not & 2/2/0 & no & 1/2/1 & no & 1/2/1 & no \\
+\quad New undocumented model & 1/0/0 & yes & 1/0/0 & yes & 1/0/0 & yes \\
+\quad Rename without lifecycle change & 2/0/0 & yes & 2/0/0 & yes & 2/0/0 & yes \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Clean control}} \\
-\quad Documented new model & 0/1/0 & no & -- & -- & -- & -- \\
-\quad Documented revenue metric & 0/1/0 & no & -- & -- & -- & -- \\
+\quad Documented new model & 0/1/0 & no & 0/1/0 & no & 0/1/0 & no \\
+\quad Documented revenue metric & 0/1/0 & no & 0/0/0 & yes & 0/0/0 & yes \\
 \midrule
-Episode successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
-Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
-Findings with a forbidden action & \multicolumn{2}{c}{0} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
-Patch verification failures & \multicolumn{2}{c}{0} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
-Runs editing another file & \multicolumn{2}{c}{n/a} & \multicolumn{2}{c}{--} & \multicolumn{2}{c}{--} \\
+Episode successes & \multicolumn{2}{c}{5/10} & \multicolumn{2}{c}{6/10} & \multicolumn{2}{c}{7/10} \\
+Micro precision / recall & \multicolumn{2}{c}{0.60 / 0.90} & \multicolumn{2}{c}{0.58 / 0.70} & \multicolumn{2}{c}{0.73 / 0.80} \\
+Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolumn{2}{c}{0 / 0 / 0} & \multicolumn{2}{c}{0 / 0 / 0} \\
 \bottomrule
 \end{tabular}
 \end{table}
 ```
 <!-- END GENERATED: results_table -->
 
-**Remediation walkthrough.** **[TODO after the full Codex run and audit: one remediation episode. What each agent inspected and did, whether it was right, what we expected, how it could have done better, and how that became its score, citing the saved records by path.]**
+**Remediation: legacy copy still active** (`rem_legacy_model_lifecycle`). A pass-through copy of `customer_orders` is still marked active and canonical. We expect lifecycle drift, proposed or reported, on catalog, manifest, lineage and repository-history evidence. From its bundle's catalog flags and lineage the steward rightly proposed a lifecycle review, but met the history requirement with the episode's empty diff and added a grain report its own claim calls unestablished: 1/1/0, no success. Matched Codex read both models' SQL and schemas, then patched a correct legacy description: 0/1/1. Frontier Codex also profiled both models and saw the conflict, but filed nothing for lack of history, leaving a question: 0/0/1. Each should have reported the conflict alone; the contract shares the blame, since a remediation episode has no history to cite.
 
-**Change-review walkthrough.** **[TODO after the full Codex run and audit: one change-review episode, covered the same way.]**
+**Change review: revenue filter changed** (`change_daily_revenue_filter`). The change keeps `status != 'cancelled'`, so refunded orders now count while the catalog still excludes them. We expect SQL/metadata drift, answered by asking whether refunds belong in revenue or proposing a metadata update. All three read the diff, SQL and catalog, found the conflict and score 1/0/0 with success, but act differently. The steward proposed review and asked which statuses count, but understated the change ("not explicitly excluded", despite `refunded` in its schema evidence; a cache replay). Matched Codex rewrote the description to include refunds and asked nothing, settling a business decision for an unreviewed change. Frontier Codex confirmed a refunded row in the data and patched likewise, then asked if refunds were intended, noting the stale `completed_*` column names. Both should have proposed; the scorer, checking only that the class is allowed, cannot tell.
 
-**Limitations.** Each cell is one sample. In the paired check, matched Codex succeeded on the revenue-filter change in two of three samples and added an unsupported reliability finding in the third (`experiments/results/codex_baseline_v1_paired_check/README.md`), so a one-episode difference can be noise. AI agents built the episodes and labels, and both clean controls contain unlabelled gaps, so some extras are disputable. The scorer matches labels exactly; it checks that evidence resolves, not that it supports the claim, and checks action classes, not each episode's acceptable actions or postconditions. Patch verification checks the written value and `dbt parse`, not semantic correctness. **[TODO after the full Codex run: what the observed differences do and do not support; no superiority or equivalence claim beyond ten single-sample episodes.]**
+**Limitations.** Each cell is one sample; in the paired check, matched Codex succeeded on the filter change in two of three samples (paired-check `README.md`). AI agents built the episodes and labels, and both clean controls contain real unlabelled gaps; crediting those the audit identifies would give 7, 7 and 8 successes (not a re-scoring). The scorer checks exact labels, resolvable evidence and allowed action classes, not whether evidence supports a claim or an action suits the episode. A one- or two-episode gap supports no ranking, and nothing here shows that the steward's design improves scored outcomes.
 
 # Assets {#sec:assets}
 
-**Repository:** `\mbox{\url{https://github.com/alfenn/agentic-catalog-interface}}`{=latex} [@feng2026repo]: `README.md` (setup, reproduction), `src/catalog_steward/`, `data/` (fixture, episodes), and `experiments/results/midpoint_v1_2_pilot/` (pilot results, audit `analysis.md`). Midpoint demo video: **[VIDEO URL TO BE ADDED]**.
+**Repository:** `\mbox{\url{https://github.com/alfenn/agentic-catalog-interface}}`{=latex} [@feng2026repo]: `README.md` (setup, reproduction), `src/catalog_steward/`, `data/` (fixture, episodes), `experiments/results/`. Midpoint demo video: **[VIDEO URL TO BE ADDED]**.
 
 # Timeline (Summary of Progress: Next Steps and Risks) {#sec:timeline}
 
 **Milestones.** Course deadlines are Demo Day on December 9 and the final 8-page report on December 11; intermediate dates are our targets.
 
 - *By November 13:* a new frozen episode version: documented seeds, truly clean controls, an issue-type precedence rule checked independently of the model's label, and human review of the AI-built labels.
-- *By November 20:* postcondition-based success and episode-level unsafe-action checks; real per-issue patch verification; a batching-robust protocol.
-- *By December 4:* a matched coding-agent baseline, tool-versus-workflow ablations, and growth toward 30--50 audited episodes.
+- *By November 20:* postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
+- *By December 4:* repeated samples, tool-versus-workflow ablations against matched Codex, and growth toward 30--50 audited episodes.
 - *December 9 and 11:* live demo of both modes; final report.
 
 **Obstacles and concerns.** No credential or pipeline blocker remains. The main concern is validity: label choices and protocol behaviour move results as much as the workflow, so fixes go into a new frozen version, not a rescoring.
 
-**Risks and mitigations.** *Scope growth:* a frozen five-type contract with hard limits. *Ambiguous ground truth* (seen in both clean controls): documented seeds, a precedence rule, human label review. *Unsupported claims* (one invented-evidence run passed): claim--evidence support checks and manual audit. *Unmatched comparison:* align model, prompts and action limits, then test bundle ablations. *Warning overload* (six steward extras): clean controls, a five-finding cap, flagging only gaps a change introduces. *Small pilot:* per-episode reporting, more episodes.
+**Risks and mitigations.** *Scope growth:* a frozen five-type contract with hard limits. *Ambiguous ground truth* (seen in both clean controls): documented seeds, a precedence rule, human label review. *Unsupported claims* (one invented-evidence run passed): claim--evidence support checks and manual audit. *Warning overload* (six steward extras): clean controls, a five-finding cap, flagging only gaps a change introduces. *Small pilot:* per-episode reporting, more episodes.
 
 ```{=latex}
 \bibliography{references}
@@ -130,7 +128,7 @@ Runs editing another file & \multicolumn{2}{c}{n/a} & \multicolumn{2}{c}{--} & \
 
 **Different between the steward and Codex.** *Inputs:* the steward receives a precomputed evidence bundle and may call nine read-only tools; Codex reads the same project, warehouse and diff itself with a shell, `dbt`, and Python with DuckDB from a tool environment outside the repository. *Evidence:* the steward cites content-hashed evidence IDs; Codex cites workspace paths or the commands it ran. *Budget:* the steward has at most 12 turns of at most 4,096 output tokens at temperature 0; Codex has no turn limit within a 30-minute timeout and otherwise the CLI's defaults. *Plan checks:* the steward's validator enforces the schema and the contract's scope, evidence and action rules with one repair turn; Codex's answer must match a JSON output schema, and the contract's rules are stated in its prompt but not enforced during the run. *Execution:* the steward's executor writes each patch, verifies it and restores the file on failure; Codex edits the override file itself (its sandbox can write anywhere in the workspace), and the harness verifies afterwards. *Data access:* the steward's profile opens DuckDB read-only with external access disabled and caps rows in code; Codex is told to open the warehouse read-only and keep queries within 10,000 rows, which nothing enforces. *Environment:* Codex runs as an ephemeral session that ignores user configuration, rules, hooks, apps, plugins and memories, with web search disabled, no network, and a non-login shell whose `PATH` holds only the tool environment and system directories. *Model access:* the steward calls `gpt-6-luna` through OpenRouter; Codex calls its model through the CLI. *Records:* two steward records (both revenue-filter episodes) replay an earlier identical run; every Codex record is a fresh run.
 
-**Between the two Codex conditions,** only the model and reasoning effort differ: `gpt-6-luna` at low effort (matched) and `gpt-6.1-sol` at medium effort (frontier).
+**Between the two Codex conditions,** only the model and reasoning effort differ: `gpt-6-luna` at low effort (matched) and `gpt-6.1-sol` at medium effort (frontier). Frozen configurations: steward, `experiments/configs/midpoint_v1.yaml`; Codex, `experiments/configs/codex_baseline_v1.yaml`.
 
 # System Details {#sec:details}
 
@@ -156,4 +154,4 @@ Episode paths below are relative to the pilot folder `experiments/results/midpoi
 
 # AI-Use Disclosure Statement {#sec:ai}
 
-Generative AI agents did most of the implementation and writing at this stage. Codex also ran the two-case baseline and revised this report in response to human feedback. OpenAI Codex agents implemented the prototype (environment setup, agent harness, hygiene contract, evidence tools, steward workflow, and baseline runners), built the dbt/DuckDB fixtures and the ten evaluation episodes and their labels, wrote the evaluation and scoring code, ran and audited the static pilot, and drafted the README and an initial version of this report. Claude (Anthropic) agents then audited, tested, fixed, and finished the work, including the preflight audit of the paid-run pipeline and its fixes, running the preliminary runs and the three-condition pilot, the manual audit of every pilot trace, typesetting this report in the ICLR template, the references, the script that generates the charts and results table from saved results, and the revision of this report around the audit. Because AI agents constructed the episodes and labels as well as the system under test, the ground truth reflects their design choices and needs independent human review. **[AUTHOR TO COMPLETE: describe the human verification actually performed, e.g., which code, episode labels, results, and report claims the author reviewed.]** AI tools are not authors; the author takes full responsibility for the content of this work.
+Generative AI agents did most of the implementation and writing at this stage. Codex also ran the two-case baseline and revised this report in response to human feedback. AI agents built the matched Codex baseline runner and its tests, ran the paired check and the full matched and frontier Codex runs (Codex being the system compared against), audited all 20 Codex traces, and rewrote the results around them. OpenAI Codex agents implemented the prototype (environment setup, agent harness, hygiene contract, evidence tools, steward workflow, and baseline runners), built the dbt/DuckDB fixtures and the ten evaluation episodes and their labels, wrote the evaluation and scoring code, ran and audited the static pilot, and drafted the README and an initial version of this report. Claude (Anthropic) agents then audited, tested, fixed, and finished the work, including the preflight audit of the paid-run pipeline and its fixes, running the preliminary runs and the three-condition pilot, the manual audit of every pilot trace, typesetting this report in the ICLR template, the references, the script that generates the charts and results table from saved results, and the revision of this report around the audit. Because AI agents constructed the episodes and labels as well as the system under test, the ground truth reflects their design choices and needs independent human review. **[AUTHOR TO COMPLETE: describe the human verification actually performed, e.g., which code, episode labels, results, and report claims the author reviewed.]** AI tools are not authors; the author takes full responsibility for the content of this work.
