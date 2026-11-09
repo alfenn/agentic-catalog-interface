@@ -177,6 +177,73 @@ def check_tool_env(config: dict[str, Any], tool_bin: Path) -> dict[str, Any]:
     }
 
 
+SANDBOX_CHECK_COMMANDS = (
+    "cd project && dbt parse",
+    "python -c \"import duckdb; print(duckdb.connect('warehouse.duckdb', read_only=True)"
+    ".sql('select count(*) from main.stg_orders').fetchone()[0])\"",
+)
+
+
+def check_codex_sandbox(config: dict[str, Any], tool_bin: Path, codex_bin: str) -> dict[str, Any]:
+    """Have Codex run dbt and a DuckDB query inside its own sandbox in a prepared workspace.
+
+    Uses the codex-matched model and the frozen invocation; results come from the
+    event stream (exit codes the harness observed), not from the model's answer.
+    """
+
+    episode_id = config["episodes"][0]
+    schema = {
+        "type": "object",
+        "properties": {"done": {"type": "boolean"}},
+        "required": ["done"],
+        "additionalProperties": False,
+    }
+    prompt = (
+        "Run each of these shell commands from the current directory, exactly as written, then answer "
+        "with done=true. Do not run anything else.\n"
+        + "\n".join(f"{index}. `{command}`" for index, command in enumerate(SANDBOX_CHECK_COMMANDS, 1))
+        + "\n"
+    )
+    work_parent = Path(tempfile.mkdtemp(prefix="csb-"))
+    harness = Path(tempfile.mkdtemp(prefix="csb-harness-"))
+    try:
+        workspace = prepare_workspace(episode_id, work_parent, condition="sandbox-check", tool_bin=tool_bin)
+        schema_path = harness / "schema.json"
+        schema_path.write_text(json.dumps(schema), encoding="utf-8")
+        command = codex_command(
+            codex_bin, config, "codex-matched",
+            schema_path=schema_path, final_path=harness / "final.json", workspace=workspace.root,
+        )
+        invocation = invoke_codex(
+            command,
+            prompt=prompt,
+            env=codex_env(tool_bin, workspace.root),
+            cwd=workspace.root,
+            timeout=float(config["timeout_seconds"]),
+            events_path=harness / "events.jsonl",
+            stderr_path=harness / "stderr.txt",
+            final_path=harness / "final.json",
+        )
+        observed = [
+            {
+                "command": inner_command(str(item.get("command", ""))),
+                "exit_code": item.get("exit_code"),
+                "output_tail": str(item.get("aggregated_output", ""))[-600:],
+            }
+            for item in completed_items(invocation.events)
+            if item.get("type") == "command_execution"
+        ]
+        flags = isolation_flags(invocation.events, workspace.root, tool_root=tool_bin.parent, manifest=load_manifest())
+    finally:
+        shutil.rmtree(work_parent, ignore_errors=True)
+        shutil.rmtree(harness, ignore_errors=True)
+    passed = invocation.exit_code == 0 and all(
+        any(" ".join(expected.split()) in " ".join(row["command"].split()) and row["exit_code"] == 0 for row in observed)
+        for expected in SANDBOX_CHECK_COMMANDS
+    )
+    return {"passed": passed, "codex_exit_code": invocation.exit_code, "commands": observed, "isolation": flags}
+
+
 # Workspace -----------------------------------------------------------------
 
 
@@ -470,7 +537,14 @@ def token_usage(events: list[dict[str, Any]]) -> dict[str, Any]:
 # Post-run checks -------------------------------------------------------------
 
 
-_PATH_TOKEN = re.compile(r"(?<![\w.~-])(/[^\s'\"`;|&<>(){}$,]+)")
+# Absolute paths in a command; a slash after a word, dot or glob character (``a/b``,
+# ``./x``, ``**/target/**``) is part of a relative path or pattern, not an absolute one.
+_PATH_TOKEN = re.compile(r"(?<![\w.~*!-])(/[^\s'\"`;|&<>(){}$,]+)")
+# Events do not record a command's working directory, and Codex often works from
+# ``project/``, so one level up (``../warehouse.duckdb``) can stay in the workspace.
+# Listing the parent itself or climbing two or more levels cannot be told apart from
+# leaving the workspace and is flagged for the audit.
+_PARENT_REFERENCE = re.compile(r"(^|[\s'\"=(])\.\./?(?=$|[\s'\";|&)])|\.\./\.\.")
 
 
 def isolation_flags(
@@ -509,7 +583,7 @@ def isolation_flags(
                 paths = _PATH_TOKEN.findall(text) if role == "command" else [text]
                 outside = sorted({path for path in paths if not path.startswith(allowed)})
                 reasons.extend(f"path outside workspace {path}" for path in outside)
-                if role == "command" and re.search(r"(^|[\s/'\"])\.\.(/|\s|$)", text):
+                if role == "command" and _PARENT_REFERENCE.search(text):
                     reasons.append("parent-directory reference")
             if reasons:
                 flags.append({"item": item.get("id"), "type": kind, "role": role, "reasons": reasons, "text": text[:500]})
@@ -1001,8 +1075,20 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="create or reuse the tool environment and check dbt and DuckDB in a workspace with network denied",
     )
+    parser.add_argument(
+        "--check-codex-sandbox",
+        action="store_true",
+        help="have Codex run dbt parse and a DuckDB query inside its sandbox in a prepared workspace",
+    )
     args = parser.parse_args(argv)
     config = load_config(args.config)
+    if args.check_codex_sandbox:
+        codex_bin = shutil.which("codex")
+        if not codex_bin:
+            parser.error("codex executable not found on PATH")
+        report = check_codex_sandbox(config, ensure_tool_env(config), codex_bin)
+        print(json.dumps(report, indent=2))
+        return 0 if report["passed"] else 1
     if args.check_tools:
         tool_bin = ensure_tool_env(config)
         report = check_tool_env(config, tool_bin)

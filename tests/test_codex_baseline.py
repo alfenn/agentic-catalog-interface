@@ -371,13 +371,16 @@ def test_isolation_flags_catch_outside_reads_and_label_material(tmp_path: Path) 
         item(f"ls {workspace}/project"),
         item("cat /etc/hosts"),
         item("ls ../"),
+        item("cat ../../secrets"),
+        item("python -c \"duckdb.connect('../warehouse.duckdb')\""),
+        item("rg --files -g '!**/.git/**' -g '!**/target/**'"),
         item("grep -r expected_findings ."),
         item("cat notes", output=f"from {EPISODE}"),
     ]
     flags = isolation_flags(events, workspace, tool_root=tool_root, manifest=load_manifest())
     flagged = {flag["item"]: flag["reasons"] for flag in flags}
 
-    assert set(flagged) == {"cat /etc/hosts", "ls ../", "grep -r expected_findings .", "cat notes"}
+    assert set(flagged) == {"cat /etc/hosts", "ls ../", "cat ../../secrets", "grep -r expected_findings .", "cat notes"}
     assert flagged["cat /etc/hosts"] == ["path outside workspace /etc/hosts"]
     assert flagged["ls ../"] == ["parent-directory reference"]
     assert flagged["cat notes"] == [f"episode id {EPISODE}"]
