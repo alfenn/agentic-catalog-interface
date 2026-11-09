@@ -77,7 +77,6 @@ Table: Two illustrative episodes, one run per condition; matches and extras are 
 
 ```{=latex}
 \label{bodyend}
-\clearpage
 \bibliography{references}
 \bibliographystyle{iclr2025_conference}
 \appendix

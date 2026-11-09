@@ -1,5 +1,7 @@
 # Midway report review
 
+> **2026-11-08 scope note:** This historical critique predates the latest human feedback and subsequent report changes. For current implementation status, see the [response implementation update](../../writeups/midway_report/.agents/feedback/agent_response__codex.md#implementation-update--2026-11-08).
+
 ## Assessment
 
 The existing deliverable is a report source and generated PDF, reproducible local dbt/DuckDB experiments, saved pilot results and audit, and a scripted demo. The staff clarification in [Ed threads](../../writeups/midway_report/requirements/ed_threads.md) explicitly accepts a research-pipeline demo and one collected result, with a README explaining reproduction. The present scope is appropriate; a hosted UI is not needed to satisfy that clarification. The report explains the problem, constructed data, methods, metrics, obstacles, results, assets, risks and milestones. Its strongest feature is its unusually candid treatment of pilot limitations.
