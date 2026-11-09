@@ -38,8 +38,6 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 **From a bespoke baseline to Codex.** My first comparison agent was a simple custom agent with four raw tools (list files, read a file, read the diff, run a bounded SQL query) on the steward's model. It was easy to inspect and differed from the steward only in its tools, but it is not representative of the alternative someone would actually use to fix these hygiene issues. I replaced it with Codex, a frontier agent harness, and reran the comparison on all ten examples (`experiments/results/codex_baseline_v1/`), trading the simpler agent's comparability and ease of inspection for a comparison against a frontier harness.
 
-**Next: more baselines.** I want to compare Codex with Pi, another open-source coding-agent harness, and to compare against standard data-hygiene automations (e.g., dbt-project-evaluator, Great Expectations) and CI workflows that run them on every change.
-
 # Results (Summary of Progress) {#sec:results}
 
 ## Reported Results {#sec:reported}
@@ -96,7 +94,7 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 
 ## Limitations and Next Steps {#sec:limits}
 
-Each cell is one run (matched-Codex passed the filter change in two of three earlier tries). AI agents built the examples and labels, and both examples meant to have no hygiene problems contain real gaps the labels miss (crediting them gives 7, 7 and 8 successes). The scorer checks neither evidence support nor action fit, and with ten examples a gap of one or two supports no ranking. *Next* (Section\ \ref{sec:timeline}): about 50 human-reviewed examples, repeated runs, the steward on the frontier model, and scoring change-review patches that accept unreviewed changes as unsafe.
+Each cell is one run (matched-Codex passed the filter change in two of three earlier tries). AI agents built the examples and labels, and both examples meant to have no hygiene problems contain real gaps the labels miss (crediting them gives 7, 7 and 8 successes). The scorer checks neither evidence support nor action fit, and with ten examples a gap of one or two supports no ranking. *Next* (Section\ \ref{sec:timeline}): about 50 human-reviewed examples, repeated runs, the steward on the frontier model, and scoring change-review patches that accept unreviewed changes as unsafe. *More baselines:* I want to compare Codex with Pi, another open-source coding-agent harness, and to compare against standard data-hygiene automations (e.g., dbt-project-evaluator, Great Expectations) and CI workflows that run them on every change.
 
 # Assets {#sec:assets}
 
