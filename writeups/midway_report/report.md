@@ -33,9 +33,13 @@ Maintainers of lakehouses need catalog metadata (ownership, grain, filters, life
 
 ## What Did Not Work, and Pivots {#sec:pivots}
 
-**From catalog questions to maintenance.** The proposal's large catalog-question benchmark was narrowed after feedback to two maintenance triggers and a local fixture. The system now produces evidence-linked actions, but the pilot does not establish a production safety improvement.
+**Reply format.** In a preliminary run the model copied a wrapper key from the format example, so its replies were rejected; we fixed the example and added one shared repair turn (commit `d2a547b`).
 
-**Protocol errors.** In an earlier two-episode run the model copied a reply wrapper instead of the expected object, causing rejected replies. The team clarified the shared format example and added one repair turn before the pilot. A later pilot trace for `change_daily_revenue_filter` shows the exploratory agent batching tool calls into a rejected reply and returning no finding; it missed the expected regression. The team did not tune the protocol after inspecting this pilot. The saved `change_daily_revenue_filter/generic.json` and pilot `analysis.md` record the outcome.
+**Raw-tool exploration.** On `change_daily_revenue_filter` our raw-tool agent batched tool calls; once rejected, it reported nothing and missed the regression. Another run cited unreceived output yet passed the ID-only evidence check (pilot `analysis.md`). Codex replaced it.
+
+**Label choice.** On `rem_customer_orders_wrong_grain` the steward labelled a grain error SQL/metadata drift, a patchable type, and patched a correct value, but the episode required a proposal with uniqueness evidence, so it failed. Next, issue type is checked apart from the label.
+
+**Unmatched baseline.** A first Codex run matched the steward on two cases, but a different model, no contract rules in the prompt and hand-mapped labels confounded harness with model and wording (`codex_midway_two_case/README.md`). The new baseline removes all three (Appendix\ \ref{sec:pivotdetails}).
 
 # Results (Summary of Progress) {#sec:results}
 
@@ -97,6 +101,18 @@ Table: Two illustrative episodes, one run per condition; matches and extras are 
 **Validator and action policy.** The final plan must be JSON that matches the steward plan schema, with at most five findings. Each finding must name an in-scope asset and an issue type in the contract, choose an action class that the contract allows for that issue type, cite only evidence IDs from this run, and cite every evidence kind the issue type requires. A failing plan is returned once with the error; a second failure ends the run with no action. Only missing required metadata and SQL/metadata drift allow a patch; grain, reliability and lifecycle issues allow only a proposal or a report. Because these rules key on the model's own issue label, a mislabelled finding can bypass them.
 
 **Execution, verification and ledger.** A patch may set one of five fields (description, owner, lifecycle, grain, canonical) in the episode's `catalog/overrides.json`. The steward saves a unified diff and writes the file. It then re-reads the merged catalog metadata to check that the field equals the value the plan declared, and runs `dbt parse`. If either check fails, it restores the file and records a verification failure. A proposal or report is checked only for an allowed action class and resolved evidence IDs. Each outcome, with its finding, checks and patch path, is appended to `steward_ledger.jsonl` alongside a run summary. A finding already recorded as verified is not executed again. The contract's per-issue verification checks (for example, comparing metadata with parsed SQL, or rerunning a uniqueness probe) are not implemented.
+
+# Pivot Evidence {#sec:pivotdetails}
+
+Episode paths below are relative to the pilot folder `experiments/results/midpoint_v1_2_pilot/`.
+
+**Reply format.** In the preliminary run (2 episodes, config 1.1.0), `render_tools()` showed both reply shapes as one object keyed by `tool_call` and `final_answer`, and the model copied that wrapper; 7 of 8 rejected replies had this cause, and one run repeated it three times and stopped before reading the diff. The raw records of that run were not kept; the diagnosis is recorded in commit `d2a547b` and `writeups/midway_report/.agents/agent_notes.md` (2026-11-08). The fix, in config 1.2.0, shows two plain example objects, makes protocol errors say what to send instead, and gives both model conditions one identical repair turn for an invalid final plan. Prompts were frozen after a rerun under 1.2.0 and before the pilot.
+
+**Raw-tool exploration.** The first reply in `change_daily_revenue_filter/generic.json` holds several `read_diff` and `read_file` calls in one message and is rejected as more than one JSON object; the second reply is a final plan with no findings whose summary says the evidence "only lists project files". The only evidence in the record is the project listing. In `rem_daily_revenue_missing_owner/generic.json`, the first reply held at least 13 tool calls with invented results and a draft answer; no tool ran, and the final plan reported three issues about a change that does not exist, citing the project-listing ID after the repair turn. The scorer gave it evidence validity 1.0 because it checks only that IDs resolve. Seven of its ten pilot runs hit a rejection, against two for the steward (`analysis.md`).
+
+**Label choice.** In `rem_customer_orders_wrong_grain/steward.json`, the steward's single finding is `sql_metadata_drift` on `customer_orders`, with a patch setting the catalog grain to `customer_id` and evidence from the catalog, dbt schema, SQL, parsed SQL facts and manifest but no uniqueness probe. The value is correct and was verified as written, but the manifest expects `grain_or_join_drift` with a proposal and uniqueness evidence, so the episode scores 0/1/1 and fails. The validator allowed the patch because its rules key on the model's own label.
+
+**Unmatched baseline.** The first Codex runs used Codex CLI 0.167.0 with `gpt-6.1-terra` at medium effort, while the steward pilot used `gpt-6-luna` at low effort; they are recorded in `experiments/results/codex_midway_two_case/README.md`. The prompt listed the five issue types but not their required evidence or allowed actions, and Codex's path-based findings were mapped to manifest labels by hand. Both agents scored 1/0/0 on the revenue-filter case and 2/2/0 on the changed-grain case. The matched baseline in progress runs Codex on `gpt-6-luna` at low effort, gives it the contract's issue types with their required evidence and allowed actions and the same fixture access, and has it return labels directly through an output schema; a second condition uses a frontier model. Its results are not yet available.
 
 # AI-Use Disclosure Statement {#sec:ai}
 
