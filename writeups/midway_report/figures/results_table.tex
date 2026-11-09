@@ -1,6 +1,6 @@
 ```{=latex}
 \begin{table}[t]
-\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
+\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged, as per-example recall is undefined on clean controls. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}

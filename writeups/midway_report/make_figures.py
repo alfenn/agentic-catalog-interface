@@ -565,7 +565,8 @@ def results_table(
         r"(same issue type and table); FP: a reported problem matching none; FN: an answer-key entry no "
         r"reported problem matches. An example "
         r"\emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed "
-        r"verification. Micro precision and recall are $\sum$TP$/\sum$(TP$+$FP) and $\sum$TP$/\sum$(TP$+$FN). "
+        r"verification. Precision and recall are micro-averaged, as per-example recall is undefined on clean "
+        r"controls. "
         r"The last row counts forbidden action classes, failed verifications and edits outside the override "
         r"file (n/a for the steward, which cannot make them)."
         + (" A dash is a run not yet recorded." if missing else "") + "}",
