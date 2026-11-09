@@ -19,22 +19,22 @@ or dependency.
 
 ## Experiment
 
-- [ ] **E1 — Isolated tool environment.** _(in progress, runner worker)_ Create a dbt/DuckDB/Python environment
+- [x] **E1 — Isolated tool environment.** _(done on the runner's branch; lands on main with E5–E7)_ Create a dbt/DuckDB/Python environment
   outside the repository for Codex to use; confirm `dbt parse` and a DuckDB
   query run against an episode workspace with network off.
-- [ ] **E2 — Codex runner.** _(in progress, runner worker)_ `codex_baseline.py`: build the fixture into an
+- [x] **E2 — Codex runner.** _(done on the runner's branch)_ `codex_baseline.py`: build the fixture into an
   opaque temporary directory, strip label material, write the frozen prompt and
   output schema, invoke `codex exec`, capture the event stream and final answer,
   convert findings to plan form, run the post-run checks, score with
   `midpoint-score-v1`, and persist per-episode artifacts and `summary.json`.
-- [ ] **E3 — Deterministic tests.** _(in progress, runner worker)_ Stand-in `codex` executable covering a clean
+- [x] **E3 — Deterministic tests.** _(done on the runner's branch; 108 tests pass)_ Stand-in `codex` executable covering a clean
   run, a patch that verifies, a claimed patch with no file change, an edit
   outside the override file, malformed output, and a non-zero exit; label
   material absent from the prepared workspace.
-- [ ] **E4 — Paired check.** _(in progress, runner worker)_ Run both Codex conditions on
+- [x] **E4 — Paired check.** _(done on the runner's branch; all four runs passed the gate)_ Run both Codex conditions on
   `rem_daily_revenue_filter_drift` and `change_daily_revenue_filter`; inspect
   traces for isolation, conversion and scoring problems; fix only the adapter.
-- [ ] **E5 — Freeze and run.** _(queued, runner worker, after the E4 gate)_ Freeze `codex_baseline_v1.yaml`; run both
+- [ ] **E5 — Freeze and run.** _(running now, runner worker)_ Freeze `codex_baseline_v1.yaml`; run both
   conditions on all ten episodes into `experiments/results/codex_baseline_v1/`.
 - [ ] **E6 — Trace audit.** _(queued, runner worker, after E5)_ `analysis.md`: per episode, what each agent
   inspected, what it concluded, whether it was right, and how that became the

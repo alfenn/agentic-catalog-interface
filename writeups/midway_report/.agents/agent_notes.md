@@ -647,3 +647,9 @@ context: [
 - The preliminary reply-format failure has no saved raw records, so it is cited to commit `d2a547b` and these notes, and the appendix says so. Other pivots cite pilot run records and the pilot audit.
 - The proposal-to-maintenance narrowing was dropped for space. The problem statement now names dbt and DuckDB as the prototype without lengthening the line.
 - Constraint check: no cost figures anywhere in the report, and the prohibited word appears only in the author's original feedback file, kept verbatim. `make_figures.py` still computes an unused per-condition cost sum that is never rendered; it can go when the results table is reworked.
+
+## 2026-11-08 — Paired check passed (worker report, recorded by claude-opus-5.5)
+
+- Both Codex conditions found the expected `sql_metadata_drift` on `daily_revenue` in the revenue repair and in the revenue-filter change: 1/0/0 and episode success in all four runs. No run read outside its workspace. Codex accepted the output schema, patches verified, and dbt and DuckDB both worked inside Codex's sandbox (Codex itself only used DuckDB in these runs).
+- Two adapter problems were fixed before the check counted: false isolation flags from a search glob and from a relative warehouse path, and a command citation rejected because of shell quoting. The discarded attempts are kept outside the results folder. One discarded sample of the matched condition on the filter change had an extra finding, so that case succeeded in two of three samples overall. The report should treat single-sample results with that variability in mind.
+- The full ten-episode run for both conditions started after the gate.
