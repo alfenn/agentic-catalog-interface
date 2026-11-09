@@ -36,7 +36,7 @@ or dependency.
   traces for isolation, conversion and scoring problems; fix only the adapter.
 - [ ] **E5 — Freeze and run.** _(running now, runner worker)_ Freeze `codex_baseline_v1.yaml`; run both
   conditions on all ten episodes into `experiments/results/codex_baseline_v1/`.
-- [ ] **E6 — Trace audit.** _(queued, runner worker, after E5)_ `analysis.md`: per episode, what each agent
+- [ ] **E6 — Trace audit.** _(in progress, runner worker: steward entries now, Codex entries when E5 finishes)_ `analysis.md`: per episode, what each agent
   inspected, what it concluded, whether it was right, and how that became the
   score; isolation check results; where the labels are disputable.
 
@@ -46,9 +46,9 @@ or dependency.
   Methods cut to one or two high-level paragraphs around it and Environment &
   Data cut to about half, with the details in a new appendix section;
   implemented versus planned behavior separated.
-- [ ] **R2 — Methods and evaluation.** _(waits for E5 data)_ Conditions with their exact differences;
+- [ ] **R2 — Methods and evaluation.** _(in progress, results worker)_ Conditions with their exact differences;
   the seven-step evaluation once, updated for the Codex adapter.
-- [ ] **R3 — Results.** _(waits for E5 and E6)_ Per-episode table for steward and both Codex conditions
+- [ ] **R3 — Results.** _(in progress, results worker: table and structure now, walkthroughs after E5 and E6)_ Per-episode table for steward and both Codex conditions
   with metric definitions; one remediation and one change-review walkthrough
   citing saved traces; limitations next to the numbers.
 - [x] **R4 — Pivots.** Each pivot as what the agent did, whether it was right,
@@ -57,9 +57,9 @@ or dependency.
 - [x] **R5 — Constraints.** _(the original feedback file keeps the word verbatim as provenance; R6 rechecks after Results)_ No cost data; problem stated for lakehouses
   generally; prohibited jargon absent from editable project files; static and
   custom generic conditions out of the report.
-- [ ] **R6 — Build and check.** _(after R3)_ Regenerate figures, TeX and PDF; visually check
+- [ ] **R6 — Build and check.** _(results worker, after R3)_ Regenerate figures, TeX and PDF; visually check
   that everything before the appendix, references included, fits in four total
   pages, plus legibility, clipping, and table/figure consistency.
-- [ ] **R7 — README.** _(queued, runner worker, after E6)_ Reproduction steps for the Codex baseline.
-- [ ] **R8 — Close out.** _(last)_ Implementation update in `agent_response_2__codex.md`,
+- [ ] **R7 — README.** _(in progress, runner worker, during the E5 run)_ Reproduction steps for the Codex baseline.
+- [ ] **R8 — Close out.** _(coordinator, after everything lands)_ Implementation update in `agent_response_2__codex.md`,
   final notes, follow-ups and their importance.
