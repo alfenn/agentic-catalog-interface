@@ -7,7 +7,7 @@ isolation, output-schema acceptance, conversion and scoring, and dbt and DuckDB
 inside the Codex sandbox. It is not a result: one sample per episode and condition,
 two episodes.
 
-Recorded 2026-11-09 with Codex CLI 0.167.0, adapter at commit 7895cb2:
+Recorded 2026-11-09 with Codex CLI 0.167.0, adapter at commit 8f426e8:
 
 ```
 uv run python -m catalog_steward.codex_baseline --condition codex-matched \
@@ -44,17 +44,17 @@ Both attempts ran the same prompt, schema, models and episodes. They were discar
 because of adapter problems, not because of their outcomes, and are kept outside the
 repository.
 
-1. **Attempt 1 (adapter at ae13f13).** All four runs completed and scored 1/0/0 with
+1. **Attempt 1 (adapter at a63a005).** All four runs completed and scored 1/0/0 with
    episode success. The isolation scan raised two false flags: an `rg` glob
    (`-g '!**/.git/**'`) was read as an absolute path, and `../warehouse.duckdb`, run
-   from inside `project/`, was read as leaving the workspace. Fixed in 266cb54 (glob
+   from inside `project/`, was read as leaving the workspace. Fixed in 7c42e71 (glob
    characters end a path token; one level up is allowed because events do not record
    the working directory, while listing the parent or climbing two or more levels is
    still flagged).
-2. **Attempt 2 (adapter at 266cb54).** Command-citation matching rejected a citation
+2. **Attempt 2 (adapter at 7c42e71).** Command-citation matching rejected a citation
    that Codex had in fact run: it cited one statement of a compound command, re-quoted
    to stand alone, so the strict substring test failed and evidence validity for
-   change_daily_revenue_filter / codex-matched read 0.857. Fixed in 7895cb2 (commands
+   change_daily_revenue_filter / codex-matched read 0.857. Fixed in 8f426e8 (commands
    are compared with shell quoting removed). The re-run is a new model sample. In
    attempt 2, that same run had also patched the description and added a second
    finding (`unsupported_reliability_claim` on `daily_revenue`, propose). That finding

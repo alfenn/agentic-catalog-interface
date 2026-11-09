@@ -1,7 +1,7 @@
 # Codex baseline, frozen ten-episode run
 
 Both Codex conditions on the ten frozen pilot episodes, one sample per episode and
-condition, recorded 2026-11-09 with Codex CLI 0.167.0 and adapter commit 7895cb2.
+condition, recorded 2026-11-09 with Codex CLI 0.167.0 and adapter commit 8f426e8.
 Configuration: `experiments/configs/codex_baseline_v1.yaml` (version 1.0.0, frozen;
 prompt `codex-hygiene-v1`; output schema `design/codex_plan.schema.json`; scorer
 `midpoint-score-v1`).
