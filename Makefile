@@ -26,7 +26,7 @@ help:
 	  'test-live    run paid/external tests explicitly' \
 	  'test-all     run deterministic and live tests' \
 	  'costs        summarize recorded live-model cost' \
-	  'report       regenerate midway-report figure, table, report.tex, and report.pdf from REPORT_RESULTS and CODEX_RESULTS'
+	  'report       regenerate midway-report figure, table, report.tex/pdf and appendix.tex/pdf from REPORT_RESULTS and CODEX_RESULTS'
 
 setup:
 	@test -f .env || cp .env.example .env
