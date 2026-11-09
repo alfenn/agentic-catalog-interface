@@ -661,3 +661,11 @@ context: [
 - Label and contract problems surfaced again. `lifecycle_drift` requires repository history, which remediation episodes lack (codex-frontier declined to label it). Both clean controls contain real gaps. Grain drift and SQL drift lack a precedence rule (matched Codex repeated the steward's mislabel on the wrong-grain case).
 - Adapter facts worth keeping: fixtures for Codex are built with the separate tool environment's dbt, because the repository environment wrote repository paths into dbt artifacts; Codex runs with the user's hooks, rules, plugins, memories, web search and login shell disabled; and the tool environment lacks numpy, so DuckDB `fetchdf()` fails (one run recovered). Adding numpy needs a new config version.
 - The editor's automatic LaTeX build recompiled `report.pdf` in the primary checkout with only new timestamps; the committed copy was restored before landing.
+
+## 2026-11-08 — Conditions and results rewrite (worker report, recorded by claude-opus-5.5)
+
+- The results table is built from per-episode records rather than `summary.json`, so one generator reads both the pilot and the Codex formats and shows a dash for a missing run. It is raw LaTeX with grouped rows. The unused report charts, the old two-case table and the cost code are gone. The demo's charts moved behind `make_figures.py --demo-charts`.
+- The walkthroughs are the legacy-copy remediation and the revenue-filter change, as the audit recommended. Each shows both a strength and a weakness of the steward; the runner-up cases each favored one side.
+- The steward has two cache-replayed records in the pilot (both revenue-filter episodes), not four; the other two replays belong to the in-house generic condition. The report says two.
+- Limitations sit next to the numbers. Each cell is one sample. Crediting the clean controls' real unlabelled gaps would give 7, 7 and 8 successes; that is stated as context, not a re-scoring. Nothing shows that the steward's design improves scored outcomes.
+- The page budget is exhausted: the references end on page 4 with no spare lines, so any later body addition needs an equal cut. `make report` now prints where the references end.

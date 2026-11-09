@@ -46,9 +46,9 @@ or dependency.
   Methods cut to one or two high-level paragraphs around it and Environment &
   Data cut to about half, with the details in a new appendix section;
   implemented versus planned behavior separated.
-- [ ] **R2 — Methods and evaluation.** _(in progress, results worker)_ Conditions with their exact differences;
+- [x] **R2 — Methods and evaluation.** Conditions with their exact differences;
   the seven-step evaluation once, updated for the Codex adapter.
-- [ ] **R3 — Results.** _(in progress, results worker: table and structure done, walkthroughs now)_ Per-episode table for steward and both Codex conditions
+- [x] **R3 — Results.** _(walkthroughs: legacy-copy remediation and revenue-filter change)_ Per-episode table for steward and both Codex conditions
   with metric definitions; one remediation and one change-review walkthrough
   citing saved traces; limitations next to the numbers.
 - [x] **R4 — Pivots.** Each pivot as what the agent did, whether it was right,
@@ -57,9 +57,9 @@ or dependency.
 - [x] **R5 — Constraints.** _(the original feedback file keeps the word verbatim as provenance; R6 rechecks after Results)_ No cost data; problem stated for lakehouses
   generally; prohibited jargon absent from editable project files; static and
   custom generic conditions out of the report.
-- [ ] **R6 — Build and check.** _(results worker, after R3)_ Regenerate figures, TeX and PDF; visually check
+- [x] **R6 — Build and check.** _(references end on page 4; the close-out worker rechecks after its edits)_ Regenerate figures, TeX and PDF; visually check
   that everything before the appendix, references included, fits in four total
   pages, plus legibility, clipping, and table/figure consistency.
 - [x] **R7 — README.** Reproduction steps for the Codex baseline.
-- [ ] **R8 — Close out.** _(coordinator, after everything lands)_ Implementation update in `agent_response_2__codex.md`,
+- [ ] **R8 — Close out.** _(in progress, close-out worker: stale-text and consistency sweep, implementation update; coordinator writes the final notes)_ Implementation update in `agent_response_2__codex.md`,
   final notes, follow-ups and their importance.
