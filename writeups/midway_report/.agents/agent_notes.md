@@ -640,3 +640,10 @@ context: [
 - Methods 2.2 is now "What we built" plus "Limits"; Environment & Data 2.1 keeps a short evaluation summary. Appendix A holds the environment, episodes, and the one step-by-step evaluation explanation; Appendix B holds system details; the AI disclosure becomes Appendix C. The references end on page 4 with about half a page of body room left for the Results rewrite.
 - `figures/results_table.md` on main still had a cost column; the rebuild regenerated it without cost data.
 - Every system claim in the new text was checked against source line by line; the worker's checklist is kept in the firstmate task record rather than here.
+
+## 2026-11-08 — Pivots from saved evidence (worker report, recorded by claude-opus-5.5)
+
+- The pivots section is now four short paragraphs, each giving what the agent did, whether it was right, and what changed: reply format, raw-tool exploration, label choice, and the unmatched first Codex comparison. The trace detail sits in a new appendix, "Pivot Evidence", before the AI disclosure.
+- The preliminary reply-format failure has no saved raw records, so it is cited to commit `d2a547b` and these notes, and the appendix says so. Other pivots cite pilot run records and the pilot audit.
+- The proposal-to-maintenance narrowing was dropped for space. The problem statement now names dbt and DuckDB as the prototype without lengthening the line.
+- Constraint check: no cost figures anywhere in the report, and the prohibited word appears only in the author's original feedback file, kept verbatim. `make_figures.py` still computes an unused per-condition cost sum that is never rendered; it can go when the results table is reworked.

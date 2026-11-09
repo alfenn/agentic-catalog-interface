@@ -51,10 +51,10 @@ or dependency.
 - [ ] **R3 — Results.** _(waits for E5 and E6)_ Per-episode table for steward and both Codex conditions
   with metric definitions; one remediation and one change-review walkthrough
   citing saved traces; limitations next to the numbers.
-- [ ] **R4 — Pivots.** _(in progress, pivots worker)_ Each pivot as what the agent did, whether it was right,
+- [x] **R4 — Pivots.** Each pivot as what the agent did, whether it was right,
   and what changed, citing saved runs (including the earlier unmatched two-case
   runs that motivated matching the model and task specification).
-- [ ] **R5 — Constraints.** _(in progress, pivots worker; only the original feedback file still contains the word)_ No cost data; problem stated for lakehouses
+- [x] **R5 — Constraints.** _(the original feedback file keeps the word verbatim as provenance; R6 rechecks after Results)_ No cost data; problem stated for lakehouses
   generally; prohibited jargon absent from editable project files; static and
   custom generic conditions out of the report.
 - [ ] **R6 — Build and check.** _(after R3)_ Regenerate figures, TeX and PDF; visually check
