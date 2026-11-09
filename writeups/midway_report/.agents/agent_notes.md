@@ -615,3 +615,11 @@ context: [
 ## 2026-11-08 — Feedback response reconciliation
 
 - The response acquired a fuller seven-step plan while implementation was underway. Kept that text as a historical review and added a dated implementation update; the report now presents seven steps. The preselected changed-grain case was retained because it has an actual separately recorded coding-agent run and illustrates the requested scoring limits. The earlier suggestion of a filter-change walkthrough does not justify substituting an unrecorded comparison.
+
+## 2026-11-08 — Round two: Codex baseline design (claude-opus-5.5)
+
+- Local main was moved onto the pushed first-round commit (894f0ca) instead of re-committing the same files, so main and the first-round branch share history. The working tree matched that commit byte for byte. A frozen pilot run record that an editor had pretty-printed was restored to its original bytes; its JSON content was identical.
+- Codex CLI offers `gpt-6-luna` at low reasoning, the steward's frozen model and effort. The primary baseline therefore holds the model fixed and varies only the harness, which is the question the report title asks. A second Codex condition on `gpt-6.1-sol` answers whether a small-model steward keeps up with a state-of-the-art agent on a frontier model.
+- Codex gets the same task specification as the steward (trigger, scope, hygiene contract, five-finding cap, patch surface) but not the evidence bundle, validator or executor, which are the intervention. Its workspace is built outside the repository with label material removed, and its tools come from a separate environment, so neither the workspace nor `PATH` leads to the labelled repository.
+- The steward side stays the frozen pilot. Re-running it would add a fresh sample but would also blur the claim that nothing was tuned after Codex results were seen.
+- Work is split across subagents: the runner and tests in one, the architecture diagram and section in another. Shared tracking files (`agent_notes.md`, `AGENT_TODO.md`) are edited only by the coordinating agent to avoid concurrent overwrites.
