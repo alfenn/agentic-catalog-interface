@@ -49,7 +49,7 @@ In Table\ \ref{tbl:results}, the steward succeeds on 5/10 examples (precision 0.
 <!-- BEGIN GENERATED: results_table (make_figures.py; do not edit by hand) -->
 ```{=latex}
 \begin{table}[t]
-\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged: per-example recall divides by the number of answer-key entries, which is zero for examples that contain no hygiene problems. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
+\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged because per-example (macro) recall divides by the number of answer-key entries, which is zero for the \emph{clean control} examples. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}
