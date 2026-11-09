@@ -42,7 +42,7 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 # Results (Summary of Progress) {#sec:results}
 
-**What I compared.** All of Figure\ \ref{fig:arch} and the Codex adapter are implemented. Under the unchanged scorer the steward does not win (Table\ \ref{tbl:results}): it succeeds on 5 examples, against 6 for matched and 7 for frontier Codex, with the highest recall (0.90, against 0.70 and 0.80) and the most extra findings (6, against 5 and 3). No run used a forbidden action, failed verification or edited another file, and no isolation flag fired. The largest difference goes unscored: in change review the steward only proposed, while Codex patched the catalog in 3 (matched) and 4 (frontier) of six runs (audit: `experiments/results/codex_baseline_v1/analysis.md`; records by example there and in the pilot folder).
+**What I compared.** All of Figure\ \ref{fig:arch} and the Codex adapter are implemented. Scored by the same rules as the earlier steward run, unchanged for Codex (exact answer-key matching and the success rule in Section\ \ref{sec:env}), the steward does not win (Table\ \ref{tbl:results}): it succeeds on 5 examples, against 6 for matched-Codex and 7 for frontier-Codex, with the highest recall (0.90, against 0.70 and 0.80) and the most extra findings (6, against 5 and 3). No run used a forbidden action, failed verification or edited another file, and no isolation flag fired. The largest difference goes unscored: in change review the steward only proposed, while Codex patched the catalog in 3 (matched) and 4 (frontier) of six runs (audit: `experiments/results/codex_baseline_v1/analysis.md`).
 
 <!-- BEGIN GENERATED: results_table (make_figures.py; do not edit by hand) -->
 ```{=latex}
