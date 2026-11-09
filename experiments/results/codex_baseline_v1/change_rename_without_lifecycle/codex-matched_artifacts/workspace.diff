@@ -1,0 +1,11 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -0,0 +1,8 @@
++{
++  "assets": {
++    "revenue_daily": {
++      "description": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
++      "grain": ["order_date"]
++    }
++  }
++}

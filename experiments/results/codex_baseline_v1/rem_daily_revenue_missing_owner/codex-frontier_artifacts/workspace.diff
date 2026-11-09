@@ -1,0 +1,11 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -1,7 +1,7 @@
+ {
+   "assets": {
+     "daily_revenue": {
+-      "owner": null
++      "owner": "finance-analytics"
+     }
+   }
+ }

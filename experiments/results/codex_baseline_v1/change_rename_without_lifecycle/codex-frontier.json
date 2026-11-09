@@ -1,0 +1,715 @@
+{
+  "flags": {
+    "changes_outside_overrides": [],
+    "exit_code": 0,
+    "files_changed": [
+      "catalog/overrides.json"
+    ],
+    "files_created_outside_project": [],
+    "isolation": [],
+    "malformed_event_lines": 0,
+    "timed_out": false
+  },
+  "result": {
+    "codex_final": {
+      "changes_made": [
+        {
+          "description": "Added revenue_daily description, owner, and grain using the documented predecessor and SQL-identical rename.",
+          "path": "project/catalog/overrides.json"
+        }
+      ],
+      "findings": [
+        {
+          "action": {
+            "class": "propose",
+            "field": null,
+            "operation": "request_review",
+            "rationale": "Review marking daily_revenue retired and noncanonical, recording revenue_daily as its replacement, and updating the stale schema declarations. Lifecycle changes require a proposal under the issue contract.",
+            "value": null,
+            "verification": null
+          },
+          "asset": "daily_revenue",
+          "claim": "The catalog still marks daily_revenue active and canonical although the proposed change removes that model and replaces it with revenue_daily.",
+          "confidence": "high",
+          "evidence": [
+            {
+              "fact": "daily_revenue has lifecycle active and canonical true.",
+              "kind": "file",
+              "source": "project/catalog/catalog.json"
+            },
+            {
+              "fact": "Removes daily_revenue.sql and adds revenue_daily.sql with identical SQL.",
+              "kind": "file",
+              "source": "input.diff"
+            },
+            {
+              "fact": "daily_revenue has no model node. revenue_daily depends on stg_orders and has no downstream nodes.",
+              "kind": "file",
+              "source": "project/target/manifest.json"
+            }
+          ],
+          "impact": "high",
+          "issue_type": "lifecycle_drift"
+        },
+        {
+          "action": {
+            "class": "propose",
+            "field": null,
+            "operation": "propose_metadata_change",
+            "rationale": "Propose lifecycle active and canonical true for revenue_daily, coordinated with retirement of the old catalog identity.",
+            "value": null,
+            "verification": null
+          },
+          "asset": "revenue_daily",
+          "claim": "The replacement model lacks lifecycle and canonical metadata.",
+          "confidence": "high",
+          "evidence": [
+            {
+              "fact": "There is no revenue_daily entry; daily_revenue is active and canonical.",
+              "kind": "file",
+              "source": "project/catalog/catalog.json"
+            },
+            {
+              "fact": "The new override supplies description, owner, and grain only.",
+              "kind": "file",
+              "source": "project/catalog/overrides.json"
+            },
+            {
+              "fact": "Metadata declarations remain attached to daily_revenue.",
+              "kind": "file",
+              "source": "project/models/schema.yml"
+            },
+            {
+              "fact": "revenue_daily is an enabled model with empty config.meta.",
+              "kind": "file",
+              "source": "project/target/manifest.json"
+            }
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        },
+        {
+          "action": {
+            "class": "patch",
+            "field": "description",
+            "operation": "update_catalog_field",
+            "rationale": "Carry forward the existing repository description because the rename preserves its supporting SQL.",
+            "value": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+            "verification": {
+              "equals": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+              "field": "description"
+            }
+          },
+          "asset": "revenue_daily",
+          "claim": "The renamed model initially had no catalog description.",
+          "confidence": "high",
+          "evidence": [
+            {
+              "fact": "Only daily_revenue carries the completed-order revenue description.",
+              "kind": "file",
+              "source": "project/catalog/catalog.json"
+            },
+            {
+              "fact": "daily_revenue has the same description; revenue_daily has no declaration.",
+              "kind": "file",
+              "source": "project/models/schema.yml"
+            },
+            {
+              "fact": "revenue_daily has an empty description.",
+              "kind": "file",
+              "source": "project/target/manifest.json"
+            },
+            {
+              "fact": "The replacement preserves the completed-status filter, date grouping, order count, and amount sum exactly.",
+              "kind": "file",
+              "source": "input.diff"
+            }
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        },
+        {
+          "action": {
+            "class": "patch",
+            "field": "owner",
+            "operation": "update_catalog_field",
+            "rationale": "Preserve the explicitly documented owner across the SQL-identical rename.",
+            "value": "finance-analytics",
+            "verification": {
+              "equals": "finance-analytics",
+              "field": "owner"
+            }
+          },
+          "asset": "revenue_daily",
+          "claim": "The renamed model initially had no catalog owner.",
+          "confidence": "high",
+          "evidence": [
+            {
+              "fact": "daily_revenue is owned by finance-analytics; revenue_daily is absent.",
+              "kind": "file",
+              "source": "project/catalog/catalog.json"
+            },
+            {
+              "fact": "daily_revenue explicitly declares owner finance-analytics.",
+              "kind": "file",
+              "source": "project/models/schema.yml"
+            },
+            {
+              "fact": "revenue_daily has empty config.meta, including no owner.",
+              "kind": "file",
+              "source": "project/target/manifest.json"
+            },
+            {
+              "fact": "The old model is replaced by an identically defined model under the new name.",
+              "kind": "file",
+              "source": "input.diff"
+            }
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        },
+        {
+          "action": {
+            "class": "patch",
+            "field": "grain",
+            "operation": "update_catalog_field",
+            "rationale": "Restore the documented grain supported directly by the unchanged aggregation.",
+            "value": [
+              "order_date"
+            ],
+            "verification": {
+              "equals": [
+                "order_date"
+              ],
+              "field": "grain"
+            }
+          },
+          "asset": "revenue_daily",
+          "claim": "The renamed model initially had no catalog grain.",
+          "confidence": "high",
+          "evidence": [
+            {
+              "fact": "daily_revenue declares grain [order_date]; revenue_daily is absent.",
+              "kind": "file",
+              "source": "project/catalog/catalog.json"
+            },
+            {
+              "fact": "daily_revenue declares order_date as its grain; revenue_daily has no declaration.",
+              "kind": "file",
+              "source": "project/models/schema.yml"
+            },
+            {
+              "fact": "revenue_daily has empty config.meta.",
+              "kind": "file",
+              "source": "project/target/manifest.json"
+            },
+            {
+              "fact": "The model groups only by order_date, preserving the prior model\u2019s aggregation grain.",
+              "kind": "file",
+              "source": "project/models/revenue_daily.sql"
+            }
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        }
+      ],
+      "summary": "The SQL-only rename left catalog metadata and dbt schema declarations under daily_revenue. Patched the new model\u2019s description, owner, and grain; lifecycle and canonical status require review.",
+      "unresolved_questions": [
+        "Should daily_revenue be retired and made noncanonical, with revenue_daily designated active and canonical?",
+        "Will the change author move the daily_revenue schema declarations and date tests to revenue_daily? The manifest shows the old tests disabled and no tests attached to the replacement."
+      ],
+      "verification_performed": [
+        {
+          "command": "python JSON assertions over project/catalog/catalog.json, project/catalog/overrides.json, project/target/manifest.json, project/models/revenue_daily.sql, and input.diff",
+          "result": "Passed: override contains only the scoped asset and three permitted fields; merged values equal the reported patches; removed, added, and manifest SQL match exactly."
+        },
+        {
+          "command": "python manifest inspection of model nodes, parent_map, child_map, and test dependencies",
+          "result": "Confirmed old model absent, replacement depends on stg_orders, replacement has no downstream nodes or attached tests, and old date tests are disabled."
+        },
+        {
+          "command": "python read-only DuckDB query: select count(*) as sampled_rows, count(distinct order_date) as distinct_dates, count(*) filter (where order_date is null) as null_dates from (select order_date from main.revenue_daily limit 10000) s",
+          "result": "Returned 4 rows, 4 distinct dates, and 0 null dates. Warehouse opened read-only."
+        }
+      ]
+    },
+    "condition": "codex-frontier",
+    "episode_id": "change_rename_without_lifecycle",
+    "error": null,
+    "evidence": [
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "facts": [
+            "daily_revenue has lifecycle active and canonical true.",
+            "There is no revenue_daily entry; daily_revenue is active and canonical.",
+            "Only daily_revenue carries the completed-order revenue description.",
+            "daily_revenue is owned by finance-analytics; revenue_daily is absent.",
+            "daily_revenue declares grain [order_date]; revenue_daily is absent."
+          ]
+        },
+        "id": "ev_codex_d9d66dcabddf",
+        "kind": "codex_file",
+        "source": "project/catalog/catalog.json"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "facts": [
+            "Removes daily_revenue.sql and adds revenue_daily.sql with identical SQL.",
+            "The replacement preserves the completed-status filter, date grouping, order count, and amount sum exactly.",
+            "The old model is replaced by an identically defined model under the new name."
+          ]
+        },
+        "id": "ev_codex_916e416626a1",
+        "kind": "codex_file",
+        "source": "input.diff"
+      },
+      {
+        "asset": "daily_revenue",
+        "content": {
+          "facts": [
+            "daily_revenue has no model node. revenue_daily depends on stg_orders and has no downstream nodes.",
+            "revenue_daily is an enabled model with empty config.meta.",
+            "revenue_daily has an empty description.",
+            "revenue_daily has empty config.meta, including no owner.",
+            "revenue_daily has empty config.meta."
+          ]
+        },
+        "id": "ev_codex_76d5d2ee0e05",
+        "kind": "codex_file",
+        "source": "project/target/manifest.json"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "facts": [
+            "The new override supplies description, owner, and grain only."
+          ]
+        },
+        "id": "ev_codex_b79b01f8c911",
+        "kind": "codex_file",
+        "source": "project/catalog/overrides.json"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "facts": [
+            "Metadata declarations remain attached to daily_revenue.",
+            "daily_revenue has the same description; revenue_daily has no declaration.",
+            "daily_revenue explicitly declares owner finance-analytics.",
+            "daily_revenue declares order_date as its grain; revenue_daily has no declaration."
+          ]
+        },
+        "id": "ev_codex_438269e13ba4",
+        "kind": "codex_file",
+        "source": "project/models/schema.yml"
+      },
+      {
+        "asset": "revenue_daily",
+        "content": {
+          "facts": [
+            "The model groups only by order_date, preserving the prior model\u2019s aggregation grain."
+          ]
+        },
+        "id": "ev_codex_996c75d96c00",
+        "kind": "codex_file",
+        "source": "project/models/revenue_daily.sql"
+      }
+    ],
+    "mode": "change_review",
+    "plan": {
+      "findings": [
+        {
+          "action": {
+            "class": "propose",
+            "operation": "request_review",
+            "rationale": "Review marking daily_revenue retired and noncanonical, recording revenue_daily as its replacement, and updating the stale schema declarations. Lifecycle changes require a proposal under the issue contract."
+          },
+          "asset": "daily_revenue",
+          "claim": "The catalog still marks daily_revenue active and canonical although the proposed change removes that model and replaces it with revenue_daily.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_codex_d9d66dcabddf",
+            "ev_codex_916e416626a1",
+            "ev_codex_76d5d2ee0e05"
+          ],
+          "impact": "high",
+          "issue_type": "lifecycle_drift"
+        },
+        {
+          "action": {
+            "class": "propose",
+            "operation": "propose_metadata_change",
+            "rationale": "Propose lifecycle active and canonical true for revenue_daily, coordinated with retirement of the old catalog identity."
+          },
+          "asset": "revenue_daily",
+          "claim": "The replacement model lacks lifecycle and canonical metadata.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_codex_d9d66dcabddf",
+            "ev_codex_b79b01f8c911",
+            "ev_codex_438269e13ba4",
+            "ev_codex_76d5d2ee0e05"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        },
+        {
+          "action": {
+            "class": "patch",
+            "field": "description",
+            "operation": "update_catalog_field",
+            "rationale": "Carry forward the existing repository description because the rename preserves its supporting SQL.",
+            "value": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+            "verification": {
+              "equals": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+              "field": "description"
+            }
+          },
+          "asset": "revenue_daily",
+          "claim": "The renamed model initially had no catalog description.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_codex_d9d66dcabddf",
+            "ev_codex_438269e13ba4",
+            "ev_codex_76d5d2ee0e05",
+            "ev_codex_916e416626a1"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        },
+        {
+          "action": {
+            "class": "patch",
+            "field": "owner",
+            "operation": "update_catalog_field",
+            "rationale": "Preserve the explicitly documented owner across the SQL-identical rename.",
+            "value": "finance-analytics",
+            "verification": {
+              "equals": "finance-analytics",
+              "field": "owner"
+            }
+          },
+          "asset": "revenue_daily",
+          "claim": "The renamed model initially had no catalog owner.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_codex_d9d66dcabddf",
+            "ev_codex_438269e13ba4",
+            "ev_codex_76d5d2ee0e05",
+            "ev_codex_916e416626a1"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        },
+        {
+          "action": {
+            "class": "patch",
+            "field": "grain",
+            "operation": "update_catalog_field",
+            "rationale": "Restore the documented grain supported directly by the unchanged aggregation.",
+            "value": [
+              "order_date"
+            ],
+            "verification": {
+              "equals": [
+                "order_date"
+              ],
+              "field": "grain"
+            }
+          },
+          "asset": "revenue_daily",
+          "claim": "The renamed model initially had no catalog grain.",
+          "confidence": "high",
+          "evidence_ids": [
+            "ev_codex_d9d66dcabddf",
+            "ev_codex_438269e13ba4",
+            "ev_codex_76d5d2ee0e05",
+            "ev_codex_996c75d96c00"
+          ],
+          "impact": "medium",
+          "issue_type": "missing_required_metadata"
+        }
+      ],
+      "summary": "The SQL-only rename left catalog metadata and dbt schema declarations under daily_revenue. Patched the new model\u2019s description, owner, and grain; lifecycle and canonical status require review.",
+      "unresolved_questions": [
+        "Should daily_revenue be retired and made noncanonical, with revenue_daily designated active and canonical?",
+        "Will the change author move the daily_revenue schema declarations and date tests to revenue_daily? The manifest shows the old tests disabled and no tests attached to the replacement."
+      ]
+    },
+    "protocol_rejections": 0,
+    "repair_used": false,
+    "seconds": 82.90435481071472,
+    "status": "complete",
+    "transcript": [
+      {
+        "id": "item_0",
+        "message": "Configured value for `windows.sandbox` is disallowed by requirements; falling back to required value Some(Elevated). Details: invalid value for `windows.sandbox`: `None` is not in the allowed set [Elevated] (set by enterprise-managed requirements Baseline (regulated-workspace-default-fallback))",
+        "type": "error"
+      },
+      {
+        "id": "item_1",
+        "message": "Configured value for `approval_policy` is disallowed by requirements; falling back to required value OnRequest. Details: invalid value for `approval_policy`: `Never` is not in the allowed set [OnRequest, UnlessTrusted] (set by enterprise-managed requirements Baseline (regulated-workspace-default-fallback))",
+        "type": "error"
+      },
+      {
+        "id": "item_2",
+        "message": "Configured value for `windows.sandbox` is disallowed by requirements; falling back to required value Some(Elevated). Details: invalid value for `windows.sandbox`: `None` is not in the allowed set [Elevated] (set by enterprise-managed requirements Baseline (regulated-workspace-default-fallback))",
+        "type": "error"
+      },
+      {
+        "id": "item_3",
+        "text": "I\u2019ll compare the proposed change with the catalog, dbt artifacts, and bounded warehouse checks, then patch any metadata corrections supported by the evidence.",
+        "type": "agent_message"
+      },
+      {
+        "aggregated_output": "/private/var/folders/24/gzdrk8bd3933s2t8lp1ndtk00000gn/T/csb-gvhwiq4z/ws_58caf0d95200\nproject/dbt_project.yml\n./input.diff\n./project/dbt_project.yml\nproject/models/customer_orders.sql\nproject/models/revenue_daily.sql\nproject/models/stg_orders.sql\nproject/models/schema.yml\n./project/models/customer_orders.sql\n./project/models/revenue_daily.sql\n./project/models/stg_orders.sql\n./project/models/schema.yml\nproject/catalog/catalog.json\n./project/catalog/catalog.json\nproject/target/osi_document.json\nproject/target/semantic_manifest.json\n./project/target/osi_document.json\n./project/target/semantic_manifest.json\nproject/target/run/catalog_steward_fixture/models/customer_orders.sql\nproject/target/run/catalog_steward_fixture/models/revenue_daily.sql\nproject/target/run/catalog_steward_fixture/models/stg_orders.sql\nproject/target/manifest.json\nproject/target/run_results.json\n./project/target/run/catalog_steward_fixture/models/customer_orders.sql\n./project/target/run/catalog_steward_fixture/models/revenue_daily.sql\n./project/target/run/catalog_steward_fixture/models/stg_orders.sql\n./project/target/manifest.json\n./project/target/run_results.json\nproject/target/compiled/catalog_steward_fixture/models/customer_orders.sql\nproject/target/compiled/catalog_steward_fixture/models/revenue_daily.sql\nproject/target/compiled/catalog_steward_fixture/models/stg_orders.sql\nproject/target/graph_summary.json\nproject/target/perf_info.json\nproject/profiles.yml\n./project/target/perf_info.json\n./project/target/compiled/catalog_steward_fixture/models/customer_orders.sql\n./project/profiles.yml\n./project/target/compiled/catalog_steward_fixture/models/stg_orders.sql\n./project/target/graph_summary.json\n./project/target/compiled/catalog_steward_fixture/models/revenue_daily.sql\n",
+        "command": "/bin/bash -c \"pwd && rg --files -g 'AGENTS.md' -g 'input.diff' -g '*.json' -g '*.yml' -g '*.sql' -g '*.yaml' project . | head -100\"",
+        "exit_code": 0,
+        "id": "item_4",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      {
+        "aggregated_output": "total 4128\ndrwxr-xr-x@ 5 alfen  staff      160 Nov  8 20:06 .\ndrwx------@ 3 alfen  staff       96 Nov  8 20:06 ..\n-rw-r--r--@ 1 alfen  staff      524 Nov  8 20:06 input.diff\ndrwxr-xr-x@ 9 alfen  staff      288 Nov  8 20:06 project\n-rw-r--r--@ 1 alfen  staff  1847296 Nov  8 20:06 warehouse.duckdb\n--- a/models/daily_revenue.sql\n+++ b/models/daily_revenue.sql\n@@ -1,8 +0,0 @@\n-select\n-    order_date,\n-    count(*) as completed_order_count,\n-    sum(amount) as completed_revenue\n-from {{ ref('stg_orders') }}\n-where status = 'completed'\n-group by order_date\n-\n--- a/models/revenue_daily.sql\n+++ b/models/revenue_daily.sql\n@@ -0,0 +1,8 @@\n+select\n+    order_date,\n+    count(*) as completed_order_count,\n+    sum(amount) as completed_revenue\n+from {{ ref('stg_orders') }}\n+where status = 'completed'\n+group by order_date\n+\n{\n  \"version\": \"1.0\",\n  \"assets\": [\n    {\n      \"name\": \"stg_orders\",\n      \"type\": \"model\",\n      \"description\": \"One row per source order, including all lifecycle statuses.\",\n      \"owner\": \"data-platform\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"order_id\"],\n      \"canonical\": true\n    },\n    {\n      \"name\": \"customer_orders\",\n      \"type\": \"model\",\n      \"description\": \"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\",\n      \"owner\": \"analytics\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"customer_id\"],\n      \"canonical\": true\n    },\n    {\n      \"name\": \"daily_revenue\",\n      \"type\": \"model\",\n      \"description\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\",\n      \"owner\": \"finance-analytics\",\n      \"lifecycle\": \"active\",\n      \"grain\": [\"order_date\"],\n      \"canonical\": true\n    }\n  ]\n}\n\nversion: 2\n\nmodels:\n  - name: stg_orders\n    description: One row per source order, including all lifecycle statuses.\n    config:\n      meta:\n        owner: data-platform\n        lifecycle: active\n        grain: order_id\n    columns:\n      - name: order_id\n        description: Source order identifier.\n        data_tests: [not_null, unique]\n      - name: customer_id\n        description: Customer that placed the order.\n        data_tests: [not_null]\n      - name: status\n        description: Current order lifecycle status.\n        data_tests:\n          - accepted_values:\n              arguments:\n                values: [completed, refunded, cancelled]\n      - name: order_date\n        description: Date the order was placed.\n        data_tests: [not_null]\n\n  - name: customer_orders\n    description: Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\n    config:\n      meta:\n        owner: analytics\n        lifecycle: active\n        grain: customer_id\n    columns:\n      - name: customer_id\n        description: Customer identifier and model grain.\n        data_tests: [not_null, unique]\n      - name: completed_order_count\n        description: Number of completed orders for the customer.\n\n  - name: daily_revenue\n    description: Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\n    config:\n      meta:\n        owner: finance-analytics\n        lifecycle: active\n        grain: order_date\n    columns:\n      - name: order_date\n        description: Order date and model grain.\n        data_tests: [not_null, unique]\n      - name: completed_order_count\n        description: Number of completed orders on the date.\n      - name: completed_revenue\n        description: Sum of completed order amounts on the date.\n\nselect\n    order_date,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by order_date\n\nselect\n    customer_id,\n    count(*) as completed_order_count,\n    sum(amount) as completed_revenue,\n    min(order_date) as first_completed_order_date,\n    max(order_date) as latest_completed_order_date\nfrom {{ ref('stg_orders') }}\nwhere status = 'completed'\ngroup by customer_id\n\nselect\n    cast(order_id as integer) as order_id,\n    cast(customer_id as integer) as customer_id,\n    cast(status as varchar) as status,\n    cast(order_date as date) as order_date,\n    cast(amount as decimal(12, 2)) as amount\nfrom {{ ref('raw_orders') }}\n\nname: catalog_steward_fixture\nversion: 1.0.0\nconfig-version: 2\nprofile: catalog_steward_fixture\n\nmodel-paths: [\"models\"]\nseed-paths: [\"seeds\"]\ntarget-path: \"target\"\nclean-targets: [\"target\", \"dbt_packages\"]\n\nmodels:\n  catalog_steward_fixture:\n    +materialized: table\n\nseeds:\n  catalog_steward_fixture:\n    +quote_columns: false\n\n",
+        "command": "/bin/bash -c 'ls -la && cat input.diff && cat project/catalog/catalog.json && cat project/models/schema.yml && cat project/models/revenue_daily.sql && cat project/models/customer_orders.sql && cat project/models/stg_orders.sql && cat project/dbt_project.yml'",
+        "exit_code": 0,
+        "id": "item_5",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      {
+        "aggregated_output": "{\"unique_id\": \"model.catalog_steward_fixture.stg_orders\", \"resource_type\": \"model\", \"name\": \"stg_orders\", \"original_file_path\": \"models/stg_orders.sql\", \"description\": \"One row per source order, including all lifecycle statuses.\", \"columns\": {\"order_id\": {\"name\": \"order_id\", \"description\": \"Source order identifier.\", \"meta\": {}, \"data_type\": null, \"constraints\": [], \"quote\": null, \"config\": {\"meta\": {}, \"tags\": []}, \"tags\": [], \"granularity\": null, \"dimension\": null, \"entity\": null, \"doc_blocks\": []}, \"customer_id\": {\"name\": \"customer_id\", \"description\": \"Customer that placed the order.\", \"meta\": {}, \"data_type\": null, \"constraints\": [], \"quote\": null, \"config\": {\"meta\": {}, \"tags\": []}, \"tags\": [], \"granularity\": null, \"dimension\": null, \"entity\": null, \"doc_blocks\": []}, \"status\": {\"name\": \"status\", \"description\": \"Current order lifecycle status.\", \"meta\": {}, \"data_type\": null, \"constraints\": [], \"quote\": null, \"config\": {\"meta\": {}, \"tags\": []}, \"tags\": [], \"granularity\": null, \"dimension\": null, \"entity\": null, \"doc_blocks\": []}, \"order_date\": {\"name\": \"order_date\", \"description\": \"Date the order was placed.\", \"meta\": {}, \"data_type\": null, \"constraints\": [], \"quote\": null, \"config\": {\"meta\": {}, \"tags\": []}, \"tags\": [], \"granularity\": null, \"dimension\": null, \"entity\": null, \"doc_blocks\": []}}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": null, \"database\": null, \"tags\": [], \"meta\": {\"owner\": \"data-platform\", \"lifecycle\": \"active\", \"grain\": \"order_id\"}, \"group\": null, \"static_analysis\": null, \"materialized\": \"table\", \"incremental_strategy\": null, \"batch_size\": null, \"lookback\": 1, \"begin\": null, \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"column_types\": {}, \"full_refresh\": null, \"unique_key\": null, \"on_schema_change\": \"ignore\", \"on_configuration_change\": \"apply\", \"grants\": {}, \"packages\": [], \"docs\": {\"show\": true, \"node_color\": null}, \"contract\": {\"enforced\": false, \"alias_types\": true}, \"event_time\": null, \"concurrent_batches\": null, \"access\": \"protected\", \"freshness\": null, \"on_error\": null, \"latest_version_pointer\": {\"enabled\": null, \"alias\": null}}, \"depends_on\": {\"macros\": [], \"nodes\": [\"seed.catalog_steward_fixture.raw_orders\"]}, \"raw_code\": \"select\\n    cast(order_id as integer) as order_id,\\n    cast(customer_id as integer) as customer_id,\\n    cast(status as varchar) as status,\\n    cast(order_date as date) as order_date,\\n    cast(amount as decimal(12, 2)) as amount\\nfrom {{ ref('raw_orders') }}\", \"test_metadata\": null}\n{\"unique_id\": \"model.catalog_steward_fixture.revenue_daily\", \"resource_type\": \"model\", \"name\": \"revenue_daily\", \"original_file_path\": \"models/revenue_daily.sql\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": null, \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"table\", \"incremental_strategy\": null, \"batch_size\": null, \"lookback\": 1, \"begin\": null, \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"column_types\": {}, \"full_refresh\": null, \"unique_key\": null, \"on_schema_change\": \"ignore\", \"on_configuration_change\": \"apply\", \"grants\": {}, \"packages\": [], \"docs\": {\"show\": true, \"node_color\": null}, \"contract\": {\"enforced\": false, \"alias_types\": true}, \"event_time\": null, \"concurrent_batches\": null, \"access\": \"protected\", \"freshness\": null, \"on_error\": null, \"latest_version_pointer\": {\"enabled\": null, \"alias\": null}}, \"depends_on\": {\"macros\": [], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"raw_code\": \"select\\n    order_date,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by order_date\", \"test_metadata\": null}\n{\"unique_id\": \"model.catalog_steward_fixture.customer_orders\", \"resource_type\": \"model\", \"name\": \"customer_orders\", \"original_file_path\": \"models/customer_orders.sql\", \"description\": \"Completed-order metrics at one row per customer; refunded and cancelled orders are excluded.\", \"columns\": {\"customer_id\": {\"name\": \"customer_id\", \"description\": \"Customer identifier and model grain.\", \"meta\": {}, \"data_type\": null, \"constraints\": [], \"quote\": null, \"config\": {\"meta\": {}, \"tags\": []}, \"tags\": [], \"granularity\": null, \"dimension\": null, \"entity\": null, \"doc_blocks\": []}, \"completed_order_count\": {\"name\": \"completed_order_count\", \"description\": \"Number of completed orders for the customer.\", \"meta\": {}, \"data_type\": null, \"constraints\": [], \"quote\": null, \"config\": {\"meta\": {}, \"tags\": []}, \"tags\": [], \"granularity\": null, \"dimension\": null, \"entity\": null, \"doc_blocks\": []}}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": null, \"database\": null, \"tags\": [], \"meta\": {\"owner\": \"analytics\", \"lifecycle\": \"active\", \"grain\": \"customer_id\"}, \"group\": null, \"static_analysis\": null, \"materialized\": \"table\", \"incremental_strategy\": null, \"batch_size\": null, \"lookback\": 1, \"begin\": null, \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"column_types\": {}, \"full_refresh\": null, \"unique_key\": null, \"on_schema_change\": \"ignore\", \"on_configuration_change\": \"apply\", \"grants\": {}, \"packages\": [], \"docs\": {\"show\": true, \"node_color\": null}, \"contract\": {\"enforced\": false, \"alias_types\": true}, \"event_time\": null, \"concurrent_batches\": null, \"access\": \"protected\", \"freshness\": null, \"on_error\": null, \"latest_version_pointer\": {\"enabled\": null, \"alias\": null}}, \"depends_on\": {\"macros\": [], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"raw_code\": \"select\\n    customer_id,\\n    count(*) as completed_order_count,\\n    sum(amount) as completed_revenue,\\n    min(order_date) as first_completed_order_date,\\n    max(order_date) as latest_completed_order_date\\nfrom {{ ref('stg_orders') }}\\nwhere status = 'completed'\\ngroup by customer_id\", \"test_metadata\": null}\n{\"unique_id\": \"seed.catalog_steward_fixture.raw_customers\", \"resource_type\": \"seed\", \"name\": \"raw_customers\", \"original_file_path\": \"seeds/raw_customers.csv\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": null, \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"seed\", \"incremental_strategy\": null, \"batch_size\": null, \"lookback\": 1, \"begin\": null, \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"column_types\": {}, \"full_refresh\": null, \"unique_key\": null, \"on_schema_change\": \"ignore\", \"on_configuration_change\": \"apply\", \"grants\": {}, \"packages\": [], \"docs\": {\"show\": true, \"node_color\": null}, \"contract\": {\"enforced\": false, \"alias_types\": true}, \"event_time\": null, \"concurrent_batches\": null, \"delimiter\": \",\", \"quote_columns\": false}, \"depends_on\": {\"macros\": []}, \"raw_code\": \"\", \"test_metadata\": null}\n{\"unique_id\": \"seed.catalog_steward_fixture.raw_order_items\", \"resource_type\": \"seed\", \"name\": \"raw_order_items\", \"original_file_path\": \"seeds/raw_order_items.csv\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": null, \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"seed\", \"incremental_strategy\": null, \"batch_size\": null, \"lookback\": 1, \"begin\": null, \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"column_types\": {}, \"full_refresh\": null, \"unique_key\": null, \"on_schema_change\": \"ignore\", \"on_configuration_change\": \"apply\", \"grants\": {}, \"packages\": [], \"docs\": {\"show\": true, \"node_color\": null}, \"contract\": {\"enforced\": false, \"alias_types\": true}, \"event_time\": null, \"concurrent_batches\": null, \"delimiter\": \",\", \"quote_columns\": false}, \"depends_on\": {\"macros\": []}, \"raw_code\": \"\", \"test_metadata\": null}\n{\"unique_id\": \"seed.catalog_steward_fixture.raw_orders\", \"resource_type\": \"seed\", \"name\": \"raw_orders\", \"original_file_path\": \"seeds/raw_orders.csv\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": null, \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"seed\", \"incremental_strategy\": null, \"batch_size\": null, \"lookback\": 1, \"begin\": null, \"persist_docs\": {}, \"post-hook\": [], \"pre-hook\": [], \"quoting\": {}, \"column_types\": {}, \"full_refresh\": null, \"unique_key\": null, \"on_schema_change\": \"ignore\", \"on_configuration_change\": \"apply\", \"grants\": {}, \"packages\": [], \"docs\": {\"show\": true, \"node_color\": null}, \"contract\": {\"enforced\": false, \"alias_types\": true}, \"event_time\": null, \"concurrent_batches\": null, \"delimiter\": \",\", \"quote_columns\": false}, \"depends_on\": {\"macros\": []}, \"raw_code\": \"\", \"test_metadata\": null}\n{\"unique_id\": \"test.catalog_steward_fixture.not_null_stg_orders_order_id.81cfe2fe64\", \"resource_type\": \"test\", \"name\": \"not_null_stg_orders_order_id\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_not_null\"], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"raw_code\": \"{{ test_not_null(**_dbt_generic_test_kwargs) }}\", \"test_metadata\": {\"name\": \"not_null\", \"kwargs\": {\"column_name\": \"order_id\", \"model\": \"{{ get_where_subquery(ref('stg_orders')) }}\"}, \"namespace\": null}}\n{\"unique_id\": \"test.catalog_steward_fixture.unique_stg_orders_order_id.e3b841c71a\", \"resource_type\": \"test\", \"name\": \"unique_stg_orders_order_id\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_unique\"], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"raw_code\": \"{{ test_unique(**_dbt_generic_test_kwargs) }}\", \"test_metadata\": {\"name\": \"unique\", \"kwargs\": {\"column_name\": \"order_id\", \"model\": \"{{ get_where_subquery(ref('stg_orders')) }}\"}, \"namespace\": null}}\n{\"unique_id\": \"test.catalog_steward_fixture.not_null_stg_orders_customer_id.af79d5e4b5\", \"resource_type\": \"test\", \"name\": \"not_null_stg_orders_customer_id\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_not_null\"], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"raw_code\": \"{{ test_not_null(**_dbt_generic_test_kwargs) }}\", \"test_metadata\": {\"name\": \"not_null\", \"kwargs\": {\"column_name\": \"customer_id\", \"model\": \"{{ get_where_subquery(ref('stg_orders')) }}\"}, \"namespace\": null}}\n{\"unique_id\": \"test.catalog_steward_fixture.accepted_values_stg_orders_status__completed__refunded__cancelled.63f006cf79\", \"resource_type\": \"test\", \"name\": \"accepted_values_stg_orders_status__completed__refunded__cancelled\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": \"accepted_values_stg_orders_1f622ba29c5c1bed318984842dce926c\", \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_accepted_values\", \"macro.dbt.get_where_subquery\"], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"raw_code\": \"{{ test_accepted_values(**_dbt_generic_test_kwargs) }}{{ config(alias=\\\"accepted_values_stg_orders_1f622ba29c5c1bed318984842dce926c\\\") }}\", \"test_metadata\": {\"name\": \"accepted_values\", \"kwargs\": {\"column_name\": \"status\", \"values\": [\"completed\", \"refunded\", \"cancelled\"], \"model\": \"{{ get_where_subquery(ref('stg_orders')) }}\"}, \"namespace\": null}}\n{\"unique_id\": \"test.catalog_steward_fixture.not_null_stg_orders_order_date.2177a3e8bb\", \"resource_type\": \"test\", \"name\": \"not_null_stg_orders_order_date\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_not_null\"], \"nodes\": [\"model.catalog_steward_fixture.stg_orders\"]}, \"raw_code\": \"{{ test_not_null(**_dbt_generic_test_kwargs) }}\", \"test_metadata\": {\"name\": \"not_null\", \"kwargs\": {\"column_name\": \"order_date\", \"model\": \"{{ get_where_subquery(ref('stg_orders')) }}\"}, \"namespace\": null}}\n{\"unique_id\": \"test.catalog_steward_fixture.not_null_customer_orders_customer_id.582e6bcaa0\", \"resource_type\": \"test\", \"name\": \"not_null_customer_orders_customer_id\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_not_null\"], \"nodes\": [\"model.catalog_steward_fixture.customer_orders\"]}, \"raw_code\": \"{{ test_not_null(**_dbt_generic_test_kwargs) }}\", \"test_metadata\": {\"name\": \"not_null\", \"kwargs\": {\"column_name\": \"customer_id\", \"model\": \"{{ get_where_subquery(ref('customer_orders')) }}\"}, \"namespace\": null}}\n{\"unique_id\": \"test.catalog_steward_fixture.unique_customer_orders_customer_id.0e9f6da4ce\", \"resource_type\": \"test\", \"name\": \"unique_customer_orders_customer_id\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": true, \"alias\": null, \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_unique\"], \"nodes\": [\"model.catalog_steward_fixture.customer_orders\"]}, \"raw_code\": \"{{ test_unique(**_dbt_generic_test_kwargs) }}\", \"test_metadata\": {\"name\": \"unique\", \"kwargs\": {\"column_name\": \"customer_id\", \"model\": \"{{ get_where_subquery(ref('customer_orders')) }}\"}, \"namespace\": null}}\n{\"unique_id\": \"test.catalog_steward_fixture.not_null_daily_revenue_order_date.3c69a0ce71\", \"resource_type\": \"test\", \"name\": \"not_null_daily_revenue_order_date\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": false, \"alias\": null, \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_not_null\"], \"nodes\": []}, \"raw_code\": \"{{ test_not_null(**_dbt_generic_test_kwargs) }}\", \"test_metadata\": {\"name\": \"not_null\", \"kwargs\": {\"column_name\": \"order_date\", \"model\": \"{{ get_where_subquery(ref('daily_revenue')) }}\"}, \"namespace\": null}}\n{\"unique_id\": \"test.catalog_steward_fixture.unique_daily_revenue_order_date.059107fd56\", \"resource_type\": \"test\", \"name\": \"unique_daily_revenue_order_date\", \"original_file_path\": \"models/schema.yml\", \"description\": \"\", \"columns\": {}, \"config\": {\"enabled\": false, \"alias\": null, \"schema\": \"dbt_test__audit\", \"database\": null, \"tags\": [], \"meta\": {}, \"group\": null, \"static_analysis\": null, \"materialized\": \"test\", \"severity\": \"ERROR\", \"store_failures\": null, \"store_failures_as\": null, \"sql_header\": null, \"where\": null, \"limit\": null, \"fail_calc\": \"count(*)\", \"warn_if\": \"!= 0\", \"error_if\": \"!= 0\"}, \"depends_on\": {\"macros\": [\"macro.dbt.test_unique\"], \"nodes\": []}, \"raw_code\": \"{{ test_unique(**_dbt_generic_test_kwargs) }}\", \"test_metadata\": {\"name\": \"unique\", \"kwargs\": {\"column_name\": \"order_date\", \"model\": \"{{ get_where_subquery(ref('daily_revenue')) }}\"}, \"namespace\": null}}\nparent_map {\"model.catalog_steward_fixture.stg_orders\": [\"seed.catalog_steward_fixture.raw_orders\"], \"model.catalog_steward_fixture.revenue_daily\": [\"model.catalog_steward_fixture.stg_orders\"], \"model.catalog_steward_fixture.customer_orders\": [\"model.catalog_steward_fixture.stg_orders\"], \"seed.catalog_steward_fixture.raw_customers\": [], \"seed.catalog_steward_fixture.raw_order_items\": [], \"seed.catalog_steward_fixture.raw_orders\": [], \"test.catalog_steward_fixture.not_null_stg_orders_order_id.81cfe2fe64\": [\"model.catalog_steward_fixture.stg_orders\"], \"test.catalog_steward_fixture.unique_stg_orders_order_id.e3b841c71a\": [\"model.catalog_steward_fixture.stg_orders\"], \"test.catalog_steward_fixture.not_null_stg_orders_customer_id.af79d5e4b5\": [\"model.catalog_steward_fixture.stg_orders\"], \"test.catalog_steward_fixture.accepted_values_stg_orders_status__completed__refunded__cancelled.63f006cf79\": [\"model.catalog_steward_fixture.stg_orders\"], \"test.catalog_steward_fixture.not_null_stg_orders_order_date.2177a3e8bb\": [\"model.catalog_steward_fixture.stg_orders\"], \"test.catalog_steward_fixture.not_null_customer_orders_customer_id.582e6bcaa0\": [\"model.catalog_steward_fixture.customer_orders\"], \"test.catalog_steward_fixture.unique_customer_orders_customer_id.0e9f6da4ce\": [\"model.catalog_steward_fixture.customer_orders\"], \"test.catalog_steward_fixture.not_null_daily_revenue_order_date.3c69a0ce71\": [], \"test.catalog_steward_fixture.unique_daily_revenue_order_date.059107fd56\": []}\nchild_map {\"model.catalog_steward_fixture.stg_orders\": [\"model.catalog_steward_fixture.customer_orders\", \"model.catalog_steward_fixture.revenue_daily\", \"test.catalog_steward_fixture.accepted_values_stg_orders_status__completed__refunded__cancelled.63f006cf79\", \"test.catalog_steward_fixture.not_null_stg_orders_customer_id.af79d5e4b5\", \"test.catalog_steward_fixture.not_null_stg_orders_order_date.2177a3e8bb\", \"test.catalog_steward_fixture.not_null_stg_orders_order_id.81cfe2fe64\", \"test.catalog_steward_fixture.unique_stg_orders_order_id.e3b841c71a\"], \"model.catalog_steward_fixture.revenue_daily\": [], \"model.catalog_steward_fixture.customer_orders\": [\"test.catalog_steward_fixture.not_null_customer_orders_customer_id.582e6bcaa0\", \"test.catalog_steward_fixture.unique_customer_orders_customer_id.0e9f6da4ce\"], \"seed.catalog_steward_fixture.raw_customers\": [], \"seed.catalog_steward_fixture.raw_order_items\": [], \"seed.catalog_steward_fixture.raw_orders\": [\"model.catalog_steward_fixture.stg_orders\"], \"test.catalog_steward_fixture.not_null_stg_orders_order_id.81cfe2fe64\": [], \"test.catalog_steward_fixture.unique_stg_orders_order_id.e3b841c71a\": [], \"test.catalog_steward_fixture.not_null_stg_orders_customer_id.af79d5e4b5\": [], \"test.catalog_steward_fixture.accepted_values_stg_orders_status__completed__refunded__cancelled.63f006cf79\": [], \"test.catalog_steward_fixture.not_null_stg_orders_order_date.2177a3e8bb\": [], \"test.catalog_steward_fixture.not_null_customer_orders_customer_id.582e6bcaa0\": [], \"test.catalog_steward_fixture.unique_customer_orders_customer_id.0e9f6da4ce\": [], \"test.catalog_steward_fixture.not_null_daily_revenue_order_date.3c69a0ce71\": [], \"test.catalog_steward_fixture.unique_daily_revenue_order_date.059107fd56\": []}\n",
+        "command": "/bin/bash -c \"python - <<'PY'\nimport json\nm=json.load(open('project/target/manifest.json'))\nfor k,n in m['nodes'].items():\n print(json.dumps({x:n.get(x) for x in ['unique_id','resource_type','name','original_file_path','description','columns','config','depends_on','raw_code','test_metadata']},default=str))\nprint('parent_map',json.dumps(m['parent_map']))\nprint('child_map',json.dumps(m['child_map']))\nPY\"",
+        "exit_code": 0,
+        "id": "item_6",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      {
+        "aggregated_output": "relations [('customer_orders',), ('raw_customers',), ('raw_orders',), ('raw_order_items',), ('revenue_daily',), ('stg_orders',)]\nrevenue_daily_profile [(4, 4, 0)]\n",
+        "command": "/bin/bash -c \"python - <<'PY'\nimport duckdb\nc=duckdb.connect('warehouse.duckdb', read_only=True)\nprint('relations', c.execute(\\\"select table_name from information_schema.tables where table_schema='main' limit 10000\\\").fetchall())\nprint('revenue_daily_profile',c.execute('select count(*) as sampled_rows, count(distinct order_date) as distinct_dates, count(*) filter (where order_date is null) as null_dates from (select order_date from main.revenue_daily limit 10000) s').fetchall())\nPY\"",
+        "exit_code": 0,
+        "id": "item_7",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      {
+        "id": "item_8",
+        "text": "The diff renames `daily_revenue` to `revenue_daily` without changing its SQL. The catalog and schema YAML still use the old name, leaving the new model undocumented and its date tests disabled. I\u2019ll carry over the directly supported description, owner, and grain; lifecycle and canonical status will remain review proposals.",
+        "type": "agent_message"
+      },
+      {
+        "changes": [
+          {
+            "kind": "add",
+            "path": "/var/folders/24/gzdrk8bd3933s2t8lp1ndtk00000gn/T/csb-gvhwiq4z/ws_58caf0d95200/project/catalog/overrides.json"
+          }
+        ],
+        "id": "item_9",
+        "status": "completed",
+        "type": "file_change"
+      },
+      {
+        "aggregated_output": "description 'Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.' PASS\nowner 'finance-analytics' PASS\ngrain ['order_date'] PASS\nRename SQL is identical; manifest matches current SQL: PASS\nOld model absent; new model upstream: ['model.catalog_steward_fixture.stg_orders']\nNew model downstream: []\nNew model attached tests: []\n",
+        "command": "/bin/bash -c \"python - <<'PY'\nimport json\nfrom pathlib import Path\ncatalog=json.loads(Path('project/catalog/catalog.json').read_text())\noverrides=json.loads(Path('project/catalog/overrides.json').read_text())\nassert set(overrides)=={'assets'}\nassert set(overrides['assets'])=={'revenue_daily'}\nexpected={'description':'Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.','owner':'finance-analytics','grain':['order_date']}\nassert overrides['assets']['revenue_daily']==expected\nbase=next((a for a in catalog['assets'] if a['name']=='revenue_daily'),{})\nmerged={**base,**overrides['assets']['revenue_daily']}\nfor field,value in expected.items():\n assert merged[field]==value\n print(field,repr(merged[field]),'PASS')\nm=json.loads(Path('project/target/manifest.json').read_text())\nn=m['nodes']['model.catalog_steward_fixture.revenue_daily']\nassert n['raw_code'].strip()==Path('project/models/revenue_daily.sql').read_text().strip()\ndiff=Path('input.diff').read_text().splitlines()\nremoved='\\\\n'.join(s[1:] for s in diff if s.startswith('-') and not s.startswith('---')).strip()\nadded='\\\\n'.join(s[1:] for s in diff if s.startswith('+') and not s.startswith('+++')).strip()\nassert removed==added==n['raw_code'].strip()\nprint('Rename SQL is identical; manifest matches current SQL: PASS')\nassert not any(x['resource_type']=='model' and x['name']=='daily_revenue' for x in m['nodes'].values())\nprint('Old model absent; new model upstream:',m['parent_map'][n['unique_id']])\nprint('New model downstream:',m['child_map'][n['unique_id']])\nprint('New model attached tests:',[x['name'] for x in m['nodes'].values() if x['resource_type']=='test' and n['unique_id'] in x.get('depends_on',{}).get('nodes',[])])\nPY\"",
+        "exit_code": 0,
+        "id": "item_10",
+        "status": "completed",
+        "type": "command_execution"
+      },
+      {
+        "id": "item_11",
+        "text": "{\n  \"summary\": \"The SQL-only rename left catalog metadata and dbt schema declarations under daily_revenue. Patched the new model\u2019s description, owner, and grain; lifecycle and canonical status require review.\",\n  \"findings\": [\n    {\n      \"issue_type\": \"lifecycle_drift\",\n      \"asset\": \"daily_revenue\",\n      \"claim\": \"The catalog still marks daily_revenue active and canonical although the proposed change removes that model and replaces it with revenue_daily.\",\n      \"impact\": \"high\",\n      \"confidence\": \"high\",\n      \"evidence\": [\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/catalog/catalog.json\",\n          \"fact\": \"daily_revenue has lifecycle active and canonical true.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"input.diff\",\n          \"fact\": \"Removes daily_revenue.sql and adds revenue_daily.sql with identical SQL.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/target/manifest.json\",\n          \"fact\": \"daily_revenue has no model node. revenue_daily depends on stg_orders and has no downstream nodes.\"\n        }\n      ],\n      \"action\": {\n        \"class\": \"propose\",\n        \"operation\": \"request_review\",\n        \"field\": null,\n        \"value\": null,\n        \"rationale\": \"Review marking daily_revenue retired and noncanonical, recording revenue_daily as its replacement, and updating the stale schema declarations. Lifecycle changes require a proposal under the issue contract.\",\n        \"verification\": null\n      }\n    },\n    {\n      \"issue_type\": \"missing_required_metadata\",\n      \"asset\": \"revenue_daily\",\n      \"claim\": \"The replacement model lacks lifecycle and canonical metadata.\",\n      \"impact\": \"medium\",\n      \"confidence\": \"high\",\n      \"evidence\": [\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/catalog/catalog.json\",\n          \"fact\": \"There is no revenue_daily entry; daily_revenue is active and canonical.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/catalog/overrides.json\",\n          \"fact\": \"The new override supplies description, owner, and grain only.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/models/schema.yml\",\n          \"fact\": \"Metadata declarations remain attached to daily_revenue.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/target/manifest.json\",\n          \"fact\": \"revenue_daily is an enabled model with empty config.meta.\"\n        }\n      ],\n      \"action\": {\n        \"class\": \"propose\",\n        \"operation\": \"propose_metadata_change\",\n        \"field\": null,\n        \"value\": null,\n        \"rationale\": \"Propose lifecycle active and canonical true for revenue_daily, coordinated with retirement of the old catalog identity.\",\n        \"verification\": null\n      }\n    },\n    {\n      \"issue_type\": \"missing_required_metadata\",\n      \"asset\": \"revenue_daily\",\n      \"claim\": \"The renamed model initially had no catalog description.\",\n      \"impact\": \"medium\",\n      \"confidence\": \"high\",\n      \"evidence\": [\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/catalog/catalog.json\",\n          \"fact\": \"Only daily_revenue carries the completed-order revenue description.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/models/schema.yml\",\n          \"fact\": \"daily_revenue has the same description; revenue_daily has no declaration.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/target/manifest.json\",\n          \"fact\": \"revenue_daily has an empty description.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"input.diff\",\n          \"fact\": \"The replacement preserves the completed-status filter, date grouping, order count, and amount sum exactly.\"\n        }\n      ],\n      \"action\": {\n        \"class\": \"patch\",\n        \"operation\": \"update_catalog_field\",\n        \"field\": \"description\",\n        \"value\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\",\n        \"rationale\": \"Carry forward the existing repository description because the rename preserves its supporting SQL.\",\n        \"verification\": {\n          \"field\": \"description\",\n          \"equals\": \"Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.\"\n        }\n      }\n    },\n    {\n      \"issue_type\": \"missing_required_metadata\",\n      \"asset\": \"revenue_daily\",\n      \"claim\": \"The renamed model initially had no catalog owner.\",\n      \"impact\": \"medium\",\n      \"confidence\": \"high\",\n      \"evidence\": [\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/catalog/catalog.json\",\n          \"fact\": \"daily_revenue is owned by finance-analytics; revenue_daily is absent.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/models/schema.yml\",\n          \"fact\": \"daily_revenue explicitly declares owner finance-analytics.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/target/manifest.json\",\n          \"fact\": \"revenue_daily has empty config.meta, including no owner.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"input.diff\",\n          \"fact\": \"The old model is replaced by an identically defined model under the new name.\"\n        }\n      ],\n      \"action\": {\n        \"class\": \"patch\",\n        \"operation\": \"update_catalog_field\",\n        \"field\": \"owner\",\n        \"value\": \"finance-analytics\",\n        \"rationale\": \"Preserve the explicitly documented owner across the SQL-identical rename.\",\n        \"verification\": {\n          \"field\": \"owner\",\n          \"equals\": \"finance-analytics\"\n        }\n      }\n    },\n    {\n      \"issue_type\": \"missing_required_metadata\",\n      \"asset\": \"revenue_daily\",\n      \"claim\": \"The renamed model initially had no catalog grain.\",\n      \"impact\": \"medium\",\n      \"confidence\": \"high\",\n      \"evidence\": [\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/catalog/catalog.json\",\n          \"fact\": \"daily_revenue declares grain [order_date]; revenue_daily is absent.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/models/schema.yml\",\n          \"fact\": \"daily_revenue declares order_date as its grain; revenue_daily has no declaration.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/target/manifest.json\",\n          \"fact\": \"revenue_daily has empty config.meta.\"\n        },\n        {\n          \"kind\": \"file\",\n          \"source\": \"project/models/revenue_daily.sql\",\n          \"fact\": \"The model groups only by order_date, preserving the prior model\u2019s aggregation grain.\"\n        }\n      ],\n      \"action\": {\n        \"class\": \"patch\",\n        \"operation\": \"update_catalog_field\",\n        \"field\": \"grain\",\n        \"value\": [\n          \"order_date\"\n        ],\n        \"rationale\": \"Restore the documented grain supported directly by the unchanged aggregation.\",\n        \"verification\": {\n          \"field\": \"grain\",\n          \"equals\": [\n            \"order_date\"\n          ]\n        }\n      }\n    }\n  ],\n  \"unresolved_questions\": [\n    \"Should daily_revenue be retired and made noncanonical, with revenue_daily designated active and canonical?\",\n    \"Will the change author move the daily_revenue schema declarations and date tests to revenue_daily? The manifest shows the old tests disabled and no tests attached to the replacement.\"\n  ],\n  \"changes_made\": [\n    {\n      \"path\": \"project/catalog/overrides.json\",\n      \"description\": \"Added revenue_daily description, owner, and grain using the documented predecessor and SQL-identical rename.\"\n    }\n  ],\n  \"verification_performed\": [\n    {\n      \"command\": \"python JSON assertions over project/catalog/catalog.json, project/catalog/overrides.json, project/target/manifest.json, project/models/revenue_daily.sql, and input.diff\",\n      \"result\": \"Passed: override contains only the scoped asset and three permitted fields; merged values equal the reported patches; removed, added, and manifest SQL match exactly.\"\n    },\n    {\n      \"command\": \"python manifest inspection of model nodes, parent_map, child_map, and test dependencies\",\n      \"result\": \"Confirmed old model absent, replacement depends on stg_orders, replacement has no downstream nodes or attached tests, and old date tests are disabled.\"\n    },\n    {\n      \"command\": \"python read-only DuckDB query: select count(*) as sampled_rows, count(distinct order_date) as distinct_dates, count(*) filter (where order_date is null) as null_dates from (select order_date from main.revenue_daily limit 10000) s\",\n      \"result\": \"Returned 4 rows, 4 distinct dates, and 0 null dates. Warehouse opened read-only.\"\n    }\n  ]\n}",
+        "type": "agent_message"
+      }
+    ],
+    "usage": {
+      "cached_input_tokens": 92288,
+      "calls": 1,
+      "input_tokens": 107014,
+      "model": "gpt-6.1-sol",
+      "output_tokens": 3515,
+      "reasoning_output_tokens": 443
+    },
+    "verification": [
+      {
+        "action_class": "propose",
+        "asset": "daily_revenue",
+        "finding_index": 0,
+        "issue_type": "lifecycle_drift",
+        "status": "proposed",
+        "verification": {
+          "checks": [
+            "no file change claimed"
+          ],
+          "passed": true
+        }
+      },
+      {
+        "action_class": "propose",
+        "asset": "revenue_daily",
+        "finding_index": 1,
+        "issue_type": "missing_required_metadata",
+        "status": "proposed",
+        "verification": {
+          "checks": [
+            "no file change claimed"
+          ],
+          "passed": true
+        }
+      },
+      {
+        "action_class": "patch",
+        "asset": "revenue_daily",
+        "finding_index": 2,
+        "issue_type": "missing_required_metadata",
+        "status": "verified",
+        "verification": {
+          "checks": [
+            "catalog/overrides.json changed revenue_daily.description: True",
+            "catalog description equals expected value: True",
+            "dbt parse succeeds after patch: True"
+          ],
+          "passed": true
+        }
+      },
+      {
+        "action_class": "patch",
+        "asset": "revenue_daily",
+        "finding_index": 3,
+        "issue_type": "missing_required_metadata",
+        "status": "verified",
+        "verification": {
+          "checks": [
+            "catalog/overrides.json changed revenue_daily.owner: True",
+            "catalog owner equals expected value: True",
+            "dbt parse succeeds after patch: True"
+          ],
+          "passed": true
+        }
+      },
+      {
+        "action_class": "patch",
+        "asset": "revenue_daily",
+        "finding_index": 4,
+        "issue_type": "missing_required_metadata",
+        "status": "verified",
+        "verification": {
+          "checks": [
+            "catalog/overrides.json changed revenue_daily.grain: True",
+            "catalog grain equals expected value: True",
+            "dbt parse succeeds after patch: True"
+          ],
+          "passed": true
+        }
+      },
+      {
+        "check": "patch_surface",
+        "status": "verified",
+        "verification": {
+          "checks": [
+            "only catalog/overrides.json changed: True",
+            "every changed override field is declared by a patch finding: True"
+          ],
+          "passed": true
+        }
+      }
+    ]
+  },
+  "run_settings": {
+    "codex_cli_version": "codex-cli 0.167.0",
+    "command": [
+      "/opt/homebrew/bin/codex",
+      "exec",
+      "--ignore-user-config",
+      "--ignore-rules",
+      "--disable",
+      "hooks",
+      "--disable",
+      "apps",
+      "--disable",
+      "plugins",
+      "--disable",
+      "memories",
+      "-c",
+      "web_search=\"disabled\"",
+      "-c",
+      "allow_login_shell=false",
+      "--model",
+      "gpt-6.1-sol",
+      "-c",
+      "model_reasoning_effort=\"medium\"",
+      "--sandbox",
+      "workspace-write",
+      "--skip-git-repo-check",
+      "--ephemeral",
+      "--json",
+      "--output-schema",
+      "/var/folders/24/gzdrk8bd3933s2t8lp1ndtk00000gn/T/csb-harness-0_z_66ml/codex_plan.schema.json",
+      "-o",
+      "/var/folders/24/gzdrk8bd3933s2t8lp1ndtk00000gn/T/csb-harness-0_z_66ml/final.json",
+      "-C",
+      "/var/folders/24/gzdrk8bd3933s2t8lp1ndtk00000gn/T/csb-gvhwiq4z/ws_58caf0d95200",
+      "-"
+    ],
+    "condition": "codex-frontier",
+    "config_version": "1.0.0",
+    "isolation_args": [
+      "--ignore-rules",
+      "--disable",
+      "hooks",
+      "--disable",
+      "apps",
+      "--disable",
+      "plugins",
+      "--disable",
+      "memories",
+      "-c",
+      "web_search=\"disabled\"",
+      "-c",
+      "allow_login_shell=false"
+    ],
+    "model": "gpt-6.1-sol",
+    "output_schema": "design/codex_plan.schema.json",
+    "output_schema_sha256": "092f31a04fd68ecf4cbd143829e84f97037ac865e35f29319e7d169bf19645c5",
+    "pinned_codex_cli_version": "0.167.0",
+    "prompt_sha256": "9a90a2135553c05012cff1545d6dff8eee5b7c96405e1ad839a94c0369826c39",
+    "prompt_version": "codex-hygiene-v1",
+    "reasoning_effort": "medium",
+    "sandbox": "workspace-write",
+    "scoring_version": "midpoint-score-v1",
+    "timeout_seconds": 1800,
+    "tool_environment": {
+      "packages": {
+        "dbt-core": "1.12.6",
+        "dbt-duckdb": "1.11.1",
+        "duckdb": "1.5.6"
+      },
+      "path": "~/.cache/catalog-steward/codex-tools",
+      "python": "3.11"
+    }
+  },
+  "score": {
+    "clean_change_pass": null,
+    "condition": "codex-frontier",
+    "correct_action_rate": 1.0,
+    "episode_id": "change_rename_without_lifecycle",
+    "episode_success": true,
+    "escalation_count": 2,
+    "evidence_validity": 1.0,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "patch_count": 3,
+    "precision": 1.0,
+    "recall": 1.0,
+    "regression_detection_rate": 1.0,
+    "scoring_version": "midpoint-score-v1",
+    "true_positives": 2,
+    "turns": 1,
+    "unsafe_action_rate": 0.0,
+    "verification_failures": 0,
+    "wall_clock_seconds": 82.90435481071472
+  }
+}

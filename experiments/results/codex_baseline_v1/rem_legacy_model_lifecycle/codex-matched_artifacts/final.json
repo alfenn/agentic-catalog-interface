@@ -1,0 +1,67 @@
+{
+  "summary": "Found and corrected one catalog description issue for legacy_customer_orders.",
+  "findings": [
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "legacy_customer_orders",
+      "claim": "The catalog description only says this is an older compatibility copy and omits the completed-order scope documented for customer_orders, which this model directly selects from.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "The prior description called legacy_customer_orders an older compatibility copy of customer order metrics without specifying completed-order scope."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/legacy_customer_orders.sql",
+          "fact": "The model selects all columns from ref('customer_orders')."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/customer_orders.sql",
+          "fact": "customer_orders filters to status = 'completed' and groups by customer_id."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "The customer_orders schema documents completed-order metrics at one row per customer and says refunded and cancelled orders are excluded."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "The manifest lineage shows legacy_customer_orders depends on customer_orders; the manifest records customer_orders as completed-only."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "description",
+        "value": "Compatibility copy of completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+        "rationale": "Reflect the directly inherited scope and documented customer grain in the compatibility model’s catalog description.",
+        "verification": {
+          "field": "description",
+          "equals": "Compatibility copy of completed-order metrics at one row per customer; refunded and cancelled orders are excluded."
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Updated legacy_customer_orders description to match the completed-order scope inherited from customer_orders."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "python -c \"import json; c=json.load(open('project/catalog/catalog.json')); o=json.load(open('project/catalog/overrides.json')); a={x['name']:x for x in c['assets']}; a.update(o['assets']); print(a['legacy_customer_orders'])\"",
+      "result": "The merged legacy_customer_orders catalog metadata contains the updated description."
+    },
+    {
+      "command": "python -c \"import duckdb; c=duckdb.connect('warehouse.duckdb', read_only=True); print(c.execute('select count(*) as rows, count(distinct customer_id) as customers from main.legacy_customer_orders limit 10000').fetchall()); print(c.execute('describe main.legacy_customer_orders').fetchall())\"",
+      "result": "Bounded profile returned 4 rows and 4 distinct customers; columns include completed_order_count, completed_revenue, first_completed_order_date, and latest_completed_order_date."
+    }
+  ]
+}

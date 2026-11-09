@@ -1,0 +1,127 @@
+{
+  "summary": "Reviewed the proposed change for the three in-scope assets. Found a grain mismatch and stale catalog description for customer_orders, plus missing catalog metadata for raw_order_items. No files were changed because the supported actions for the substantive metadata changes require review.",
+  "findings": [
+    {
+      "issue_type": "grain_or_join_drift",
+      "asset": "customer_orders",
+      "claim": "The proposed SQL joins order items and selects item-level identifiers, so the result can contain multiple rows per customer. The catalog and schema still describe the model as one row per customer.",
+      "impact": "high",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "The proposed change adds an inner join to raw_order_items on order_id and selects order_id, order_item_id, and amount without grouping."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "customer_orders is described as completed-order metrics at one row per customer with grain customer_id."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "customer_orders documents customer_id as the model grain and tests it for uniqueness."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "The parsed model depends on stg_orders and raw_order_items; its recorded SQL includes the order-item join."
+        },
+        {
+          "kind": "command",
+          "source": "python -c \"import duckdb; c=duckdb.connect('warehouse.duckdb',read_only=True); print(c.execute('select count(*) as rows, count(distinct customer_id) as customers, count(distinct order_id) as orders, count(distinct order_item_id) as items from main.customer_orders').fetchall()); print(c.execute('select customer_id, count(*) as n from main.customer_orders group by customer_id having count(*) > 1 order by n desc limit 10').fetchall()); print(c.execute('select count(*) from main.raw_order_items').fetchall())\"",
+          "fact": "The bounded profile returned 7 rows for 4 customers; three customers had 2 rows each, confirming the existing built result is not unique by customer_id."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "field": null,
+        "value": null,
+        "rationale": "The proposed join changes the apparent row grain. A reviewer should confirm the intended grain and update the catalog and dbt schema together; grain changes cannot be patched automatically under this issue contract.",
+        "verification": null
+      }
+    },
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "customer_orders",
+      "claim": "The catalog description says the model contains completed-order metrics, but the proposed SQL emits customer, order, item, and amount columns without calculating metrics.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "The proposed SQL selects customer_id, order_id, order_item_id, and amount; it contains no count, sum, or group by."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The catalog description calls customer_orders completed-order metrics at one row per customer."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "The parsed model raw_code matches the proposed detail-level selection and join."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "propose_metadata_change",
+        "field": null,
+        "value": null,
+        "rationale": "The current description no longer matches the proposed SQL. A reviewer should approve a replacement description based on the intended semantics and confirmed grain.",
+        "verification": null
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "raw_order_items",
+      "claim": "raw_order_items is an in-scope seed dependency of customer_orders, but it has no entry in the data catalog and no dbt schema documentation.",
+      "impact": "low",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The catalog asset list contains stg_orders, customer_orders, and daily_revenue, but no raw_order_items entry."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "The schema documents stg_orders, customer_orders, and daily_revenue; it does not document raw_order_items."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "raw_order_items is a seed, and customer_orders depends on it."
+        }
+      ],
+      "action": {
+        "class": "report",
+        "operation": "report_only",
+        "field": null,
+        "value": null,
+        "rationale": "The asset is missing from the catalog and schema, but the permitted changes allow editing only catalog overrides for assets in scope. A reviewer should decide how to document this seed.",
+        "verification": null
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "Should customer_orders represent one row per customer, order, or order item after the proposed join?",
+    "What description should replace the current completed-order metrics description once the intended semantics and grain are confirmed?",
+    "Should raw_order_items receive catalog and schema documentation, and who owns its metadata?"
+  ],
+  "changes_made": [],
+  "verification_performed": [
+    {
+      "command": "python -c \"import duckdb; c=duckdb.connect('warehouse.duckdb',read_only=True); print(c.execute('select count(*) as rows, count(distinct customer_id) as customers, count(distinct order_id) as orders, count(distinct order_item_id) as items from main.customer_orders').fetchall()); print(c.execute('select customer_id, count(*) as n from main.customer_orders group by customer_id having count(*) > 1 order by n desc limit 10').fetchall()); print(c.execute('select count(*) from main.raw_order_items').fetchall())\"",
+      "result": "Completed read-only bounded queries. customer_orders had 7 rows, 4 customers, 5 orders, and 7 distinct order items; three customers had duplicate rows."
+    },
+    {
+      "command": "Inspected input.diff, project/catalog/catalog.json, project/models/schema.yml, project/target/manifest.json, and the scoped SQL models.",
+      "result": "Confirmed the proposed join and selected fields, existing catalog and schema descriptions, manifest lineage, and absence of raw_order_items documentation."
+    }
+  ]
+}

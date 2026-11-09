@@ -1,0 +1,139 @@
+{
+  "summary": "Found three issues. Patched customer_orders.description; grain and missing source metadata require review.",
+  "findings": [
+    {
+      "issue_type": "grain_or_join_drift",
+      "asset": "customer_orders",
+      "claim": "The proposed join breaks the documented customer grain and repeats order amounts across items.",
+      "impact": "high",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "customer_orders declares grain [customer_id]."
+        },
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "The change removes customer aggregation and joins stg_orders to raw_order_items on order_id."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/customer_orders.sql",
+          "fact": "The SELECT exposes order_item_id and orders.amount without aggregation or DISTINCT, retaining completed orders."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "customer_orders depends on stg_orders and raw_order_items."
+        },
+        {
+          "kind": "command",
+          "source": "python -c \"import duckdb; c=duckdb.connect('warehouse.duckdb',read_only=True); print(c.execute('SELECT count(*), count(DISTINCT customer_id), count(DISTINCT order_id), count(DISTINCT order_item_id), sum(amount) FROM (SELECT * FROM main.customer_orders LIMIT 10000)').fetchall())\"",
+          "fact": "The bounded read-only probe returned 7 rows, 4 distinct customers, 5 distinct orders, 7 distinct items, and summed order amounts of 910. Customer uniqueness does not hold."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "customer_id remains documented as the model grain with a unique test."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "field": null,
+        "value": null,
+        "rationale": "Review whether the item-level output is intended before approval. Confirm the intended grain and amount semantics, then reconcile catalog grain and dbt documentation/tests.",
+        "verification": null
+      }
+    },
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "customer_orders",
+      "claim": "The catalog description still promises customer-level metrics that the proposed SQL no longer computes.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The original description promises completed-order metrics at one row per customer."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/customer_orders.sql",
+          "fact": "SQL selects customer_id, order_id, order_item_id, and order amount through an inner join on order_id; it filters status to completed and contains no aggregate functions or GROUP BY."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "description",
+        "value": "Completed orders joined to source order items on order_id, exposing customer_id, order_id, order_item_id, and the order amount; refunded and cancelled orders are excluded.",
+        "rationale": "Describe the applied SQL directly without asserting an unconfirmed business grain.",
+        "verification": {
+          "field": "description",
+          "equals": "Completed orders joined to source order items on order_id, exposing customer_id, order_id, order_item_id, and the order amount; refunded and cancelled orders are excluded."
+        }
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "raw_order_items",
+      "claim": "The newly referenced seed has no catalog entry or documented stewardship metadata.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "No raw_order_items entry exists."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "The override contains only customer_orders.description; raw_order_items has no effective catalog entry."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "There is no raw_order_items declaration or seed metadata."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "raw_order_items is an enabled seed referenced by customer_orders, with empty description, columns, and meta."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "field": null,
+        "value": null,
+        "rationale": "Obtain supported ownership, description, lifecycle, grain, and canonical status before cataloging this dependency; repository evidence does not establish those values.",
+        "verification": null
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "Is customer_orders intended to become item-level output, and how should consumers handle repeated order amounts?",
+    "What stewardship metadata should raw_order_items carry?"
+  ],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Created an override correcting customer_orders.description to match the applied SQL."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "python -m json.tool project/catalog/overrides.json",
+      "result": "Passed JSON validation; output contains only the customer_orders description override."
+    },
+    {
+      "command": "python -c \"import duckdb; c=duckdb.connect('warehouse.duckdb',read_only=True); print(c.execute('SELECT count(*), count(DISTINCT customer_id), count(DISTINCT order_id), count(DISTINCT order_item_id), sum(amount) FROM (SELECT * FROM main.customer_orders LIMIT 10000)').fetchall())\"",
+      "result": "Read-only probe returned 7 rows, 4 customers, 5 orders, 7 items, and summed amounts of 910, confirming customer-grain violations."
+    }
+  ]
+}

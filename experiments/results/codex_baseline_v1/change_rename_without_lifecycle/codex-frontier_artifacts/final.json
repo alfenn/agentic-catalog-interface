@@ -1,0 +1,222 @@
+{
+  "summary": "The SQL-only rename left catalog metadata and dbt schema declarations under daily_revenue. Patched the new model’s description, owner, and grain; lifecycle and canonical status require review.",
+  "findings": [
+    {
+      "issue_type": "lifecycle_drift",
+      "asset": "daily_revenue",
+      "claim": "The catalog still marks daily_revenue active and canonical although the proposed change removes that model and replaces it with revenue_daily.",
+      "impact": "high",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "daily_revenue has lifecycle active and canonical true."
+        },
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "Removes daily_revenue.sql and adds revenue_daily.sql with identical SQL."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "daily_revenue has no model node. revenue_daily depends on stg_orders and has no downstream nodes."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "field": null,
+        "value": null,
+        "rationale": "Review marking daily_revenue retired and noncanonical, recording revenue_daily as its replacement, and updating the stale schema declarations. Lifecycle changes require a proposal under the issue contract.",
+        "verification": null
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "revenue_daily",
+      "claim": "The replacement model lacks lifecycle and canonical metadata.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "There is no revenue_daily entry; daily_revenue is active and canonical."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "The new override supplies description, owner, and grain only."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "Metadata declarations remain attached to daily_revenue."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "revenue_daily is an enabled model with empty config.meta."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "propose_metadata_change",
+        "field": null,
+        "value": null,
+        "rationale": "Propose lifecycle active and canonical true for revenue_daily, coordinated with retirement of the old catalog identity.",
+        "verification": null
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "revenue_daily",
+      "claim": "The renamed model initially had no catalog description.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "Only daily_revenue carries the completed-order revenue description."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "daily_revenue has the same description; revenue_daily has no declaration."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "revenue_daily has an empty description."
+        },
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "The replacement preserves the completed-status filter, date grouping, order count, and amount sum exactly."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "description",
+        "value": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+        "rationale": "Carry forward the existing repository description because the rename preserves its supporting SQL.",
+        "verification": {
+          "field": "description",
+          "equals": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded."
+        }
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "revenue_daily",
+      "claim": "The renamed model initially had no catalog owner.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "daily_revenue is owned by finance-analytics; revenue_daily is absent."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "daily_revenue explicitly declares owner finance-analytics."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "revenue_daily has empty config.meta, including no owner."
+        },
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "The old model is replaced by an identically defined model under the new name."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "owner",
+        "value": "finance-analytics",
+        "rationale": "Preserve the explicitly documented owner across the SQL-identical rename.",
+        "verification": {
+          "field": "owner",
+          "equals": "finance-analytics"
+        }
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "revenue_daily",
+      "claim": "The renamed model initially had no catalog grain.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "daily_revenue declares grain [order_date]; revenue_daily is absent."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "daily_revenue declares order_date as its grain; revenue_daily has no declaration."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "revenue_daily has empty config.meta."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/revenue_daily.sql",
+          "fact": "The model groups only by order_date, preserving the prior model’s aggregation grain."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "grain",
+        "value": [
+          "order_date"
+        ],
+        "rationale": "Restore the documented grain supported directly by the unchanged aggregation.",
+        "verification": {
+          "field": "grain",
+          "equals": [
+            "order_date"
+          ]
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "Should daily_revenue be retired and made noncanonical, with revenue_daily designated active and canonical?",
+    "Will the change author move the daily_revenue schema declarations and date tests to revenue_daily? The manifest shows the old tests disabled and no tests attached to the replacement."
+  ],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Added revenue_daily description, owner, and grain using the documented predecessor and SQL-identical rename."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "python JSON assertions over project/catalog/catalog.json, project/catalog/overrides.json, project/target/manifest.json, project/models/revenue_daily.sql, and input.diff",
+      "result": "Passed: override contains only the scoped asset and three permitted fields; merged values equal the reported patches; removed, added, and manifest SQL match exactly."
+    },
+    {
+      "command": "python manifest inspection of model nodes, parent_map, child_map, and test dependencies",
+      "result": "Confirmed old model absent, replacement depends on stg_orders, replacement has no downstream nodes or attached tests, and old date tests are disabled."
+    },
+    {
+      "command": "python read-only DuckDB query: select count(*) as sampled_rows, count(distinct order_date) as distinct_dates, count(*) filter (where order_date is null) as null_dates from (select order_date from main.revenue_daily limit 10000) s",
+      "result": "Returned 4 rows, 4 distinct dates, and 0 null dates. Warehouse opened read-only."
+    }
+  ]
+}

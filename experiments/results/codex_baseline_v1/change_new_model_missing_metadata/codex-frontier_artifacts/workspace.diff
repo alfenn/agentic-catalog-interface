@@ -1,0 +1,11 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -0,0 +1,8 @@
++{
++  "assets": {
++    "high_value_orders": {
++      "description": "Orders from stg_orders where status = 'completed' and amount >= 100.",
++      "grain": ["order_id"]
++    }
++  }
++}

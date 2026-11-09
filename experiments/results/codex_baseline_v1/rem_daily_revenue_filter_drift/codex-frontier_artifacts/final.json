@@ -1,0 +1,67 @@
+{
+  "summary": "Fixed one description drift issue for daily_revenue.",
+  "findings": [
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "daily_revenue",
+      "claim": "The effective catalog description claimed revenue includes all orders, but the SQL includes only completed orders.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "Before remediation, the description override stated: Revenue from all orders at one row per order date."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/daily_revenue.sql",
+          "fact": "SQL filters status = 'completed', sums amount, and groups by order_date."
+        },
+        {
+          "kind": "command",
+          "source": "python -c \"import re,pathlib; s=pathlib.Path('project/models/daily_revenue.sql').read_text(); assert re.search(r\\\"where\\\\s+status\\\\s*=\\\\s*'completed'\\\",s); assert re.search(r'group\\\\s+by\\\\s+order_date',s); print('PASS: parsed SQL filters completed orders and groups by order_date')\"",
+          "fact": "SQL parsing checks confirmed the completed-status filter and order_date grouping."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "The model description explicitly states completed-order revenue excludes refunded and cancelled orders."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "The daily_revenue model description matches the schema documentation and corrected catalog description."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "description",
+        "value": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded.",
+        "rationale": "Replace the stale override with the directly supported dbt description.",
+        "verification": {
+          "field": "description",
+          "equals": "Completed-order revenue at one row per order date; refunded and cancelled orders are excluded."
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Corrected daily_revenue.description to reflect the completed-order filter."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "python -c \"import json; c=json.load(open('project/catalog/catalog.json')); o=json.load(open('project/catalog/overrides.json')); m=json.load(open('project/target/manifest.json')); a=next(a for a in c['assets'] if a['name']=='daily_revenue'); a.update(o['assets']['daily_revenue']); assert a['description']==m['nodes']['model.catalog_steward_fixture.daily_revenue']['description']; print('PASS: effective description matches dbt manifest')\"",
+      "result": "Passed: catalog JSON loads and the merged description equals the dbt manifest description."
+    },
+    {
+      "command": "python -c \"import re,pathlib; s=pathlib.Path('project/models/daily_revenue.sql').read_text(); assert re.search(r\\\"where\\\\s+status\\\\s*=\\\\s*'completed'\\\",s); assert re.search(r'group\\\\s+by\\\\s+order_date',s); print('PASS: parsed SQL filters completed orders and groups by order_date')\"",
+      "result": "Passed: SQL filter and grouping support the corrected description."
+    }
+  ]
+}

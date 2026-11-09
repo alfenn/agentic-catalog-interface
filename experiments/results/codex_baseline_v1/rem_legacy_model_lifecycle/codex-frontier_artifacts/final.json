@@ -1,0 +1,26 @@
+{
+  "summary": "No hygiene issue met the required evidence contract. Both assets have complete metadata consistent with their dbt definitions. No files were changed.",
+  "findings": [],
+  "unresolved_questions": [
+    "Should legacy_customer_orders remain canonical alongside customer_orders? It is a compatibility copy, but no repository history was available to establish lifecycle drift."
+  ],
+  "changes_made": [],
+  "verification_performed": [
+    {
+      "command": "cat project/catalog/catalog.json project/catalog/overrides.json project/models/schema.yml project/models/legacy_schema.yml",
+      "result": "Both effective catalog entries contain all five metadata fields and agree with the dbt schema metadata."
+    },
+    {
+      "command": "cat project/models/customer_orders.sql project/models/legacy_customer_orders.sql project/models/stg_orders.sql project/models/daily_revenue.sql project/dbt_project.yml",
+      "result": "customer_orders filters completed orders and groups by customer_id; legacy_customer_orders selects directly from customer_orders. Descriptions and declared grain match."
+    },
+    {
+      "command": "python - <<'PY'\nimport duckdb, json\nc=duckdb.connect('warehouse.duckdb',read_only=True)\nfor asset in ['customer_orders','legacy_customer_orders']:\n q=f'''WITH bounded AS (SELECT * FROM main.{asset} LIMIT 10000) SELECT count(*) AS sampled_rows, count(DISTINCT customer_id) AS distinct_customer_ids, count(*) FILTER (WHERE customer_id IS NULL) AS null_customer_ids FROM bounded'''\n print(asset,json.dumps(c.execute(q).fetchone()))\nq='''WITH a AS (SELECT * FROM main.customer_orders LIMIT 10000), b AS (SELECT * FROM main.legacy_customer_orders LIMIT 10000) SELECT 'customer_minus_legacy' AS comparison, count(*) AS differences FROM (SELECT * FROM a EXCEPT ALL SELECT * FROM b) UNION ALL SELECT 'legacy_minus_customer', count(*) FROM (SELECT * FROM b EXCEPT ALL SELECT * FROM a)'''\nprint('bounded_comparison',c.execute(q).fetchall())\nc.close()\nPY",
+      "result": "Read-only probes bounded to 10,000 rows per asset found four rows each, four distinct customer IDs, no null customer IDs, and no differences between the models."
+    },
+    {
+      "command": "git log -5 --oneline -- project/models project/catalog",
+      "result": "Workspace is not a Git repository; history evidence for lifecycle drift was unavailable."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "summary": "Fixed one metadata issue for daily_revenue by restoring its repository-supported owner.",
+  "findings": [
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "daily_revenue",
+      "claim": "The owner override was null, masking the documented finance-analytics owner.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "Before remediation, daily_revenue.owner was null."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The base catalog records finance-analytics as daily_revenue's owner."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "daily_revenue config.meta.owner is finance-analytics."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "model.catalog_steward_fixture.daily_revenue meta.owner is finance-analytics."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "owner",
+        "value": "finance-analytics",
+        "rationale": "Restore ownership using consistent catalog, schema, and manifest evidence.",
+        "verification": {
+          "field": "owner",
+          "equals": "finance-analytics"
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Changed daily_revenue.owner from null to finance-analytics."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "python - <<'PY'\nimport json\nfrom pathlib import Path\ncatalog=json.loads(Path('project/catalog/catalog.json').read_text())\noverrides=json.loads(Path('project/catalog/overrides.json').read_text())\nasset=next(a for a in catalog['assets'] if a['name']=='daily_revenue')\neffective={**asset,**overrides['assets']['daily_revenue']}\nassert effective['owner']=='finance-analytics'\nassert overrides=={'assets':{'daily_revenue':{'owner':'finance-analytics'}}}\nmanifest=json.loads(Path('project/target/manifest.json').read_text())\nassert effective['owner']==manifest['nodes']['model.catalog_steward_fixture.daily_revenue']['meta']['owner']\nprint('PASS: effective owner is finance-analytics, matches dbt manifest; overrides contain only the authorized owner field.')\nPY",
+      "result": "Passed: effective owner matches the manifest, and overrides contain only the authorized owner field."
+    },
+    {
+      "command": "python - <<'PY'\nimport duckdb\nfrom pathlib import Path\nprint(Path('project/target/compiled/catalog_steward_fixture/models/daily_revenue.sql').read_text())\nc=duckdb.connect('warehouse.duckdb',read_only=True)\nq='SELECT count(*) AS sampled_rows, count(DISTINCT order_date) AS distinct_dates, count(*) FILTER (WHERE order_date IS NULL) AS null_dates FROM (SELECT * FROM main.daily_revenue LIMIT 10000)'\nprint(q)\nprint(c.execute(q).fetchall())\nc.close()\nPY",
+      "result": "Read-only profile returned 4 rows, 4 distinct dates, and no null dates. Compiled SQL filters completed orders and groups by order_date, consistent with catalog metadata."
+    }
+  ]
+}

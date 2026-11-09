@@ -1,0 +1,66 @@
+{
+  "summary": "Found one grain mismatch in customer_orders. Proposed correction; no files changed because grain drift permits only proposals or reports.",
+  "findings": [
+    {
+      "issue_type": "grain_or_join_drift",
+      "asset": "customer_orders",
+      "claim": "The effective catalog grain is order_id, but the model aggregates by customer_id and does not output order_id.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The base catalog declares grain [\"customer_id\"]."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "The customer_orders override replaces the effective grain with [\"order_id\"]."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/customer_orders.sql",
+          "fact": "The model filters completed orders and aggregates by customer_id."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/compiled/catalog_steward_fixture/models/customer_orders.sql",
+          "fact": "Parsing with sqlglot confirmed GROUP BY customer_id, zero joins, and no order_id output column."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "Lineage identifies stg_orders as the model's parent; model metadata declares customer_id grain and unique/not_null tests on customer_id."
+        },
+        {
+          "kind": "command",
+          "source": "python - <<'PY'\nimport duckdb\nc=duckdb.connect('warehouse.duckdb',read_only=True)\nq='SELECT count(*) AS sampled_rows, count(DISTINCT customer_id) AS distinct_customers, count(*) FILTER (WHERE customer_id IS NULL) AS null_customers FROM (SELECT * FROM main.customer_orders LIMIT 10000) AS bounded'\nprint(q)\nprint(c.execute(q).fetchall())\nq='SELECT * FROM main.customer_orders LIMIT 10'\nr=c.execute(q)\nprint(q)\nprint([d[0] for d in r.description])\nprint(r.fetchall())\nc.close()\nPY",
+          "fact": "The bounded probe returned four rows, four distinct customer IDs, and zero null customer IDs; the output schema excludes order_id."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "propose_metadata_change",
+        "field": null,
+        "value": null,
+        "rationale": "Update assets.customer_orders.grain in project/catalog/overrides.json to [\"customer_id\"]. SQL, repository metadata, and the bounded uniqueness probe support this correction. The contract prohibits automatically patching grain drift.",
+        "verification": null
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "Should the customer_orders grain override be corrected from [\"order_id\"] to [\"customer_id\"]?"
+  ],
+  "changes_made": [],
+  "verification_performed": [
+    {
+      "command": "git status --short && git log -5 --oneline -- project/models/customer_orders.sql",
+      "result": "Unavailable: the workspace is not a Git repository."
+    },
+    {
+      "command": "python - <<'PY'\nimport json\nimport duckdb\nimport sqlglot\nfrom pathlib import Path\nbase=json.loads(Path('project/catalog/catalog.json').read_text())\noverrides=json.loads(Path('project/catalog/overrides.json').read_text())\nasset=next(a for a in base['assets'] if a['name']=='customer_orders')\nasset.update(overrides.get('assets',{}).get('customer_orders',{}))\nprint('Effective catalog:',json.dumps(asset,sort_keys=True))\nsql=Path('project/target/compiled/catalog_steward_fixture/models/customer_orders.sql').read_text()\ntree=sqlglot.parse_one(sql,read='duckdb')\nprint('Parsed grouping:',tree.args['group'].sql())\nprint('Output columns:',tree.named_selects)\nwith duckdb.connect('warehouse.duckdb',read_only=True) as con:\n print('Bounded rows/distinct customers/null customers:',con.execute('SELECT count(*), count(DISTINCT customer_id), count(*) FILTER (WHERE customer_id IS NULL) FROM (SELECT customer_id FROM main.customer_orders LIMIT 10000)').fetchone())\nassert asset['grain']==['order_id']\nassert tree.named_selects[0]=='customer_id' and 'order_id' not in tree.named_selects\nprint('Confirmed grain mismatch; no files changed.')\nPY",
+      "result": "Passed: confirmed the effective grain mismatch, parsed customer_id grouping, and read-only bounded profile of four distinct, non-null customer IDs."
+    }
+  ]
+}

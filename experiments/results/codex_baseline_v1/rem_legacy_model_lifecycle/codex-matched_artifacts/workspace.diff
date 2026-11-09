@@ -1,0 +1,11 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -2,7 +2,7 @@
+   "assets": {
+     "legacy_customer_orders": {
+       "type": "model",
+-      "description": "Older compatibility copy of customer order metrics.",
++      "description": "Compatibility copy of completed-order metrics at one row per customer; refunded and cancelled orders are excluded.",
+       "owner": "analytics",
+       "lifecycle": "active",
+       "grain": ["customer_id"],

@@ -1,0 +1,56 @@
+{
+  "summary": "Reviewed the proposed customer_regions change and scoped catalog metadata. Found missing catalog metadata for raw_customers; available repository evidence does not support filling its metadata fields automatically. No files were changed.",
+  "findings": [
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "raw_customers",
+      "claim": "raw_customers has no entry in the catalog or overrides, and no dbt schema declaration documents its metadata. The manifest identifies it as a seed, but does not provide owner, lifecycle, grain, or description metadata.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The catalog assets list does not contain raw_customers."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "The only override is for customer_regions; raw_customers has no override."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "The dbt schema file documents models but contains no raw_customers declaration."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "The manifest identifies raw_customers as a seed at seeds/raw_customers.csv, with empty description and metadata."
+        }
+      ],
+      "action": {
+        "class": "report",
+        "operation": "report_only",
+        "field": null,
+        "value": null,
+        "rationale": "Request catalog metadata for raw_customers from an owner or repository evidence; the available files do not justify inferring its description, owner, lifecycle, or grain.",
+        "verification": null
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "What description, owner, lifecycle, and grain should be recorded for raw_customers?"
+  ],
+  "changes_made": [],
+  "verification_performed": [
+    {
+      "command": "python - <<'PY' [manifest node inspection]",
+      "result": "Confirmed the manifest describes raw_customers as a seed with empty description and metadata, and confirmed customer_regions depends on customer_orders and raw_customers."
+    },
+    {
+      "command": "python - <<'PY' [bounded read-only DuckDB profile]",
+      "result": "Profiled scoped warehouse tables using aggregate queries only. customer_regions had 4 rows, 4 distinct customer IDs, and no null customer IDs or regions; no catalog override changes were made."
+    }
+  ]
+}

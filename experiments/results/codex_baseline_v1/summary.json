@@ -1,0 +1,736 @@
+{
+  "by_condition": {
+    "codex-frontier": {
+      "episode_successes": 7,
+      "error_count": 0,
+      "escalation_count": 7,
+      "false_negatives": 2,
+      "false_positives": 3,
+      "patch_count": 9,
+      "run_count": 10,
+      "runs_with_changes_outside_overrides": 0,
+      "runs_with_isolation_flags": 0,
+      "true_positives": 8,
+      "verification_failures": 0
+    },
+    "codex-matched": {
+      "episode_successes": 6,
+      "error_count": 0,
+      "escalation_count": 6,
+      "false_negatives": 3,
+      "false_positives": 5,
+      "patch_count": 9,
+      "run_count": 10,
+      "runs_with_changes_outside_overrides": 0,
+      "runs_with_isolation_flags": 0,
+      "true_positives": 7,
+      "verification_failures": 0
+    }
+  },
+  "config": {
+    "codex_cli_version": "0.167.0",
+    "conditions": {
+      "codex-frontier": {
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "medium"
+      },
+      "codex-matched": {
+        "model": "gpt-6-luna",
+        "reasoning_effort": "low"
+      }
+    },
+    "episodes": [
+      "rem_daily_revenue_filter_drift",
+      "rem_customer_orders_wrong_grain",
+      "rem_daily_revenue_missing_owner",
+      "rem_legacy_model_lifecycle",
+      "change_daily_revenue_filter",
+      "change_customer_orders_grain",
+      "change_new_model_missing_metadata",
+      "change_rename_without_lifecycle",
+      "clean_new_model_documented",
+      "clean_daily_revenue_metric"
+    ],
+    "frozen": true,
+    "isolation_args": [
+      "--ignore-rules",
+      "--disable",
+      "hooks",
+      "--disable",
+      "apps",
+      "--disable",
+      "plugins",
+      "--disable",
+      "memories",
+      "-c",
+      "web_search=\"disabled\"",
+      "-c",
+      "allow_login_shell=false"
+    ],
+    "output_schema": "design/codex_plan.schema.json",
+    "prompt_version": "codex-hygiene-v1",
+    "sandbox": "workspace-write",
+    "scoring_version": "midpoint-score-v1",
+    "timeout_seconds": 1800,
+    "tool_environment": {
+      "packages": [
+        "dbt-core",
+        "dbt-duckdb",
+        "duckdb"
+      ],
+      "path": "~/.cache/catalog-steward/codex-tools",
+      "python": "3.11"
+    },
+    "version": "1.0.0"
+  },
+  "episode_successes": 13,
+  "records": [
+    {
+      "condition": "codex-frontier",
+      "episode_id": "change_customer_orders_grain",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_customer_orders_grain",
+        "episode_success": false,
+        "escalation_count": 2,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 2,
+        "patch_count": 1,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "regression_detection_rate": 0.5,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 81.07997989654541
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "change_customer_orders_grain",
+      "error": null,
+      "flags": {
+        "files_changed": [],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_customer_orders_grain",
+        "episode_success": false,
+        "escalation_count": 3,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 2,
+        "patch_count": 0,
+        "precision": 0.3333333333333333,
+        "recall": 0.5,
+        "regression_detection_rate": 0.5,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 48.244866132736206
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "change_daily_revenue_filter",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_daily_revenue_filter",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 47.40176796913147
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "change_daily_revenue_filter",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_daily_revenue_filter",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 61.921471118927
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "change_new_model_missing_metadata",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_new_model_missing_metadata",
+        "episode_success": true,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 2,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 64.80899000167847
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "change_new_model_missing_metadata",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_new_model_missing_metadata",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 2,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 60.99072885513306
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "change_rename_without_lifecycle",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_rename_without_lifecycle",
+        "episode_success": true,
+        "escalation_count": 2,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 3,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 2,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 82.90435481071472
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "change_rename_without_lifecycle",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "change_rename_without_lifecycle",
+        "episode_success": true,
+        "escalation_count": 2,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 2,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": 1.0,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 2,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 67.27382326126099
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "clean_daily_revenue_metric",
+      "error": null,
+      "flags": {
+        "files_changed": [],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": true,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "clean_daily_revenue_metric",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 32.64513921737671
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "clean_daily_revenue_metric",
+      "error": null,
+      "flags": {
+        "files_changed": [],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": true,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "clean_daily_revenue_metric",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 29.76041889190674
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "clean_new_model_documented",
+      "error": null,
+      "flags": {
+        "files_changed": [],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": false,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "clean_new_model_documented",
+        "episode_success": false,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 1,
+        "patch_count": 0,
+        "precision": 0.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 53.99035692214966
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "clean_new_model_documented",
+      "error": null,
+      "flags": {
+        "files_changed": [],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": false,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "clean_new_model_documented",
+        "episode_success": false,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 1,
+        "patch_count": 0,
+        "precision": 0.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 51.88139009475708
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "rem_customer_orders_wrong_grain",
+      "error": null,
+      "flags": {
+        "files_changed": [],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "rem_customer_orders_wrong_grain",
+        "episode_success": true,
+        "escalation_count": 1,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 59.29039430618286
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "rem_customer_orders_wrong_grain",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 0.0,
+        "episode_id": "rem_customer_orders_wrong_grain",
+        "episode_success": false,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 1,
+        "patch_count": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 44.6334228515625
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "rem_daily_revenue_filter_drift",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "rem_daily_revenue_filter_drift",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 59.97559714317322
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "rem_daily_revenue_filter_drift",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "rem_daily_revenue_filter_drift",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 31.287685871124268
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "rem_daily_revenue_missing_owner",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 1.0,
+        "episode_id": "rem_daily_revenue_missing_owner",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 45.03257703781128
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "rem_daily_revenue_missing_owner",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 1.0,
+        "episode_id": "rem_daily_revenue_missing_owner",
+        "episode_success": true,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "patch_count": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 1,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 50.82642579078674
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-frontier",
+      "episode_id": "rem_legacy_model_lifecycle",
+      "error": null,
+      "flags": {
+        "files_changed": [],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-frontier",
+        "correct_action_rate": 0.0,
+        "episode_id": "rem_legacy_model_lifecycle",
+        "episode_success": false,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "patch_count": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 49.394171953201294
+      },
+      "status": "complete"
+    },
+    {
+      "condition": "codex-matched",
+      "episode_id": "rem_legacy_model_lifecycle",
+      "error": null,
+      "flags": {
+        "files_changed": [
+          "catalog/overrides.json"
+        ],
+        "isolation": 0
+      },
+      "score": {
+        "clean_change_pass": null,
+        "condition": "codex-matched",
+        "correct_action_rate": 0.0,
+        "episode_id": "rem_legacy_model_lifecycle",
+        "episode_success": false,
+        "escalation_count": 0,
+        "evidence_validity": 1.0,
+        "false_negatives": 1,
+        "false_positives": 1,
+        "patch_count": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "regression_detection_rate": null,
+        "scoring_version": "midpoint-score-v1",
+        "true_positives": 0,
+        "turns": 1,
+        "unsafe_action_rate": 0.0,
+        "verification_failures": 0,
+        "wall_clock_seconds": 38.24594497680664
+      },
+      "status": "complete"
+    }
+  ],
+  "run_count": 20
+}

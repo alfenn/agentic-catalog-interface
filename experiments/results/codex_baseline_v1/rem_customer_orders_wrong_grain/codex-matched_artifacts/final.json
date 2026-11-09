@@ -1,0 +1,76 @@
+{
+  "summary": "Corrected the catalog grain override for customer_orders to match the dbt model and built data.",
+  "findings": [
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "customer_orders",
+      "claim": "The catalog override declared order_id as the grain, but the model groups by customer_id and the schema and manifest identify customer_id as the grain.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The catalog describes customer_orders as one row per customer and declares customer_id as its grain."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "The override previously set the grain to order_id."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/customer_orders.sql",
+          "fact": "The model filters to completed orders and groups by customer_id."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "The model schema metadata sets grain to customer_id and tests customer_id for not_null and unique."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "The manifest records customer_id in the model metadata and primary_key."
+        },
+        {
+          "kind": "command",
+          "source": "python -c \"import duckdb; c=duckdb.connect('../warehouse.duckdb', read_only=True); print('profile', c.execute('select count(*) as rows, count(distinct customer_id) as distinct_customers, count(*) - count(distinct customer_id) as duplicate_customer_rows from main.customer_orders').fetchall())\"",
+          "fact": "The built relation has 4 rows, 4 distinct customer_id values, and no duplicate customer rows."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "grain",
+        "value": [
+          "customer_id"
+        ],
+        "rationale": "Align the catalog override with the SQL grouping, dbt metadata, and bounded uniqueness profile.",
+        "verification": {
+          "field": "grain",
+          "equals": [
+            "customer_id"
+          ]
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Changed customer_orders.grain from [\"order_id\"] to [\"customer_id\"] to match the model grain."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "python -c \"import json; p=json.load(open('project/catalog/overrides.json')); print(p['assets']['customer_orders']['grain'])\"",
+      "result": "Printed ['customer_id']."
+    },
+    {
+      "command": "dbt parse --no-partial-parse (run from project/)",
+      "result": "Succeeded."
+    }
+  ]
+}

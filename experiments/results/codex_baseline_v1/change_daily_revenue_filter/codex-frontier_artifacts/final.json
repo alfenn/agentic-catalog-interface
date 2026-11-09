@@ -1,0 +1,60 @@
+{
+  "summary": "Found and patched one catalog description mismatch: daily_revenue now includes refunded orders.",
+  "findings": [
+    {
+      "issue_type": "sql_metadata_drift",
+      "asset": "daily_revenue",
+      "claim": "The catalog describes completed-only revenue excluding refunds, but the proposed SQL includes refunded orders.",
+      "impact": "high",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "The original description explicitly excludes refunded and cancelled orders."
+        },
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "The filter changes from status = 'completed' to status != 'cancelled'."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/daily_revenue.sql",
+          "fact": "The SQL groups by order_date, counts qualifying orders, and sums amount. Its inequality filter includes refunded statuses and excludes cancelled and null statuses."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "The upstream status values include completed, refunded, and cancelled; daily_revenue documentation still describes completed-only metrics."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "description",
+        "value": "Order counts and summed order amounts at one row per order date for orders with status != 'cancelled'; includes refunded orders and excludes cancelled orders and null statuses.",
+        "rationale": "Describe the applied SQL directly without assigning unsupported business meaning to refunded amounts.",
+        "verification": {
+          "field": "description",
+          "equals": "Order counts and summed order amounts at one row per order date for orders with status != 'cancelled'; includes refunded orders and excludes cancelled orders and null statuses."
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "Is including refunded orders intended? The completed_order_count and completed_revenue aliases and dbt documentation still imply completed-only metrics."
+  ],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Added only daily_revenue.description to reflect the changed filter and aggregation."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "python - <<'PY'\nimport json\nfrom pathlib import Path\nbase=json.loads(Path('project/catalog/catalog.json').read_text())\noverrides=json.loads(Path('project/catalog/overrides.json').read_text())\nassert set(overrides)=={'assets'}\nassert set(overrides['assets'])=={'daily_revenue'}\nassert set(overrides['assets']['daily_revenue'])=={'description'}\nasset=next(a for a in base['assets'] if a['name']=='daily_revenue')\nmerged={**asset, **overrides['assets']['daily_revenue']}\nexpected=\"Order counts and summed order amounts at one row per order date for orders with status != 'cancelled'; includes refunded orders and excludes cancelled orders and null statuses.\"\nassert merged['description']==expected\nfor field in ('owner','lifecycle','grain','canonical'):\n assert merged[field]==asset[field]\nprint('PASS: valid JSON; only daily_revenue.description overridden; merged description equals expected value; other metadata preserved.')\nPY",
+      "result": "Passed: valid JSON, exact merged description verified, override restricted to the permitted asset and field, and other metadata preserved."
+    }
+  ]
+}

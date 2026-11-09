@@ -1,0 +1,9 @@
+$ dbt parse (exit 0)
+[0m04:07:50  Running with dbt=1.12.6
+[0m04:07:51  Registered adapter: duckdb=1.11.1
+[0m04:07:51  Unable to do partial parsing because profile has changed
+[0m04:07:51  [[33mWARNING[0m]: Did not find matching node for patch with name 'daily_revenue' in the 'models' section of file 'models/schema.yml'
+[0m04:07:51  [[33mWARNING[0m]: Test 'test.catalog_steward_fixture.not_null_daily_revenue_order_date.3c69a0ce71' (models/schema.yml) depends on a node named 'daily_revenue' in package '' which was not found
+[0m04:07:51  [[33mWARNING[0m]: Test 'test.catalog_steward_fixture.unique_daily_revenue_order_date.059107fd56' (models/schema.yml) depends on a node named 'daily_revenue' in package '' which was not found
+[0m04:07:51  Performance info: /var/folders/24/gzdrk8bd3933s2t8lp1ndtk00000gn/T/csb-gvhwiq4z/ws_58caf0d95200/project/target/perf_info.json
+

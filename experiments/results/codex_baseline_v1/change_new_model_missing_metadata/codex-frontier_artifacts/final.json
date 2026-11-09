@@ -1,0 +1,137 @@
+{
+  "summary": "Added a supported description and grain for high_value_orders. Ownership, lifecycle, and canonical status require review. No hygiene issue found in stg_orders.",
+  "findings": [
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "high_value_orders",
+      "claim": "The newly added model lacks owner, lifecycle, and canonical metadata.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "There is no high_value_orders entry."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "There is no high_value_orders model declaration; upstream ownership does not establish ownership of this model."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "high_value_orders is enabled with empty config.meta and an empty description."
+        },
+        {
+          "kind": "file",
+          "source": "input.diff",
+          "fact": "The proposed change introduces high_value_orders without accompanying metadata."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "field": null,
+        "value": null,
+        "rationale": "Have the reviewer designate an accountable owner, lifecycle, and canonical status; the repository does not establish these decisions.",
+        "verification": null
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "high_value_orders",
+      "claim": "The model has no catalog description despite an explicit SQL filter.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "high_value_orders has no entry or description."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "No description is declared for high_value_orders."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "The high_value_orders description is empty."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/high_value_orders.sql",
+          "fact": "The model selects from stg_orders with status = 'completed' and amount >= 100."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "description",
+        "value": "Orders from stg_orders where status = 'completed' and amount >= 100.",
+        "rationale": "Describe the explicit source and predicates without inventing currency or business meaning.",
+        "verification": {
+          "field": "description",
+          "equals": "Orders from stg_orders where status = 'completed' and amount >= 100."
+        }
+      }
+    },
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "high_value_orders",
+      "claim": "The model lacks grain metadata although its filter preserves the documented upstream grain.",
+      "impact": "low",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "high_value_orders is absent; stg_orders declares grain ['order_id']."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "stg_orders declares grain order_id with unique and not_null tests; high_value_orders has no declaration."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "high_value_orders depends solely on stg_orders and has empty metadata; upstream order_id tests are present."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/high_value_orders.sql",
+          "fact": "SELECT * with a WHERE filter contains no joins, aggregation, or row-generating operation."
+        }
+      ],
+      "action": {
+        "class": "patch",
+        "operation": "update_catalog_field",
+        "field": "grain",
+        "value": ["order_id"],
+        "rationale": "The model preserves the explicitly documented upstream order_id grain.",
+        "verification": {
+          "field": "grain",
+          "equals": ["order_id"]
+        }
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "Who owns high_value_orders, what lifecycle should it have, and should it be canonical?"
+  ],
+  "changes_made": [
+    {
+      "path": "project/catalog/overrides.json",
+      "description": "Created high_value_orders overrides for description and grain."
+    }
+  ],
+  "verification_performed": [
+    {
+      "command": "python -c \"import json; o=json.load(open('project/catalog/overrides.json')); assert o == {'assets': {'high_value_orders': {'description': \\\"Orders from stg_orders where status = 'completed' and amount >= 100.\\\", 'grain': ['order_id']}}}; print('PASS: exact override fields and values')\"",
+      "result": "Passed: the override contains exactly the authorized asset, fields, and expected values."
+    }
+  ]
+}

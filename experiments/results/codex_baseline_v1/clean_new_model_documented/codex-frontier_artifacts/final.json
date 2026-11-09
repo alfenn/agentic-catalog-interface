@@ -1,0 +1,52 @@
+{
+  "summary": "Found one metadata gap in raw_customers. The proposed customer_regions model matches its catalog description and observed grain. No files changed.",
+  "findings": [
+    {
+      "issue_type": "missing_required_metadata",
+      "asset": "raw_customers",
+      "claim": "raw_customers has no effective catalog metadata, and dbt provides no documented description or owner.",
+      "impact": "medium",
+      "confidence": "high",
+      "evidence": [
+        {
+          "kind": "file",
+          "source": "project/catalog/catalog.json",
+          "fact": "There is no raw_customers asset entry."
+        },
+        {
+          "kind": "file",
+          "source": "project/catalog/overrides.json",
+          "fact": "There is no assets.raw_customers override."
+        },
+        {
+          "kind": "file",
+          "source": "project/models/schema.yml",
+          "fact": "Schema declarations cover models but provide no raw_customers seed metadata; inspection of the project's YAML files found no raw_customers declaration."
+        },
+        {
+          "kind": "file",
+          "source": "project/target/manifest.json",
+          "fact": "raw_customers is an enabled seed with an empty description, empty columns and empty config.meta. customer_regions depends on it."
+        }
+      ],
+      "action": {
+        "class": "propose",
+        "operation": "request_review",
+        "field": null,
+        "value": null,
+        "rationale": "Request catalog metadata for this newly consumed dependency, including a documented description and accountable owner. Repository evidence does not establish an owner, lifecycle designation or canonical status to assign automatically.",
+        "verification": null
+      }
+    }
+  ],
+  "unresolved_questions": [
+    "Who owns raw_customers, and what description, lifecycle, grain and canonical status should its catalog entry declare?"
+  ],
+  "changes_made": [],
+  "verification_performed": [
+    {
+      "command": "python -c \"import duckdb; c=duckdb.connect('warehouse.duckdb',read_only=True); print([(n,c.execute('SELECT count(*),count(DISTINCT customer_id),count(*) FILTER (WHERE customer_id IS NULL) FROM (SELECT * FROM main.'+n+' LIMIT 10000) t').fetchone()) for n in ['customer_regions','customer_orders','raw_customers']])\"",
+      "result": "Each scoped asset returned 4 rows, 4 distinct customer IDs and 0 null customer IDs. Queries used a read-only connection and inputs bounded to 10000 rows."
+    }
+  ]
+}

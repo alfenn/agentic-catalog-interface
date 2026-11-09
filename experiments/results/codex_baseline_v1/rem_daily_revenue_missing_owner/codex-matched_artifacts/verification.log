@@ -1,0 +1,6 @@
+$ dbt parse (exit 0)
+[0m04:02:17  Running with dbt=1.12.6
+[0m04:02:17  Registered adapter: duckdb=1.11.1
+[0m04:02:17  Unable to do partial parsing because profile has changed
+[0m04:02:18  Performance info: /var/folders/24/gzdrk8bd3933s2t8lp1ndtk00000gn/T/csb-3g2ol5kb/ws_4a6544b020c5/project/target/perf_info.json
+

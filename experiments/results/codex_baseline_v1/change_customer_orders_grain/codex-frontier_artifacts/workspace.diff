@@ -1,0 +1,10 @@
+--- a/catalog/overrides.json
++++ b/catalog/overrides.json
+@@ -0,0 +1,7 @@
++{
++  "assets": {
++    "customer_orders": {
++      "description": "Completed orders joined to source order items on order_id, exposing customer_id, order_id, order_item_id, and the order amount; refunded and cancelled orders are excluded."
++    }
++  }
++}
