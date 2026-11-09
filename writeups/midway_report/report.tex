@@ -75,13 +75,11 @@ Maintainers of lakehouses need trustworthy catalog metadata (ownership, grain, f
 
 \subsection{What Did Not Work, and Pivots}\label{sec:pivots}
 
-\textbf{Reply format.} In a preliminary run the model copied a wrapper key from the format example, so its replies were rejected; I fixed the example and added one shared repair turn (commit \texttt{d2a547b}).
+\textbf{From question answering to data hygiene.} My proposal planned a general-purpose data agent for question answering over a data lake, but its task categories and examples were too myopic for the problem I want to solve: keeping lakehouse metadata trustworthy as the lakehouse changes. Reframing the project around the data-hygiene process itself, through its two workflows (remediating existing debt and reviewing proposed changes), tackles that problem directly.
 
-\textbf{Raw-tool exploration.} On \texttt{change\_daily\_revenue\_filter} our raw-tool agent batched tool calls; once rejected, it reported nothing and missed the regression. Another run cited unreceived output yet passed the ID-only evidence check (pilot \texttt{analysis.md}). Codex replaced it.
+\textbf{From a bespoke baseline to Codex.} My first comparison agent was a simple one with four raw tools on the steward's model. It was easy to inspect and differed from the steward only in its tools, but no one uses it. I replaced it with Codex, a frontier agent harness, and reran the comparison on all ten examples (\texttt{experiments/results/codex\_baseline\_v1/}), trading the simpler agent's comparability and ease of inspection for a comparison against a frontier harness.
 
-\textbf{Label choice.} On \texttt{rem\_customer\_orders\_wrong\_grain} the steward labelled a grain error SQL/metadata drift, a patchable type, and patched a correct value, but the example required a proposal with uniqueness evidence, so it failed. Next, issue type is checked apart from the label.
-
-\textbf{Unmatched baseline.} A first Codex run matched the steward on two cases, but a different model, no contract rules in the prompt and hand-mapped labels confounded harness with model and wording (\texttt{codex\_midway\_two\_case/README.md}). The new baseline removes all three.
+\textbf{Next: another harness.} Running the same evaluation on Pi, another open-source coding-agent harness, would show whether Codex and Pi differ meaningfully on these tasks.
 
 \section{Results (Summary of Progress)}\label{sec:results}
 
