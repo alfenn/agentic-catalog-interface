@@ -114,7 +114,7 @@ Each milestone addresses a next step from Section\ \ref{sec:limits}, starting wi
 - *By November 27:* I will use 50 examples and run each setup several times without caching.
 - *By December 4:* I will run the steward with a frontier model, add frontier-Codex's selective reading to its tools, and rerun all conditions on the 50 examples.
 
-If time remains, I will add the Pi harness and a non-agentic baseline. The main risk is that reviewing 50 examples takes longer than planned; I would then report repeated runs on fewer examples.
+If time remains, I will add the Pi harness and a non-agentic baseline.
 
 ```{=latex}
 \bibliography{references}
