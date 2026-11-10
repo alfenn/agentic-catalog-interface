@@ -133,13 +133,13 @@ I draw on two runs indexed in \href{https://github.com/alfenn/agentic-catalog-in
 
 \subsection{Limitations and Next Steps}\label{sec:limits}
 
-\textbf{Evaluation limits.} Each cell is one run (matched-Codex passed the filter change in two of three earlier tries), and with ten AI-built examples a gap of one or two supports no ranking.
+\textbf{Few, single runs.} Runs vary (matched-Codex passed \emph{Revenue filter changed} in two of three earlier tries), so small gaps may be noise. \emph{Next:} about 50 human-reviewed examples, several runs each.
 
-\textbf{How to improve the steward.} Frontier-Codex chose what to read and query and reported half the steward's extras, suggesting a stronger model filters its own context. The steward should filter for a weaker model instead: give it only the evidence each candidate issue needs, in change review flag only gaps the change introduces, and drop findings the model itself calls unestablished. The validator should check evidence content, not presence: the legacy-copy finding cited an empty diff.
+\textbf{Eval errors.} AI-built labels miss real problems (\emph{Documented revenue metric}), and the scorer passed unreviewed patches (\emph{Revenue filter changed}); both understate the steward. \emph{Next:} an eval loop that reviews each extra and fixes the answer key when it is real, and a scorer that fails such patches.
 
-\textbf{Next steps.} An eval loop that reviews each extra and updates the answer key when it is real; about 50 human-reviewed examples; and the steward on the frontier model, separating model from harness.
+\textbf{Steward vs.~a stronger model.} Frontier-Codex beat the steward harness, and its traces suggest its selective reading helped: it chose what to read and reported half the steward's extras, while the steward shows its weaker model every in-scope table. \emph{Next:} build that selectivity into the tools the harness gives the weaker model, so it sees only the evidence each candidate issue needs.
 
-\textbf{More baselines.} Pi, another open-source coding-agent harness, and standard data-hygiene automations (e.g., dbt-project-evaluator, Great Expectations) run in CI on every change.
+\textbf{Narrow comparison.} The steward never ran on the frontier model, so its harness is untested on a stronger model, and Codex is the only baseline. \emph{Next:} the steward on the frontier model, the Pi harness, and hygiene automations (dbt-project-evaluator, Great Expectations) run in CI.
 
 \section{Assets}\label{sec:assets}
 
@@ -159,7 +159,7 @@ I draw on two runs indexed in \href{https://github.com/alfenn/agentic-catalog-in
   \emph{By December 4:} repeated samples, ablations and about 50 audited examples.
 \end{itemize}
 
-\textbf{Risks and mitigations.} \emph{Scope growth:} a contract held at five issue types. \emph{Ambiguous ground truth} (seen in both clean controls): documented seeds, a precedence rule, human label review. \emph{Unsupported claims} (one invented-evidence run passed): claim--evidence checks and manual audit.
+\textbf{Risks and mitigations.} \emph{Scope growth:} a contract held at five issue types. \emph{Ambiguous labels:} documented seeds, a precedence rule, the review loop. \emph{Unsupported claims:} claim--evidence checks.
 
 \bibliography{references}
 \label{referencesend}

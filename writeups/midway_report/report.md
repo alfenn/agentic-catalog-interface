@@ -94,13 +94,13 @@ I draw on two runs indexed in [`experiments/README.md`](https://github.com/alfen
 
 ## Limitations and Next Steps {#sec:limits}
 
-**Evaluation limits.** Each cell is one run (matched-Codex passed the filter change in two of three earlier tries), and with ten AI-built examples a gap of one or two supports no ranking.
+**Few, single runs.** Runs vary (matched-Codex passed *Revenue filter changed* in two of three earlier tries), so small gaps may be noise. *Next:* about 50 human-reviewed examples, several runs each.
 
-**How to improve the steward.** Frontier-Codex chose what to read and query and reported half the steward's extras, suggesting a stronger model filters its own context. The steward should filter for a weaker model instead: give it only the evidence each candidate issue needs, in change review flag only gaps the change introduces, and drop findings the model itself calls unestablished. The validator should check evidence content, not presence: the legacy-copy finding cited an empty diff.
+**Eval errors.** AI-built labels miss real problems (*Documented revenue metric*), and the scorer passed unreviewed patches (*Revenue filter changed*); both understate the steward. *Next:* an eval loop that reviews each extra and fixes the answer key when it is real, and a scorer that fails such patches.
 
-**Next steps.** An eval loop that reviews each extra and updates the answer key when it is real; about 50 human-reviewed examples; and the steward on the frontier model, separating model from harness.
+**Steward vs. a stronger model.** Frontier-Codex beat the steward harness, and its traces suggest its selective reading helped: it chose what to read and reported half the steward's extras, while the steward shows its weaker model every in-scope table. *Next:* build that selectivity into the tools the harness gives the weaker model, so it sees only the evidence each candidate issue needs.
 
-**More baselines.** Pi, another open-source coding-agent harness, and standard data-hygiene automations (e.g., dbt-project-evaluator, Great Expectations) run in CI on every change.
+**Narrow comparison.** The steward never ran on the frontier model, so its harness is untested on a stronger model, and Codex is the only baseline. *Next:* the steward on the frontier model, the Pi harness, and hygiene automations (dbt-project-evaluator, Great Expectations) run in CI.
 
 # Assets {#sec:assets}
 
@@ -114,7 +114,7 @@ I draw on two runs indexed in [`experiments/README.md`](https://github.com/alfen
 - *By November 20:* postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
 - *By December 4:* repeated samples, ablations and about 50 audited examples.
 
-**Risks and mitigations.** *Scope growth:* a contract held at five issue types. *Ambiguous ground truth* (seen in both clean controls): documented seeds, a precedence rule, human label review. *Unsupported claims* (one invented-evidence run passed): claim--evidence checks and manual audit.
+**Risks and mitigations.** *Scope growth:* a contract held at five issue types. *Ambiguous labels:* documented seeds, a precedence rule, the review loop. *Unsupported claims:* claim--evidence checks.
 
 ```{=latex}
 \bibliography{references}
