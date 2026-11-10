@@ -1,6 +1,6 @@
 ```{=latex}
 \begin{table}[t]
-\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry (same issue type and table); FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no reported problem matches. An example \emph{succeeds} if the run completes with no FP or FN, no forbidden action class and no failed verification. Precision and recall are micro-averaged because per-example (macro) recall divides by the number of answer-key entries, which is zero for the \emph{clean control} examples. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
+\caption{Per-example outcomes, one run each (success as defined in Section~\ref{sec:env}). TP: a reported problem matching an answer-key entry; FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no reported problem matches. Precision and recall are micro-averaged because per-example (macro) recall divides by the number of answer-key entries, which is zero for the \emph{clean control} examples. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}
