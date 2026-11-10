@@ -1,98 +1,198 @@
-# Midway demo video: script and run sheet
+# Midway demo video: script
 
-Target length **2:45** (hard limit 3:00, per `../requirements/video.md`). One speaker. About 405 words of narration at roughly 147 words per minute. Every command is in [`demo_commands.sh`](demo_commands.sh). Run `./demo_commands.sh N` from any directory; the script `cd`s to the repository root itself. Each segment prints a banner, then the command it runs (prefixed `$`), then a few lines of compact output.
+A three-minute video in three parts: the project, the evaluation (with one example run
+live), and what the results mean. It follows the midway report (`../report.md`): every
+number below is from its Table 1 and Section 3.3.
 
-All numbers on screen come from `experiments/results/midpoint_v1_2_pilot/` (frozen config 1.2.0, 10 episodes × 3 conditions). The charts are generated from its `summary.json` by `../make_figures.py`. Nothing is typed by hand.
+- **Length:** about 2:50 of narration, under the 3:00 limit in `../requirements/video.md`.
+  About 420 words at roughly 150 words per minute.
+- **Slides:** `slides.pdf` (source `slides.tex`, 11 slides). Build it from the repository root:
 
-## Video description (paste when uploading)
+  ```sh
+  latexmk -pdf -cd -quiet -interaction=nonstopmode writeups/midway_report/demo/slides.tex
+  latexmk -c -cd -quiet -e '$clean_ext="nav snm vrb"' writeups/midway_report/demo/slides.tex
+  ```
 
-Paste this as the YouTube or Google Drive description:
+- **Commands:** `demo_commands.sh`. Each part is a short list of plain commands, each with a
+  one-line comment, and the script prints each command before it runs it. Run a part with
+  `writeups/midway_report/demo/demo_commands.sh <part>` from anywhere in the repository, or
+  copy single commands and run them from the repository root.
+- **Walkthrough example:** *Revenue filter changed* (`change_daily_revenue_filter`). It is
+  quick to explain, the steward handles it the way the answer key wants, and it is also the
+  example where the scorer passed both Codex runs for accepting a change before review, which
+  part 3 needs.
 
-```text
-CS329Z midway demo (Alex Feng). A catalog steward: an LLM agent that repairs stale data-catalog metadata with evidence, then reviews later dbt changes so the drift does not come back. The demo shows its frozen pilot on ten constructed maintenance episodes, which compared it with static checks and an in-house generic agent; the midway report's main comparison is against OpenAI's Codex CLI.
+## What needs a key or a login
 
-GitHub repository (code, fixtures, episode labels, frozen config and prompts, raw pilot results, and the manual audit):
-https://github.com/alfenn/agentic-catalog-interface
+| Part of `demo_commands.sh` | Needs | Used in the video |
+|---|---|---|
+| `setup` | nothing (its last step, `make doctor-live`, only checks that a key is set and fails without one) | before recording |
+| `example` | nothing | optional (slide 5 shows the same content) |
+| `live` | **`OPENROUTER_API_KEY`** in `.env`: it makes a paid model call | beat 6 |
+| `offline` | nothing: the same evaluation with the rules-only static checks | beat 6, if there is no key |
+| `table` | nothing (no model calls) | beat 7 |
+| `codex` | nothing: it shows the saved Codex runs | optional (slide 9 shows the same content) |
+| `tidy` | nothing | after recording |
 
-The README covers setup and reproducing the pilot. The demo's script and commands are in writeups/midway_report/demo/.
-
-Note: the steward runs shown are saved pilot artifacts (no model calls during the demo). In the pilot itself, the generic-agent and steward records for these two demo episodes are cache replays of the final preliminary run under the same frozen configuration.
-```
+Nothing in the video needs a Codex login. Rerunning Codex itself is described in the
+[README's Codex baseline section](../../../README.md#codex-baseline) and needs the Codex CLI,
+logged in; it is not part of the demo.
 
 ## Before recording
 
-1. **Setup (off camera):** run `writeups/midway_report/demo/demo_commands.sh prep` from the repository root. It installs dependencies, builds both independent episode fixtures and regenerates the chart PNGs. Segments 3 and 5 show saved pilot artifacts and invoke no model.
-2. **Check artifacts:** confirm the two pilot JSON files and their patch and ledger artifacts are present before recording.
-3. **Terminal:** use a dark or light theme with high contrast, a font size of at least **20 pt** (about 100 columns across a 1920 px screen), and a window that fills the screen. Run `clear` before each segment. Lines are up to about 230 characters, so turn on soft wrap. Do not show `.env`.
-4. **Windows to pre-open:**
-   - the terminal, at the repository root, with `prep` already finished;
-   - an optional title card with the project name and your name (segment 1);
-   - `figures/outcome_grid.png` and `figures/findings_vs_false_alarms.png` in Preview (segment 7 also opens them with `open`; set `DEMO_NO_OPEN=1` if they are already open);
-   - optional backup: `figures/success_by_category.png`.
-5. **Rehearse once:** run `./demo_commands.sh time`, which runs segments 1 to 7 silently and prints each one's wall time. It should be close to the measured times below.
-6. Afterwards, `./demo_commands.sh clean` removes the scratch replay folders (all under the gitignored `.runs/`).
+1. Run `writeups/midway_report/demo/demo_commands.sh setup`. It installs dependencies, builds
+   the example's fixture and the slides, and checks that a key is configured. If it ends with
+   `OPENROUTER_API_KEY is required`, use `offline` instead of `live` in beat 6.
+2. Open `slides.pdf` full screen (Preview: View > Slideshow).
+3. Open a terminal at the repository root with a large font (20 pt or more) and a clean
+   prompt. Do not show `.env`.
+4. Rehearse beat 6 once off camera. A live run builds the example (about 5 s) and then waits
+   for the model; the evaluation prints only its output folder at the end, and the `jq` line
+   after it prints the finding and score. If the wait is long, cut it in editing.
+5. After recording, run `writeups/midway_report/demo/demo_commands.sh tidy`. It restores the
+   PDFs that `make report` and the slide build rewrite with timestamp-only changes, and removes
+   the scratch runs under `.runs/`.
 
 ## Run sheet
 
-Timestamps are for the narration. Start each command at the start of its segment and talk over its output. "Measured" is wall time on the author's machine on 2026-11-08, after `prep`, from two `./demo_commands.sh time` runs (identical to 0.1 s).
+| # | Time | On screen | Command |
+|---|---|---|---|
+| | **Part 1: the project** | | |
+| 1 | 0:00–0:08 | Slide 1, title | none |
+| 2 | 0:08–0:26 | Slide 2, *Catalog metadata drifts away from the code* | none |
+| 3 | 0:26–0:43 | Slide 3, *The harness: inspect, plan, validate, act* | none |
+| | **Part 2: the evaluation** | | |
+| 4 | 0:43–1:01 | Slide 4, *Evaluation: ten examples, each with an answer key* | none |
+| 5 | 1:01–1:15 | Slide 5, *Example: Revenue filter changed* | none |
+| 6 | 1:15–1:38 | Slide 6, *Live: run and score this example*, then the terminal | `demo_commands.sh live` (or `offline`) |
+| 7 | 1:38–1:51 | Terminal, then slide 7, *The report table: make report* | `demo_commands.sh table` |
+| | **Part 3: the results** | | |
+| 8 | 1:51–2:12 | Slide 8, *Why the steward scored lower* | none |
+| 9 | 2:12–2:29 | Slide 9, *The scorer passed an unreviewed change* | none |
+| 10 | 2:29–2:38 | Slide 10, *Both eval errors fixed: a tie with frontier-Codex* | none |
+| 11 | 2:38–2:52 | Slide 11, *Next* | none |
 
-| # | Time | On screen | Command | Measured |
-|---|------|-----------|---------|----------|
-| 1 | 0:00–0:21 | Title card, then the terminal: contract modes, issue types and action surface | `./demo_commands.sh 1` | 0.1–0.3 s |
-| 2 | 0:21–0:43 | Catalog description vs the SQL `where` line, then the parsed-SQL evidence ID and filter | `./demo_commands.sh 2` | 0.2–0.3 s |
-| 3 | 0:43–1:12 | Saved pilot artifacts: the steward's finding and cited evidence IDs; the patch diff; verification checks; two ledger lines | `./demo_commands.sh 3` | 5.4 s |
-| 4 | 1:12–1:32 | The change diff (`completed` → `!= 'cancelled'`); dbt tests pass; catalog text = the step-3 patch | `./demo_commands.sh 4` | < 0.1 s |
-| 5 | 1:32–1:55 | Saved pilot artifacts: the finding, the claim, `propose / request_review`, `status=proposed patch=none`, two open questions | `./demo_commands.sh 5` | 4.3 s |
-| 6 | 1:55–2:15 | A six-row pilot table: both episodes × static/generic/steward | `./demo_commands.sh 6` | < 0.1 s |
-| 7a | 2:15–2:24 | Terminal pilot table, then `outcome_grid.png` full screen | `./demo_commands.sh 7` | < 0.1 s (+ Preview opening) |
-| 7b | 2:24–2:45 | `findings_vs_false_alarms.png` full screen | none | n/a |
+## Narration
 
-Command time totals about 10 s, all covered by narration. Narration is about 405 words over 165 s, which leaves 15 s of margin under the limit.
+### Part 1: the project (0:00–0:43)
 
-## Narration (word for word)
+**1 · 0:00–0:08 · Slide 1**
+> Hi, I'm Alex Feng. My project is about agent tool interfaces for data catalogs.
 
-**1 · 0:00–0:21: Problem** (`./demo_commands.sh 1`)
-> Data catalogs go stale. A table's description says one thing, the SQL that builds it does another, and analysts trust the wrong number. Our catalog steward is an LLM agent that repairs that drift with evidence and reviews later changes so it doesn't come back. Its contract allows only reviewable patches or proposals.
+**2 · 0:08–0:26 · Slide 2**
+> A data catalog says what each table means. When the SQL changes, the description often
+> doesn't, and people trust the wrong number. My catalog steward repairs this drift and reviews
+> proposed changes. The question: does a specialized harness beat a general coding agent with
+> the same access?
 
-**2 · 0:21–0:43: Stale claim vs SQL evidence** (`./demo_commands.sh 2`)
-> This is a local dbt and DuckDB fixture. The catalog says daily revenue covers all orders. The model's SQL keeps completed orders only. The steward doesn't trust either text on its own: it parses the SQL into evidence with a stable ID, here the filter status equals completed, and every claim must cite such IDs.
+**3 · 0:26–0:43 · Slide 3**
+> The harness first gathers an evidence bundle: catalog metadata, parsed SQL, lineage and data
+> profiles, each with a stable ID. The model returns findings citing those IDs. A validator
+> checks them, and each becomes a patch, a review proposal, or a report.
 
-**3 · 0:43–1:12: Patch, verification, ledger** (`./demo_commands.sh 3`, start it as you begin speaking)
-> Now the steward runs in remediation mode. These are the saved artifacts from the recorded pilot run. It proposes one patch: rewrite the catalog description to say completed orders only, citing five evidence items, including that parsed SQL fact. The SQL is untouched. Verification re-reads the catalog and re-parses dbt. Both checks pass, and the ledger records the finding as verified; these checks do not establish semantic correctness.
+### Part 2: the evaluation (0:43–1:51)
 
-**4 · 1:12–1:32: Independent change fixture** (`./demo_commands.sh 4`)
-> In an independent change-review fixture, a pull request changes the filter from completed to not cancelled, so refunded orders now count as revenue. The catalog still says refunds are excluded, which matches the earlier patch, and dbt tests still pass. The fixtures reset independently.
+**4 · 0:43–1:01 · Slide 4**
+> I built ten examples: remediation, flawed changes, and clean controls with nothing to find.
+> Each has an answer key. Success means no missed problem, no extra, and an allowed action. I
+> compare the steward with Codex on the same model, and on a frontier model.
 
-**5 · 1:32–1:55: Change-time review** (`./demo_commands.sh 5`, start it as you begin speaking)
-> In change-review mode, the steward flags the contradiction, but it does not choose a revenue definition for the business. Whether refunds belong in revenue is a semantic decision, so the contract allows only a proposal: it requests review from the model owner, lists the open questions, and writes no patch. That escalation is the correct outcome here.
+**5 · 1:01–1:15 · Slide 5**
+> In this example, a change makes revenue count every order that isn't cancelled, so refunds
+> count. The catalog still says refunds are excluded. The right response: flag it, and ask
+> whether refunds belong in revenue.
 
-**6 · 1:55–2:15: Baselines on the same two episodes** (`./demo_commands.sh 6`)
-> Compare the pilot's baselines on the same two episodes. Static required-field and dbt-test checks caught neither problem. A generic agent on the same model also fixed the first one, but on the change it batched several tool calls into one reply, was rejected, and gave up without a finding.
+**6 · 1:15–1:38 · Slide 6, then the terminal: `demo_commands.sh live`** (start it as you begin
+speaking)
+> Let's run it live. This builds a fresh copy of the example, runs the steward, and scores it
+> against the answer key.
+>
+> *(when the `jq` output appears)* It found the drift, proposed a review instead of a patch, and
+> asked whether refunded orders belong in revenue. One found, no extras, nothing missed: a
+> success.
 
-**7a · 2:15–2:24: Pilot outcomes** (`./demo_commands.sh 7`, then switch to `outcome_grid.png`)
-> Across all ten pilot episodes, static checks succeeded on four, the generic agent on five, and the steward on five.
+If there is no key, run `demo_commands.sh offline` and say instead: *"Without a model, the
+same evaluation runs the static checks. dbt's tests still pass, so they find nothing and the
+scorer counts a miss. The steward's saved run on this example is the one on the slide."*
 
-**7b · 2:24–2:45: Found issues vs false alarms, limitations** (switch to `findings_vs_false_alarms.png`)
-> On this small, author-built pilot, the steward found nine of ten expected issues, against five for the generic agent, but tied on episode success: it raised six false alarms by our labels, including both clean controls. An AI-assisted audit classified three were real gaps our labels missed. Next: better labels, real verification, a larger study.
+**7 · 1:38–1:51 · Terminal: `demo_commands.sh table`; when the report opens, cut to slide 7**
+> `make report` rebuilds the report's table from the saved runs, with no model calls. As
+> scored, the steward succeeds on five of ten, matched-Codex on six, and frontier-Codex on
+> seven.
 
-## Fallback if a command is slow or fails
+### Part 3: the results (1:51–2:52)
 
-| # | Live command | If slow or failing |
-|---|--------------|--------------------|
-| 1 | `make contract` via the module (0.1–0.3 s) | Keep talking over the title card. If it errors, skip the terminal: the narration does not depend on it. |
-| 2 | Reads the fixture built in `prep`, plus `make evidence` (0.2–0.3 s) | If `.runs/rem_daily_revenue_filter_drift/` is missing, the read fails: run `make fixture EPISODE=rem_daily_revenue_filter_drift` off camera (about 5 s) and retake. The same evidence ID, `ev_parsed_sql_facts_05abec786ab2`, appears in the saved pilot result: `jq '.result.plan.findings[0].evidence_ids' experiments/results/midpoint_v1_2_pilot/rem_daily_revenue_filter_drift/steward.json`. |
-| 3 | Saved pilot artifacts | If missing, restore the pilot artifacts before recording. |
-| 4 | Reads the change fixture built in `prep` (< 0.1 s) | If `.runs/change_daily_revenue_filter/` is missing, run `make fixture EPISODE=change_daily_revenue_filter` off camera (about 5 s), or show `experiments/results/midpoint_v1_2_pilot/change_daily_revenue_filter/steward_artifacts/input.diff`. |
-| 5 | Saved pilot artifacts | If missing, restore the pilot artifacts before recording. |
-| 6 | Reads saved pilot JSON (< 0.1 s) | No live dependency. |
-| 7 | Reads `summary.json` and runs `open` on two PNGs (< 0.1 s) | If Preview is slow, use the pre-opened windows (`DEMO_NO_OPEN=1 ./demo_commands.sh 7`). |
+**8 · 1:51–2:12 · Slide 8**
+> So the steward looks worse. But four of its five failures miss nothing; they fail only on
+> extras. Three of those extras are real problems the answer key misses. One, a metric the dbt
+> docs leave out, is the one example behind the gap to matched-Codex. Crediting real gaps gives
+> seven, seven, and eight.
+
+**9 · 2:12–2:29 · Slide 9**
+> The scorer has a hole too. Here, both Codex runs rewrote the catalog to accept the new
+> revenue definition before any review, and still passed: the scorer only checks that a patch
+> is allowed for the issue type. Failing them gives seven, six, seven.
+
+**10 · 2:29–2:38 · Slide 10**
+> With both errors fixed, the steward ties frontier-Codex and leads matched-Codex. With one run
+> on ten examples, small gaps may be noise.
+
+**11 · 2:38–2:52 · Slide 11**
+> Next: an eval loop that fixes the answer key, a scorer that fails patches skipping a review,
+> about fifty human-reviewed examples with several runs each, and frontier-Codex's selective
+> reading built into the steward's tools. Thanks!
+
+## Video description (paste when uploading)
+
+```text
+CS329Z midway demo (Alex Feng): agent tool interfaces for data catalogs. A catalog steward
+repairs drifted catalog metadata in a dbt + DuckDB project and reviews proposed changes. On ten
+hand-built examples it is compared with OpenAI's Codex CLI on the same model and on a frontier
+model. The video runs one example live and explains how answer-key and scorer errors understate
+the steward.
+
+Code, examples, saved runs and the midway report:
+https://github.com/alfenn/agentic-catalog-interface
+The demo's slides, script and commands are in writeups/midway_report/demo/.
+```
 
 ## Facts behind the narration (for checking, not for reading aloud)
 
-- **Segment 2:** `overrides.json` says "Revenue from all orders at one row per order date."; the SQL says `where status = 'completed'`. The steward's patch cites evidence `ev_parsed_sql_facts_05abec786ab2`, the same ID that `make evidence` prints.
-- **Segment 3:** pilot `rem_daily_revenue_filter_drift/steward.json`. The action is `patch` on `description`, with five evidence IDs. The verification checks are "catalog description equals expected value: True" and "dbt parse succeeds after patch: True", with status `verified`. The ledger is `steward_artifacts/steward_ledger.jsonl`. The segment reads the saved pilot result directly.
-- **Segment 4:** the episodes reset independently from their own fixtures. The second does not carry the first's patch forward, but its catalog description is byte-identical to the steward's patched value, and the script checks that equality before printing the note. The static condition ran dbt tests on this change with no failures and no finding.
-- **Segment 5:** action `propose / request_review`, status `proposed`, `patch_path` null, two unresolved questions. Episode success: true.
-- **Segment 6:** remediation: static missed, generic success (patch), steward success (patch). Change: static missed. Generic missed: one rejected reply that put several tool calls in one message, then a final answer with no findings, saying it could not assess the change. Steward success (propose), also after one rejected reply.
-- **Segment 7:** episode successes are static 4/10, generic 5/10 and steward 5/10. Found/false alarms are static 4/0, generic 5/4 and steward 9/6. The steward's false alarms include one on each clean control. The manual audit (`experiments/results/midpoint_v1_2_pilot/analysis.md`) classifies three of the steward's six extra findings, including both clean-control flags, as real fixture gaps the manifest did not anticipate; one is genuinely spurious and two are mislabels or duplicates of expected issues.
-- **Disclosure (included in the video description above):** the four model records for these two demo episodes in the pilot (generic and steward) are exact cache replays of the config-1.2.0 preliminary rerun, served by design because inputs and config were identical. Nothing was tuned in between. The total recorded model spend for the project is $0.0244.
+- **Beats 2 and 3:** report Sections 1 and 2.2 and Figure 1 (`../figures/architecture.pdf`,
+  reused on slide 3).
+- **Beat 4:** report Section 2.1: four remediation examples, four flawed changes, two clean
+  controls; success needs no extra, no missed problem, no failed verification and an allowed
+  action class. Conditions (Section 2.2): steward on `gpt-6-luna` at low effort; Codex CLI
+  0.167.0 on the same model and effort (matched) and on `gpt-6.1-sol` at medium effort
+  (frontier).
+- **Beat 5:** the change is `where status = 'completed'` to `where status != 'cancelled'` in
+  `models/daily_revenue.sql`. The catalog says "Completed-order revenue at one row per order
+  date; refunded and cancelled orders are excluded." The answer key
+  (`data/episodes/manifest.yaml`) expects `sql_metadata_drift` on `daily_revenue`; acceptable:
+  "request a semantic decision about whether refunded orders belong in revenue"; unsafe:
+  "silently redefine refunded orders as completed".
+- **Beat 6:** the saved steward run
+  (`experiments/results/midpoint_v1_2_pilot/change_daily_revenue_filter/steward.json`) reports
+  `sql_metadata_drift` on `daily_revenue` with action `propose`, asks "Should daily_revenue
+  exclude only cancelled orders, or also refunded orders?", and scores 1 found, 0 extra, 0
+  missed, success. A new live run is a fresh sample: if its output differs, describe what it
+  shows. The offline fallback (static checks) was run while preparing this script: no finding,
+  0/0/1, no success.
+- **Beat 7:** Table 1: steward 5/10, matched-Codex 6/10, frontier-Codex 7/10. `make report`
+  took about 12 s while preparing this script and writes Table 1 on page 3 of `report.pdf`.
+- **Beat 8:** report Section 3.3 and `experiments/results/codex_baseline_v1/analysis.md`. The
+  steward's failures: *Wrong customer-order grain* (0/1/1, a mislabel that matched-Codex shared),
+  *Legacy copy still active* (1/1/0, one spurious extra), *Grain changed, metadata not* (2/2/0,
+  a restatement and the undocumented `raw_order_items` seed), *Documented new model* (0/1/0,
+  the undocumented `raw_customers` seed, which all three runs flagged), *Documented revenue
+  metric* (0/1/0, the dbt model description omits the new metric; the one example behind the
+  gap to matched-Codex). Crediting the real-gap extras in every run gives 7/10, 7/10 and 8/10.
+- **Beat 9:** in `experiments/results/codex_baseline_v1/change_daily_revenue_filter/`, both
+  `workspace.diff` files rewrite the `daily_revenue` description to include refunded orders,
+  and both runs score as successes. The scorer checks only that an action class is allowed for
+  the issue type, not each example's acceptable actions (report Section 2.1). Failing those two
+  runs as well gives 7/10, 6/10 and 7/10.
+- **Beat 10:** the recount ties frontier-Codex; it does not beat it. Recall is 0.90 for the
+  steward against 0.70 and 0.80 (Table 1). Runs vary: matched-Codex passed *Revenue filter
+  changed* in two of three earlier tries (report Section 3.4).
+- **Beat 11:** report Section 3.4.
