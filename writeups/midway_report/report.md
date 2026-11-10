@@ -104,7 +104,7 @@ I draw on two runs indexed in [`experiments/README.md`](https://github.com/alfen
 
 # Assets {#sec:assets}
 
-**Repository:** `\url{https://github.com/alfenn/agentic-catalog-interface}`{=latex}: `README.md` (setup, reproduction), `src/catalog_steward/`, `data/` (fixture, examples), `experiments/` (indexed runs). Midpoint demo video: **[VIDEO URL TO BE ADDED]**.
+**Repository:** `\url{https://github.com/alfenn/agentic-catalog-interface}`{=latex}: `README.md` (setup, reproduction), `src/catalog_steward/`, `data/` (fixture, examples), `experiments/` (indexed runs).
 
 # Timeline (Summary of Progress: Next Steps and Risks) {#sec:timeline}
 
