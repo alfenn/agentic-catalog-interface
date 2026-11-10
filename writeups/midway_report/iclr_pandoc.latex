@@ -7,7 +7,9 @@ $-- renders it with --natbib. Keep this frame in sync with iclr_template.tex.
 \usepackage{hyperref}
 \usepackage{xurl}
 
-\hypersetup{hidelinks,
+\usepackage{xcolor}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black,
+  urlcolor={blue!70!black},
   pdftitle={$pdftitle$},
   pdfauthor={$for(author)$$author$$sep$, $endfor$}}
 
