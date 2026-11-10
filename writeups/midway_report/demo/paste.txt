@@ -1,0 +1,2 @@
+Trigger: change_review
+Asset scope: ["daily_revenue"]
