@@ -84,7 +84,7 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 
 ## Results Discussion and Observations {#sec:discussion}
 
-Linked example names open their run files in `experiments/results/codex_baseline_v1/` (the steward's are in `midpoint_v1_2_pilot/`), audited in [`analysis.md`](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/analysis.md).
+This section draws on two runs over all ten examples, indexed in [`experiments/README.md`](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/README.md): the steward's (`midpoint_v1_2_pilot`) and both Codex conditions' (`codex_baseline_v1`), each with one folder per example. The latter's [`analysis.md`](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/analysis.md) audits all three conditions.
 
 **Steward vs. matched-Codex.** With the same model, the steward's harness finds more: its bundle covers every table in scope, so only it caught the failing uniqueness claim ([*Grain changed, metadata not*](https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/change_customer_orders_grain)) and the stale legacy copy ([*Legacy copy still active*](https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/rem_legacy_model_lifecycle)). It also reports more extras, and one borderline extra ([*Documented revenue metric*](https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/clean_daily_revenue_metric)) decides the one-example gap. Both filed the wrong grain as SQL/metadata drift and patched it ([*Wrong customer-order grain*](https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/rem_customer_orders_wrong_grain)), so the error is the model's.
 
@@ -94,11 +94,11 @@ Linked example names open their run files in `experiments/results/codex_baseline
 
 ## Limitations and Next Steps {#sec:limits}
 
-**Evaluation limits.** Each cell is one run (matched-Codex passed the filter change in two of three earlier tries), and with ten examples a gap of one or two supports no ranking. AI agents built the examples and labels, and both examples meant to have no hygiene problems contain real gaps the labels miss (crediting them gives 7, 7 and 8 successes). The scorer checks neither evidence support nor action fit.
+**Evaluation limits.** Each cell is one run (matched-Codex passed the filter change in two of three earlier tries), and with ten examples a gap of one or two supports no ranking. AI agents built examples and labels; both examples meant to have no hygiene problems contain gaps the labels miss (crediting them: 7, 7 and 8 successes). The scorer checks neither claim support nor action fit.
 
 **How to improve the steward.** Frontier-Codex chose what to read and query and reported half the steward's extras, suggesting a stronger model filters its own context. The steward should filter for a weaker model instead: give it only the evidence each candidate issue needs, in change review flag only gaps the change introduces, and drop findings the model itself calls unestablished. The validator should check evidence content, not presence (the legacy-copy finding cited an empty diff), and an issue-type precedence should stop a grain problem being patched as drift.
 
-**Next steps** (Section\ \ref{sec:timeline})**.** About 50 human-reviewed examples, repeated runs, the steward on the frontier model (to separate model from harness), and scoring patches that accept unreviewed changes as unsafe.
+**Next steps.** About 50 human-reviewed examples, repeated runs, the steward on the frontier model (separating model from harness), and scoring patches that accept unreviewed changes as unsafe.
 
 **More baselines.** Pi, another open-source coding-agent harness, and standard data-hygiene automations (e.g., dbt-project-evaluator, Great Expectations) run in CI on every change.
 

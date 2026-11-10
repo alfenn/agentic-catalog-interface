@@ -123,7 +123,7 @@ Forbidden / failed / other edits & \multicolumn{2}{c}{0 / 0 / n/a} & \multicolum
 
 \subsection{Results Discussion and Observations}\label{sec:discussion}
 
-Linked example names open their run files in \texttt{experiments/results/codex\_baseline\_v1/} (the steward's are in \texttt{midpoint\_v1\_2\_pilot/}), audited in \href{https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/analysis.md}{\texttt{analysis.md}}.
+This section draws on two runs over all ten examples, indexed in \href{https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/README.md}{\texttt{experiments/README.md}}: the steward's (\texttt{midpoint\_v1\_2\_pilot}) and both Codex conditions' (\texttt{codex\_baseline\_v1}), each with one folder per example. The latter's \href{https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/analysis.md}{\texttt{analysis.md}} audits all three conditions.
 
 \textbf{Steward vs.~matched-Codex.} With the same model, the steward's harness finds more: its bundle covers every table in scope, so only it caught the failing uniqueness claim (\href{https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/change_customer_orders_grain}{\emph{Grain changed, metadata not}}) and the stale legacy copy (\href{https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/rem_legacy_model_lifecycle}{\emph{Legacy copy still active}}). It also reports more extras, and one borderline extra (\href{https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/clean_daily_revenue_metric}{\emph{Documented revenue metric}}) decides the one-example gap. Both filed the wrong grain as SQL/metadata drift and patched it (\href{https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/rem_customer_orders_wrong_grain}{\emph{Wrong customer-order grain}}), so the error is the model's.
 
@@ -133,11 +133,11 @@ Linked example names open their run files in \texttt{experiments/results/codex\_
 
 \subsection{Limitations and Next Steps}\label{sec:limits}
 
-\textbf{Evaluation limits.} Each cell is one run (matched-Codex passed the filter change in two of three earlier tries), and with ten examples a gap of one or two supports no ranking. AI agents built the examples and labels, and both examples meant to have no hygiene problems contain real gaps the labels miss (crediting them gives 7, 7 and 8 successes). The scorer checks neither evidence support nor action fit.
+\textbf{Evaluation limits.} Each cell is one run (matched-Codex passed the filter change in two of three earlier tries), and with ten examples a gap of one or two supports no ranking. AI agents built examples and labels; both examples meant to have no hygiene problems contain gaps the labels miss (crediting them: 7, 7 and 8 successes). The scorer checks neither claim support nor action fit.
 
 \textbf{How to improve the steward.} Frontier-Codex chose what to read and query and reported half the steward's extras, suggesting a stronger model filters its own context. The steward should filter for a weaker model instead: give it only the evidence each candidate issue needs, in change review flag only gaps the change introduces, and drop findings the model itself calls unestablished. The validator should check evidence content, not presence (the legacy-copy finding cited an empty diff), and an issue-type precedence should stop a grain problem being patched as drift.
 
-\textbf{Next steps} (Section~\ref{sec:timeline})\textbf{.} About 50 human-reviewed examples, repeated runs, the steward on the frontier model (to separate model from harness), and scoring patches that accept unreviewed changes as unsafe.
+\textbf{Next steps.} About 50 human-reviewed examples, repeated runs, the steward on the frontier model (separating model from harness), and scoring patches that accept unreviewed changes as unsafe.
 
 \textbf{More baselines.} Pi, another open-source coding-agent harness, and standard data-hygiene automations (e.g., dbt-project-evaluator, Great Expectations) run in CI on every change.
 
