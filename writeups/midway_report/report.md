@@ -47,7 +47,7 @@ In Table\ \ref{tbl:results}, the steward succeeds on 5/10 examples (precision 0.
 <!-- BEGIN GENERATED: results_table (make_figures.py; do not edit by hand) -->
 ```{=latex}
 \begin{table}[t]
-\caption{Per-example outcomes, one run each (success as defined in Section~\ref{sec:env}). TP: a reported problem matching an answer-key entry; FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no reported problem matches. Precision and recall are micro-averaged because per-example (macro) recall divides by the number of answer-key entries, which is zero for the \emph{clean control} examples. The last row counts forbidden action classes, failed verifications and edits outside the override file (n/a for the steward, which cannot make them).}
+\caption{Per-example outcomes, one run each. TP: a reported problem matching an answer-key entry; FP: an \emph{extra}, a reported problem matching none; FN: an answer-key entry no reported problem matches. Precision and recall are micro-averaged because per-example (macro) recall divides by the number of answer-key entries, which is zero for the \emph{clean control} examples. The last row counts forbidden actions, failed verifications and edits outside the override file (n/a for the steward).}
 \label{tbl:results}
 \centering\small
 \begin{tabular}{@{}lcccccc@{}}
@@ -90,31 +90,31 @@ I draw on two runs indexed in [`experiments/README.md`](https://github.com/alfen
 
 **Steward vs. frontier-Codex.** Frontier-Codex succeeds on 7/10 vs. 5/10, with higher precision (0.73 vs. 0.60) but lower recall (0.80 vs. 0.90). It succeeds on two examples the steward fails. The first, [*Wrong customer-order grain*](https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/rem_customer_orders_wrong_grain), is the stronger model's: matched-Codex, with the same harness but the steward's model, made the same labelling mistake, while frontier-Codex labelled it correctly ([frontier](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/rem_customer_orders_wrong_grain/codex-frontier.json) vs. [steward](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/midpoint_v1_2_pilot/rem_customer_orders_wrong_grain/steward.json)). The second is the eval error above. Its three failures come from three extras, which both other runs also made, and two misses, notably both problems only the steward caught: [the uniqueness claim](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/change_customer_orders_grain/codex-frontier.json) and [the legacy copy](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/rem_legacy_model_lifecycle/codex-frontier.json) (it noticed the legacy-copy problem but did not report it).
 
-**Why Codex scored higher.** Codex scored higher partly because the eval understates the steward. Success is all-or-nothing, and four of the steward's five failures miss nothing and fail only on extras, three of which are [real gaps the answer key misses](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/analysis.md); crediting them gives the steward and matched-Codex 7/10 each and frontier-Codex 8/10. The scorer also passed Codex for accepting an unreviewed change: in [*Revenue filter changed*](https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/change_daily_revenue_filter), a proposed change counts refunded orders as revenue, and both Codex runs edited the catalog to match before any approval. The scorer sees only a patch, which this issue type allows when a description is merely stale. A revised scorer should fail patches that skip a required review. Failing those two runs too would tie the steward with frontier-Codex (7/10) and put it ahead of matched-Codex (6/10).
+**Why Codex scored higher.** Codex scored higher partly because the eval understates the steward. Success is all-or-nothing: four of the steward's five failures miss nothing and fail only on extras, three of them [real gaps the answer key misses](https://github.com/alfenn/agentic-catalog-interface/blob/main/experiments/results/codex_baseline_v1/analysis.md); crediting them gives the steward and matched-Codex 7/10 each and frontier-Codex 8/10. The scorer also passed an unreviewed change by Codex: in [*Revenue filter changed*](https://github.com/alfenn/agentic-catalog-interface/tree/main/experiments/results/codex_baseline_v1/change_daily_revenue_filter), both Codex runs edited the catalog to match a change counting refunded orders as revenue, before approval. The scorer sees only a patch, which this issue type allows when a description is merely stale. A revised scorer should fail patches that skip a required review. Failing them too ties the steward with frontier-Codex (7/10), ahead of matched-Codex (6/10).
 
 ## Limitations and Next Steps {#sec:limits}
 
-**Few, single runs.** Runs vary (matched-Codex passed *Revenue filter changed* in two of three earlier tries), so small gaps may be noise. *Next:* about 50 human-reviewed examples, several runs each.
+**Few, single runs.** Each result is a single run, and runs vary: matched-Codex passed one example in two of three earlier tries, so a gap of one or two successes may be noise. *Things I want to try next:* expand the evaluation set from 10 to 50 examples and run each several times without caching.
 
-**Eval errors.** AI-built labels miss real problems (*Documented revenue metric*), and the scorer passed unreviewed patches (*Revenue filter changed*); both understate the steward. *Next:* an eval loop that reviews each extra and fixes the answer key when it is real, and a scorer that fails such patches.
+**Incomplete answer key.** The answer key is not comprehensive enough: it counts some extras as failures when they are in fact real problems, which deflates the steward's performance. *Things I want to try next:* an eval loop that reviews each extra and fixes the answer key when it is wrong.
 
-**Steward vs. a stronger model.** Frontier-Codex beat the steward harness, and its traces suggest its selective reading helped: it chose what to read and reported half the steward's extras, while the steward shows its weaker model every in-scope table. *Next:* build that selectivity into the tools the harness gives the weaker model, so it sees only the evidence each candidate issue needs.
+**Steward vs. a stronger model.** Frontier-Codex beat the steward harness, and its traces suggest its selective reading helped: it chose what to read and reported half as many extras as the steward, which shows its model every in-scope table. *Things I want to try next:* build that selectivity into the harness's tools for the weaker model, so it sees only the evidence each candidate issue needs.
 
-**Narrow comparison.** The steward never ran on the frontier model, so its harness is untested on a stronger model, and Codex is the only baseline. *Next:* the steward on the frontier model, the Pi harness, and hygiene automations (dbt-project-evaluator, Great Expectations) run in CI.
+**Narrow comparison.** The steward has not run on the frontier model, so its harness is untested with a stronger model, and Codex is the only baseline. *Things I want to try next:* run the steward with a frontier model, and use the Pi harness alongside Codex as a further point of reference. I also want to compare against non-agentic workflows such as dbt-project-evaluator and Great Expectations.
 
 # Assets {#sec:assets}
 
-**Repository:** `\url{https://github.com/alfenn/agentic-catalog-interface}`{=latex} [@feng2026repo]: `README.md` (setup, reproduction), `src/catalog_steward/`, `data/` (fixture, examples), `experiments/` (indexed runs). Midpoint demo video: **[VIDEO URL TO BE ADDED]**.
+**Repository:** `\url{https://github.com/alfenn/agentic-catalog-interface}`{=latex}: `README.md` (setup, reproduction), `src/catalog_steward/`, `data/` (fixture, examples), `experiments/` (indexed runs). Midpoint demo video: **[VIDEO URL TO BE ADDED]**.
 
 # Timeline (Summary of Progress: Next Steps and Risks) {#sec:timeline}
 
-**Milestones.** Demo Day is December 9 and the final report December 11; the rest are my targets.
+Each milestone addresses a next step from Section\ \ref{sec:limits}, starting with the evaluation fixes. Demo Day (December 9) and the final report (December 11) are fixed; other dates are my targets.
 
-- *By November 13:* a revised example set, locked before new runs: documented seeds, truly clean controls, a label-independent issue-type precedence rule, human label review.
-- *By November 20:* postcondition-based success and unsafe-action checks that flag review patches accepting a change; real per-issue patch verification; a batching-robust protocol.
-- *By December 4:* repeated samples, ablations and about 50 audited examples.
+- *By November 20:* I will build the eval loop that reviews each extra and corrects the answer key when it is real, and revise the scorer so that patches skipping a required review fail.
+- *By November 27:* I will use 50 examples and run each setup several times without caching.
+- *By December 4:* I will run the steward with a frontier model, add frontier-Codex's selective reading to its tools, and rerun all conditions on the 50 examples.
 
-**Risks and mitigations.** *Scope growth:* a contract held at five issue types. *Ambiguous labels:* documented seeds, a precedence rule, the review loop. *Unsupported claims:* claim--evidence checks.
+If time remains, I will add the Pi harness and a non-agentic baseline. The main risk is that reviewing 50 examples takes longer than planned; I would then report repeated runs on fewer examples.
 
 ```{=latex}
 \bibliography{references}

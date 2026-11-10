@@ -561,12 +561,12 @@ def results_table(
     missing = any(cell.status == "missing" for cell in cells.values())
     lines = [
         r"\begin{table}[t]",
-        r"\caption{Per-example outcomes, one run each (success as defined in Section~\ref{sec:env}). TP: a reported "
+        r"\caption{Per-example outcomes, one run each. TP: a reported "
         r"problem matching an answer-key entry; FP: an \emph{extra}, a reported problem matching none; FN: an "
         r"answer-key entry no reported problem matches. Precision and recall are micro-averaged because per-example (macro) recall divides by "
         r"the number of answer-key entries, which is zero for the \emph{clean control} examples. "
-        r"The last row counts forbidden action classes, failed verifications and edits outside the override "
-        r"file (n/a for the steward, which cannot make them)."
+        r"The last row counts forbidden actions, failed verifications and edits outside the override file "
+        r"(n/a for the steward)."
         + (" A dash is a run not yet recorded." if missing else "") + "}",
         r"\label{tbl:results}",
         r"\centering\small",
