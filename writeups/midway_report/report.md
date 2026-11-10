@@ -106,7 +106,7 @@ I draw on two runs indexed in [`experiments/README.md`](https://github.com/alfen
 
 **Repository:** `\url{https://github.com/alfenn/agentic-catalog-interface}`{=latex}: `README.md` (setup, reproduction), `src/catalog_steward/`, `data/` (fixture, examples), `experiments/` (indexed runs).
 
-# Timeline (Summary of Progress: Next Steps and Risks) {#sec:timeline}
+# Timeline (Summary of Progress: Next Steps) {#sec:timeline}
 
 Each milestone addresses a next step from Section\ \ref{sec:limits}, starting with the evaluation fixes. Demo Day (December 9) and the final report (December 11) are fixed; other dates are my targets.
 
