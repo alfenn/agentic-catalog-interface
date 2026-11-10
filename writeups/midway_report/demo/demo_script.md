@@ -2,7 +2,7 @@
 
 A three-minute video in three parts: the project, the evaluation (with one example run
 live), and what the results mean. It follows the midway report (`../report.md`): every
-number below is from its Table 1 and Section 3.3.
+result below is from its Table 1 and Section 3.
 
 - **Length:** about 2:50 of narration, under the 3:00 limit in `../requirements/video.md`.
   About 420 words at roughly 150 words per minute.
@@ -46,10 +46,11 @@ logged in; it is not part of the demo.
 2. Open `slides.pdf` full screen (Preview: View > Slideshow).
 3. Open a terminal at the repository root with a large font (20 pt or more) and a clean
    prompt. Do not show `.env`.
-4. Rehearse beat 6 once off camera. A live run builds the example (about 5 s) and then waits
+4. Rehearse beat 6 once off camera (another paid call). A live run builds the example (about 5 s) and then waits
    for the model; the evaluation prints only its output folder at the end, and the `jq` line
    after it prints the finding and score. If the wait is long, cut it in editing.
-5. After recording, run `writeups/midway_report/demo/demo_commands.sh tidy`. It restores the
+5. Beat 7's `make report` takes about 12 s: start `table` as you begin speaking.
+6. After recording, run `writeups/midway_report/demo/demo_commands.sh tidy`. It restores the
    PDFs that `make report` and the slide build rewrite with timestamp-only changes, and removes
    the scratch runs under `.runs/`.
 
@@ -124,12 +125,12 @@ scorer counts a miss. The steward's saved run on this example is the one on the 
 
 **8 · 1:51–2:12 · Slide 8**
 > So the steward looks worse. But four of its five failures miss nothing; they fail only on
-> extras. Three of those extras are real problems the answer key misses. One, a metric the dbt
-> docs leave out, is the one example behind the gap to matched-Codex. Crediting real gaps gives
-> seven, seven, and eight.
+> extras. Three of those extras are real problems the answer key misses. One of them, a metric
+> the dbt docs leave out, is the only example behind the gap to matched-Codex. Crediting real
+> gaps gives seven, seven, and eight.
 
 **9 · 2:12–2:29 · Slide 9**
-> The scorer has a hole too. Here, both Codex runs rewrote the catalog to accept the new
+> The scorer has a hole too. On this example, both Codex runs rewrote the catalog to accept the new
 > revenue definition before any review, and still passed: the scorer only checks that a patch
 > is allowed for the issue type. Failing them gives seven, six, seven.
 

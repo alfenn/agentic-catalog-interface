@@ -28,15 +28,25 @@ preparing, no cost figures, the recount ties frontier-Codex and does not beat it
   saved results for the walkthrough example; check CLI flags with `--help` and the code.
 - [x] Check offline that `make report` and `make fixture EPISODE=change_daily_revenue_filter`
   work, and note that `make report` rewrites the three PDFs with timestamp-only changes.
-- [ ] Write `demo_commands.sh` from scratch: before-recording setup, part 2 commands (diff,
+- [x] Write `demo_commands.sh` from scratch: before-recording setup, part 2 commands (diff,
   catalog text, answer key, live run, score, Codex's saved patch, report table), each with a
   one-line comment; mark the steps that need a key or a Codex login.
-- [ ] Run every offline command in it; check the live commands' flags against the code.
-- [ ] Write `slides.tex` (sparse, about ten slides, one per beat) and build `slides.pdf`.
-- [ ] Render every page to PNG and inspect it; fix overflow, clipping or small text.
-- [ ] Write `demo_script.md` from scratch: three parts with timings under 3:00, word-for-word
+- [x] Run every offline command in it; check the live commands' flags against the code.
+- [x] Write `slides.tex` (sparse, about ten slides, one per beat) and build `slides.pdf`.
+- [x] Render every page to PNG and inspect it; fix overflow, clipping or small text.
+- [x] Write `demo_script.md` from scratch: three parts with timings under 3:00, word-for-word
   narration, an on-screen cue (slide and command) per beat, the slide build command, and a
   facts list tying each number to the report.
-- [ ] Check every number in the script and slides against the report and saved results; check
+- [x] Check every number in the script and slides against the report and saved results; check
   that no file uses the word the brief bans and none gives cost figures.
-- [ ] Leave the worktree clean (restore PDFs rewritten by `make report`), commit, report done.
+- [x] Leave the worktree clean (restore PDFs rewritten by `make report`), commit, report done.
+
+## Notes for review
+
+- The live command was not run while preparing this (it needs `OPENROUTER_API_KEY` and makes a
+  paid call). Its flags and result path were checked against `evaluation.py` and `--help`, its
+  `jq` filter was run on the saved steward result, and its no-key exit was checked.
+- `docs/midpoint_demo.md` and the README's pointer to it still describe the old demo; they are
+  outside this folder and were left unchanged.
+- `figures/` here holds the old pilot charts; nothing in the new demo uses them, and they were
+  left in place.

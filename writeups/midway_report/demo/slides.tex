@@ -152,12 +152,12 @@
   \begin{terminal}
 \$ make fixture EPISODE=change\_daily\_revenue\_filter\\[0.3em]
 \$ uv run python -m catalog\_steward.evaluation \textbackslash\\
-\ \ \ \ -{}-conditions steward -{}-live \textbackslash\\
-\ \ \ \ -{}-episodes change\_daily\_revenue\_filter -{}-output .runs/demo-live
+\hspace*{2em}-{}-conditions steward -{}-live \textbackslash\\
+\hspace*{2em}-{}-episodes change\_daily\_revenue\_filter -{}-output .runs/demo-live
   \end{terminal}
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
-      \textbf{Watch for}
+      \textbf{The saved run shows}
       \begin{itemize}
         \item finding: SQL/metadata drift on \texttt{daily\_revenue}
         \item action: \textbf{propose}, no patch
