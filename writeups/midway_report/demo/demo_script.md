@@ -38,7 +38,7 @@ compared.
 
 | Time | Command | What happens |
 |---|---|---|
-| 0:00–0:30 | `demo_commands.sh steward` (already waiting), then paste `paste.txt` | Live run: about 7–15 s from paste to result. |
+| 0:00–0:30 | `demo_commands.sh steward` (already waiting), then type `Trigger: change_review` ↵ and `Asset scope: ["daily_revenue"]` ↵ | Live run: about 7–15 s from paste to result. |
 | 0:30–1:00 | `demo_commands.sh codex` | The saved Codex run, printed at once. |
 | 1:00–2:00 | `demo_commands.sh score`, press Enter at each `↵` | Answer key, then each run's matches, action check and verdict, then the actions panel. |
 | 2:00–3:00 | `demo_commands.sh compare` | The two runs side by side. |
@@ -49,7 +49,27 @@ After recording: `demo_commands.sh tidy` removes the live results under `.runs/d
 
 Short prompts, not a script. Say it your own way.
 
-**0:00 · Steward, live.** Paste the two lines.
+**0:00 · Steward, live.** Before 0:00, in the terminal at the repository root, run:
+
+```bash
+writeups/midway_report/demo/demo_commands.sh steward
+```
+
+It builds the example, then stops at a green `steward>` prompt. At that prompt, type (or
+paste) the first line and press Enter:
+
+```text
+Trigger: change_review
+```
+
+The prompt changes to `...`. Type the second line and press Enter:
+
+```text
+Asset scope: ["daily_revenue"]
+```
+
+The run starts as soon as both lines are in; there is nothing else to type. (Pasting both
+lines at once from `paste.txt` works too.)
 - "This is the steward running live. All it takes is the trigger and which table to look at."
 - As the lines stream in: "First the harness gathers the evidence itself: the catalog entry,
   the SQL, the parsed filters, lineage, a small data profile and the diff. Each piece gets
@@ -59,7 +79,13 @@ Short prompts, not a script. Say it your own way.
   SQL now includes them. It didn't edit anything. It asks whether refunds belong in
   revenue."
 
-**0:30 · Codex, saved run.**
+**0:30 · Codex, saved run.** Run:
+
+```bash
+writeups/midway_report/demo/demo_commands.sh codex
+```
+
+Nothing to type; it prints the saved run at once.
 - "Here's Codex on the same model, same task, same files. This is the saved run from the
   baseline, not live; it took about a minute."
 - Point at the commands: "It explores with shell commands: cat, ripgrep, some Python against
@@ -67,7 +93,13 @@ Short prompts, not a script. Say it your own way.
 - Point at the edit: "And here it rewrote the catalog description to say refunds are
   included. Nobody asked whether that's right."
 
-**1:00 · Scoring.** Press Enter through it.
+**1:00 · Scoring.** Run:
+
+```bash
+writeups/midway_report/demo/demo_commands.sh score
+```
+
+It pauses at each `↵`; press Enter to move to the next step.
 - "The scorer checks the issue type and the table against the answer key. Both runs found the
   one problem, no extras, nothing missed."
 - "Then it checks the action is allowed for that issue type. Patch is allowed for this
@@ -78,7 +110,13 @@ Short prompts, not a script. Say it your own way.
 - "The proposed rule from the report, which isn't the scorer we used: fail a patch when the
   answer key wants a review. Under it, Codex fails and the steward passes."
 
-**2:00 · Side by side.**
+**2:00 · Side by side.** Run:
+
+```bash
+writeups/midway_report/demo/demo_commands.sh compare
+```
+
+Nothing to type; it prints the two runs side by side.
 - Looked at: "The steward got a fixed evidence bundle; Codex ran ten commands to find the
   same files."
 - Action: "Propose versus patch."
